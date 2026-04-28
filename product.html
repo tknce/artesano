@@ -4,7 +4,25 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>상품 상세 — CROCINI 아르테사노</title>
-  <meta name="description" content="CROCINI 상품 상세 페이지" />
+  <meta name="description" content="CROCINI 컬렉션의 프리미엄 가죽 핸드백 상세 정보. 40년 장인의 손으로 완성된 크로커다일, 오스트리치, 파이톤 작품." />
+  <meta name="keywords" content="CROCINI, 아르테사노, 가죽 가방, 크로커다일, 오스트리치, 파이톤" />
+  <meta name="theme-color" content="#1a1a1a" />
+
+  <!-- Open Graph (SNS 크롤러는 JS 실행 안 함 → 정적 fallback) -->
+  <meta property="og:type"        content="product" />
+  <meta property="og:site_name"   content="CROCINI 아르테사노" />
+  <meta property="og:title"       content="CROCINI 컬렉션 — 프리미엄 가죽 핸드백" id="ogTitle" />
+  <meta property="og:description" content="40년 장인의 손으로 완성된 핸드메이드 가죽 작품." id="ogDescription" />
+  <meta property="og:image"       content="https://images.unsplash.com/photo-1473221326025-9183b464bb7e?auto=format&fit=crop&w=1200&h=630&q=80" id="ogImage" />
+  <meta property="og:image:width"  content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:locale"      content="ko_KR" />
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card"        content="summary_large_image" />
+  <meta name="twitter:title"       content="CROCINI 컬렉션" id="twTitle" />
+  <meta name="twitter:description" content="40년 장인의 손으로 완성된 핸드메이드 가죽 작품." id="twDescription" />
+  <meta name="twitter:image"       content="https://images.unsplash.com/photo-1473221326025-9183b464bb7e?auto=format&fit=crop&w=1200&h=630&q=80" id="twImage" />
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -226,7 +244,7 @@
     }
 
     /* 반응형 */
-    @media (max-width: 900px) {
+    @media (max-width: 768px) {
       .detail-grid {
         grid-template-columns: 1fr;
         gap: 40px;
@@ -236,6 +254,9 @@
       }
       .product-detail {
         padding: 120px 0 80px;
+      }
+      .detail-name {
+        font-size: 2rem;
       }
     }
     @media (max-width: 480px) {
@@ -425,8 +446,19 @@
 
         const p = await res.json(); // 상품 객체 1개
 
-        /* 페이지 타이틀 업데이트 */
+        /* 페이지 타이틀 + 메타 업데이트 (브라우저 표시용 — SNS 크롤러는 정적 fallback 사용) */
         document.title = `${p.name} — CROCINI`;
+        const desc = `${p.name}${p.option_desc ? ' · ' + p.option_desc : ''} — CROCINI 아르테사노 컬렉션`;
+        document.querySelector('meta[name="description"]')?.setAttribute('content', desc);
+        document.getElementById('ogTitle')?.setAttribute('content', `${p.name} — CROCINI`);
+        document.getElementById('ogDescription')?.setAttribute('content', desc);
+        document.getElementById('twTitle')?.setAttribute('content', `${p.name} — CROCINI`);
+        document.getElementById('twDescription')?.setAttribute('content', desc);
+        if (p.image_url) {
+          const fullImg = resolveImageUrl(p.image_url);
+          document.getElementById('ogImage')?.setAttribute('content', fullImg);
+          document.getElementById('twImage')?.setAttribute('content', fullImg);
+        }
 
         /* ── 이미지 ── */
         const img = document.getElementById('detailImage');

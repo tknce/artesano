@@ -213,6 +213,7 @@ ul  { list-style: none; }
 .hero {
   position: relative;
   height: 100vh;
+  height: 100svh;       /* iOS Safari 등 — 주소창 변동에 따른 잘림 방지 */
   min-height: 640px;
   width: 100%;
   overflow: hidden;
@@ -581,6 +582,7 @@ ul  { list-style: none; }
 .fullbleed {
   position: relative;
   height: 90vh;
+  height: 90svh;
   min-height: 600px;
   overflow: hidden;
   display: flex;
@@ -1060,6 +1062,12 @@ ul  { list-style: none; }
     flex-direction: column;
     align-items: flex-start;
     gap: 16px;
+  }
+
+  /* iOS Safari 자동 줌 방지 — 입력란 16px 이상 강제 */
+  .inquiry-field input,
+  .inquiry-field textarea {
+    font-size: 16px;
   }
 
   /* 푸터 — 4컬럼 → 1컬럼 */
@@ -1782,4 +1790,18 @@ body.shop-page {
     align-items: flex-start;
     gap: 16px;
   }
+
+  /* iOS Safari 자동 줌 방지 */
+  .custom-field input,
+  .custom-field select,
+  .custom-field textarea {
+    font-size: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  /* 매우 작은 화면 — 히어로/모델카드 추가 축소 */
+  .custom-hero-title { font-size: 42px; }
+  .custom-form { gap: 32px; }
+  .process-num { font-size: 32px; }
 }
