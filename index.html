@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <!-- ==========================================================
+       문서 기본 설정
+       ========================================================== -->
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CROCINI 아르테사노 — Be One of a Kind</title>
+  <meta
+    name="description"
+    content="CROCINI(아르테사노) — 40년 경력 장인의 손으로 완성하는 한국 프리미엄 가죽 브랜드. 크로커다일, 오스트리치, 파이톤 핸드메이드 컬렉션."
+  />
+
+  <!-- ==========================================================
+       Google Fonts
+       - Cormorant Garamond: 헤딩용 (Playfair보다 더 곡선이 우아함)
+       - Inter: 본문용
+       ========================================================== -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap"
+    rel="stylesheet"
+  />
+
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+
+  <!-- ==========================================================
+       1) 네비게이션 바 (상단 고정)
+       ========================================================== -->
+  <header class="navbar" id="navbar">
+    <div class="nav-inner">
+      <a href="#" class="logo">CROCINI</a>
+
+      <nav class="nav-menu" id="navMenu">
+        <a href="#story">STORY</a>
+        <a href="#crocodile">CROCODILE</a>
+        <a href="#ostrich">OSTRICH</a>
+        <a href="#python">PYTHON</a>
+        <a href="shop.html">SHOP</a>
+        <a href="#contact">CONTACT</a>
+      </nav>
+
+      <button class="hamburger" id="hamburger" aria-label="메뉴 열기">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+  </header>
+
+
+  <!-- ==========================================================
+       2) 히어로 — 거대한 타이포 + 풀스크린 가죽 배경
+       ========================================================== -->
+  <section class="hero">
+    <!-- 배경 이미지 (안 뜨면 다른 Unsplash URL로 교체) -->
+    <div
+      class="hero-bg"
+      style="background-image: url('https://images.unsplash.com/photo-1473221326025-9183b464bb7e?auto=format&fit=crop&w=1920&q=80');"
+    ></div>
+    <div class="hero-overlay"></div>
+
+    <div class="hero-content">
+      <p class="hero-eyebrow fade-up" data-delay="0">
+        PREMIUM EXOTIC LEATHER · SEOUL
+      </p>
+      <h1 class="hero-title fade-up" data-delay="200">
+        BE ONE<br />OF A KIND
+      </h1>
+      <p class="hero-tagline fade-up" data-delay="500">
+        Handcrafted by Master Artisans of 40 Years
+      </p>
+    </div>
+
+    <a href="#marquee" class="scroll-indicator" aria-label="아래로 스크롤">
+      <span class="scroll-line"></span>
+      <span class="scroll-text">SCROLL</span>
+    </a>
+  </section>
+
+
+  <!-- ==========================================================
+       3) 마퀴(Marquee) — 좌우로 무한 흐르는 텍스트
+       - 같은 콘텐츠를 두 번 두면 자연스럽게 이어짐
+       ========================================================== -->
+  <section class="marquee" id="marquee">
+    <div class="marquee-track">
+      <!-- 첫 번째 세트 -->
+      <span>CROCODILE</span><span class="dot">●</span>
+      <span>OSTRICH</span><span class="dot">●</span>
+      <span>PYTHON</span><span class="dot">●</span>
+      <span>HANDCRAFTED IN SEOUL</span><span class="dot">●</span>
+      <!-- 두 번째 세트 (애니메이션 이음새 자연스럽게) -->
+      <span>CROCODILE</span><span class="dot">●</span>
+      <span>OSTRICH</span><span class="dot">●</span>
+      <span>PYTHON</span><span class="dot">●</span>
+      <span>HANDCRAFTED IN SEOUL</span><span class="dot">●</span>
+    </div>
+  </section>
+
+
+  <!-- ==========================================================
+       4) 스탯 섹션 — 큰 숫자 3개 (편집 디자인 트렌드)
+       ========================================================== -->
+  <section class="stats" id="story">
+    <div class="container">
+      <div class="stats-grid">
+
+        <div class="stat reveal">
+          <!-- data-target = 카운트업 목표값, data-suffix = 숫자 뒤에 붙는 기호 -->
+          <span class="stat-num" data-target="40" data-suffix="">0</span>
+          <span class="stat-label">YEARS OF CRAFT</span>
+          <p class="stat-desc">월드클래스 장인의 40년 경력</p>
+        </div>
+
+        <div class="stat reveal">
+          <span class="stat-num" data-target="100" data-suffix="%">0</span>
+          <span class="stat-label">HANDMADE IN SEOUL</span>
+          <p class="stat-desc">한 점 한 점, 손으로 완성</p>
+        </div>
+
+        <div class="stat reveal">
+          <span class="stat-num" data-target="40" data-suffix="+">0</span>
+          <span class="stat-label">COLOR ATELIER</span>
+          <p class="stat-desc">맞춤 컬러 커스터마이징</p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ==========================================================
+       5) 머티리얼 섹션 — 3종 시그니처 가죽 (비대칭 그리드)
+       ========================================================== -->
+  <section class="materials">
+    <div class="container">
+
+      <div class="section-header reveal">
+        <p class="section-eyebrow">OUR MATERIALS</p>
+        <h2 class="section-title">Three Signature<br />Leathers</h2>
+        <p class="section-desc">
+          자연이 만든 가장 귀한 소재만을 엄선합니다.<br />
+          한 장의 가죽에서 단 몇 점만 탄생하는 시그니처 컬렉션.
+        </p>
+      </div>
+
+      <!-- 비대칭 그리드: 가운데 카드가 살짝 아래로 내려가도록 CSS에서 처리 -->
+      <div class="materials-grid">
+
+        <!-- CROCODILE -->
+        <a href="#" class="material-card reveal" id="crocodile">
+          <div class="card-image">
+            <img
+              src="https://images.unsplash.com/photo-1584917865442-de89df76afd3?auto=format&fit=crop&w=900&q=80"
+              alt="Crocodile leather collection"
+            />
+            <span class="card-number">01</span>
+          </div>
+          <div class="card-info">
+            <h3 class="card-title">Crocodile</h3>
+            <p class="card-desc">
+              아르테사노의 시그니처.<br />
+              세월이 흐를수록 깊어지는 광택.
+            </p>
+            <span class="card-link">EXPLORE →</span>
+          </div>
+        </a>
+
+        <!-- OSTRICH -->
+        <a href="#" class="material-card reveal" id="ostrich">
+          <div class="card-image">
+            <img
+              src="https://images.unsplash.com/photo-1591348122449-02525d70379b?auto=format&fit=crop&w=900&q=80"
+              alt="Ostrich leather collection"
+            />
+            <span class="card-number">02</span>
+          </div>
+          <div class="card-info">
+            <h3 class="card-title">Ostrich</h3>
+            <p class="card-desc">
+              부드러우면서도 강인한 텍스처.<br />
+              한 장에서 단 몇 점만 탄생합니다.
+            </p>
+            <span class="card-link">EXPLORE →</span>
+          </div>
+        </a>
+
+        <!-- PYTHON -->
+        <a href="custom-order.html" class="material-card reveal" id="python">
+          <div class="card-image">
+            <img
+              src="https://images.unsplash.com/photo-1627123424574-724758594e93?auto=format&fit=crop&w=900&q=80"
+              alt="Python leather collection"
+            />
+            <span class="card-number">03</span>
+          </div>
+          <div class="card-info">
+            <h3 class="card-title">Python</h3>
+            <p class="card-desc">
+              자연이 만든 단 하나의 패턴.<br />
+              세상에 같은 것은 없습니다.
+            </p>
+            <span class="card-link">EXPLORE →</span>
+          </div>
+        </a>
+
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ==========================================================
+       6) 헤리티지 섹션 — 한국 장인 스토리 (실제 브랜드 정보)
+       ========================================================== -->
+  <section class="heritage">
+    <div class="container heritage-inner">
+
+      <div class="heritage-image reveal">
+        <img
+          src="https://images.unsplash.com/photo-1452860606245-08befc0ff44b?auto=format&fit=crop&w=900&q=80"
+          alt="Master artisan crafting leather"
+        />
+      </div>
+
+      <div class="heritage-text reveal">
+        <p class="section-eyebrow">HERITAGE</p>
+        <h2 class="section-title">Be One of a Kind<br />With Us</h2>
+        <p class="heritage-desc">
+          CROCINI의 모든 제품은 40년 경력의 월드클래스 장인의 손에서 탄생합니다.<br /><br />
+          서울 문정동 아틀리에에서 선별된 최상급 가죽,
+          시간을 다루는 장인 정신,
+          그리고 당신만을 위한 단 하나의 디테일이 만나
+          하나의 작품으로 완성됩니다.
+        </p>
+        <a href="#contact" class="btn-line">DISCOVER OUR ATELIER</a>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ==========================================================
+       7) 풀블리드 장인정신 섹션 — 큰 이미지 + 텍스트 오버레이
+       ========================================================== -->
+  <section class="fullbleed">
+    <div
+      class="fullbleed-bg"
+      style="background-image: url('https://images.unsplash.com/photo-1624222247344-550fb60583dc?auto=format&fit=crop&w=1920&q=80');"
+    ></div>
+    <div class="fullbleed-overlay"></div>
+
+    <div class="fullbleed-content reveal">
+      <p class="section-eyebrow gold">CRAFTSMANSHIP</p>
+      <h2 class="fullbleed-title">
+        Every Stitch<br /><em>Tells a Story</em>
+      </h2>
+      <p class="fullbleed-desc">
+        한 점의 가방이 완성되기까지 평균 80시간.<br />
+        그것이 우리가 시간을 다루는 방식입니다.
+      </p>
+    </div>
+  </section>
+
+
+  <!-- ==========================================================
+       8) 컨택트 섹션 — 실제 CROCINI 연락처
+       ========================================================== -->
+  <section class="contact" id="contact">
+    <div class="container">
+
+      <div class="section-header reveal">
+        <p class="section-eyebrow">VISIT US</p>
+        <h2 class="section-title">Atelier Seoul</h2>
+      </div>
+
+      <div class="contact-grid">
+
+        <div class="contact-col reveal">
+          <h4 class="contact-heading">ATELIER</h4>
+          <p class="contact-text">
+            서울특별시 송파구 법원로11길 7<br />
+            현대지식산업센터1차 C동 512호
+          </p>
+        </div>
+
+        <div class="contact-col reveal">
+          <h4 class="contact-heading">INQUIRY</h4>
+          <p class="contact-text">
+            070-8875-0028<br />
+            010-8708-3261
+          </p>
+        </div>
+
+        <div class="contact-col reveal">
+          <h4 class="contact-heading">OPEN</h4>
+          <p class="contact-text">
+            연중무휴<br />
+            365일 24시간 상담
+          </p>
+        </div>
+
+      </div>
+
+      <!-- 빠른 연결 버튼 — 전화 / 카카오톡 / 폼 -->
+      <div class="contact-actions reveal">
+        <a href="tel:010-8708-3261" class="contact-action">
+          <span class="contact-action-label">CALL</span>
+          <span class="contact-action-text">전화 걸기</span>
+        </a>
+        <!-- TODO: 실제 카카오 채널 또는 오픈채팅 URL로 교체 -->
+        <a href="https://pf.kakao.com/_artesano" target="_blank" rel="noopener" class="contact-action">
+          <span class="contact-action-label">KAKAO</span>
+          <span class="contact-action-text">카카오톡 문의</span>
+        </a>
+        <a href="#inquiry-form" class="contact-action">
+          <span class="contact-action-label">FORM</span>
+          <span class="contact-action-text">온라인 문의</span>
+        </a>
+      </div>
+
+      <!-- 온라인 문의 폼 -->
+      <div class="inquiry-form-wrap reveal" id="inquiry-form">
+        <div class="inquiry-form-header">
+          <p class="section-eyebrow">ONLINE INQUIRY</p>
+          <h3 class="inquiry-form-title">문의 남기기</h3>
+          <p class="inquiry-form-desc">
+            아래 양식을 작성해주시면 영업일 기준 1일 이내 답변드립니다.
+          </p>
+        </div>
+
+        <form class="inquiry-form" id="inquiryForm" novalidate>
+          <div class="inquiry-row">
+            <label class="inquiry-field">
+              <span class="inquiry-label">이름 <em>*</em></span>
+              <input type="text" name="name" maxlength="100" required />
+            </label>
+            <label class="inquiry-field">
+              <span class="inquiry-label">연락처 <em>*</em></span>
+              <input type="tel" name="phone" maxlength="50" placeholder="010-0000-0000" required />
+            </label>
+          </div>
+
+          <label class="inquiry-field">
+            <span class="inquiry-label">이메일</span>
+            <input type="email" name="email" maxlength="255" placeholder="(선택)" />
+          </label>
+
+          <label class="inquiry-field">
+            <span class="inquiry-label">문의 내용 <em>*</em></span>
+            <textarea name="message" rows="5" required placeholder="문의하실 내용을 자세히 적어주세요."></textarea>
+          </label>
+
+          <div class="inquiry-submit-row">
+            <p class="inquiry-status" id="inquiryStatus" hidden></p>
+            <button type="submit" class="btn-line" id="inquirySubmit">문의하기</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ==========================================================
+       9) 푸터
+       ========================================================== -->
+  <footer class="footer">
+    <div class="container footer-inner">
+
+      <div class="footer-col footer-brand">
+        <h4 class="footer-logo">CROCINI</h4>
+        <p class="footer-slogan">Be One of a Kind With Us.</p>
+      </div>
+
+      <div class="footer-col">
+        <h5 class="footer-heading">EXPLORE</h5>
+        <ul class="footer-links">
+          <li><a href="#story">Story</a></li>
+          <li><a href="#crocodile">Crocodile</a></li>
+          <li><a href="#ostrich">Ostrich</a></li>
+          <li><a href="#python">Python</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h5 class="footer-heading">FOLLOW</h5>
+        <ul class="footer-links">
+          <li><a href="https://instagram.com/artesano_seoul" target="_blank" rel="noopener">Instagram @artesano_seoul</a></li>
+          <li><a href="#" target="_blank" rel="noopener">KakaoTalk @artesano</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h5 class="footer-heading">COMPANY</h5>
+        <p class="footer-text">
+          대표 김병준<br />
+          사업자등록번호 301-27-53386<br />
+          통신판매신고 2009-5570031-30-2-00006
+        </p>
+      </div>
+
+    </div>
+
+    <div class="footer-bottom">
+      <p>&copy; 2026 CROCINI™. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>

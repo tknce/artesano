@@ -1,0 +1,9 @@
+# .env 파일은 비밀번호가 들어있으므로 절대 Git에 올리면 안 됨
+.env
+
+# Node 패키지 폴더 (npm install 하면 자동 생성됨)
+node_modules/
+
+# 업로드된 이미지 파일 (실제 운영 시 클라우드 스토리지로 이전 예정)
+uploads/*
+!uploads/.gitkeep

@@ -1,0 +1,36 @@
+# ============================================================
+# CROCINI / artesano — Git 무시 파일
+# ============================================================
+
+# ── 백엔드 ───────────────────────────────────────────────
+# DB 비밀번호 등 민감 정보
+backend/.env
+
+# Node 패키지 (npm install 시 자동 복원)
+backend/node_modules/
+
+# 업로드된 이미지 (배포 시 클라우드로 이전 예정)
+backend/uploads/*
+!backend/uploads/.gitkeep
+
+# ── Claude Code (개인 설정) ──────────────────────────────
+.claude/settings.local.json
+
+# ── OS 시스템 파일 ────────────────────────────────────────
+Thumbs.db
+ehthumbs.db
+desktop.ini
+.DS_Store
+
+# ── 에디터 / IDE ─────────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# ── 로그 ─────────────────────────────────────────────────
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+logs/
+*.log

@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SHOP — CROCINI 아르테사노</title>
+  <meta
+    name="description"
+    content="CROCINI 컬렉션 — 40년 장인의 손으로 완성한 크로커다일, 오스트리치, 파이톤 핸드백."
+  />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap"
+    rel="stylesheet"
+  />
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<!-- body 에 .shop-page 클래스 추가:
+     이 클래스가 있으면 네비바가 항상 밝은 톤(크림 배경)으로 표시됨 -->
+<body class="shop-page">
+
+  <!-- ==========================================================
+       네비게이션 (index.html과 동일 구조)
+       ========================================================== -->
+  <header class="navbar" id="navbar">
+    <div class="nav-inner">
+      <a href="index.html" class="logo">CROCINI</a>
+
+      <nav class="nav-menu" id="navMenu">
+        <a href="index.html#story">STORY</a>
+        <a href="index.html#crocodile">CROCODILE</a>
+        <a href="index.html#ostrich">OSTRICH</a>
+        <a href="index.html#python">PYTHON</a>
+        <a href="shop.html" class="active">SHOP</a>
+        <a href="index.html#contact">CONTACT</a>
+      </nav>
+
+      <button class="hamburger" id="hamburger" aria-label="메뉴 열기">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+  </header>
+
+
+  <!-- ==========================================================
+       페이지 헤더 — 큰 타이포 + 짧은 카피
+       ========================================================== -->
+  <section class="shop-header">
+    <div class="container">
+      <p class="section-eyebrow">CROCINI COLLECTION</p>
+      <h1 class="shop-title">The Collection</h1>
+      <p class="shop-subtitle">
+        한 점 한 점, 40년 장인의 손에서 완성된 한정 컬렉션.<br />
+        세 가지 시그니처 가죽으로 만나보세요.
+      </p>
+    </div>
+  </section>
+
+
+  <!-- ==========================================================
+       필터 탭 — ALL / CROCODILE / OSTRICH / PYTHON
+       data-filter 값을 script.js에서 읽어서 카드 표시 제어
+       ========================================================== -->
+  <section class="filter-section">
+    <div class="container">
+      <div class="filter-tabs">
+        <button class="filter-btn active" data-filter="all">ALL</button>
+        <button class="filter-btn" data-filter="crocodile">CROCODILE</button>
+        <button class="filter-btn" data-filter="ostrich">OSTRICH</button>
+        <button class="filter-btn" data-filter="python">PYTHON</button>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ==========================================================
+       제품 그리드
+       - 카드는 script.js에서 API 호출 후 동적으로 생성됨
+       ========================================================== -->
+  <section class="products">
+    <div class="container">
+
+      <!-- 로딩 상태: API 응답 전에 표시 -->
+      <div class="loading-state" id="loadingState">
+        <div class="loading-spinner"></div>
+        <p>상품을 불러오는 중...</p>
+      </div>
+
+      <!-- 에러 상태: 서버 연결 실패 시 표시 -->
+      <div class="error-state" id="errorState" hidden>
+        <p class="error-title">서버에 연결할 수 없습니다.</p>
+        <p class="error-desc">백엔드 서버가 실행 중인지 확인해주세요.<br /><code>cd backend → npm run dev</code></p>
+      </div>
+
+      <!-- 상품 그리드: JS가 여기에 카드를 채워 넣음 -->
+      <div class="product-grid" id="productGrid">
+        <!-- 상품 카드는 script.js의 fetch()가 여기에 동적으로 삽입 -->
+
+      </div>
+
+      <!-- 필터 결과 없을 때 메시지 -->
+      <p class="empty-message" id="emptyMessage" hidden>
+        해당 카테고리의 제품이 준비 중입니다.
+      </p>
+    </div>
+  </section>
+
+
+  <!-- ==========================================================
+       하단 CTA — 맞춤 주문제작 안내
+       ========================================================== -->
+  <section class="shop-cta">
+    <div class="container">
+      <p class="section-eyebrow gold">CUSTOM ORDER</p>
+      <h2 class="shop-cta-title">Be One of a Kind<br />With Us</h2>
+      <p class="shop-cta-desc">
+        40가지 컬러 중 당신만을 위한 단 하나의 작품.<br />
+        장인의 손에서 완성되는 시간을 주문해보세요.
+      </p>
+      <a href="index.html#contact" class="btn-line light">맞춤 주문제작 문의</a>
+    </div>
+  </section>
+
+
+  <!-- ==========================================================
+       푸터 (index.html과 동일)
+       ========================================================== -->
+  <footer class="footer">
+    <div class="container footer-inner">
+
+      <div class="footer-col footer-brand">
+        <h4 class="footer-logo">CROCINI</h4>
+        <p class="footer-slogan">Be One of a Kind With Us.</p>
+      </div>
+
+      <div class="footer-col">
+        <h5 class="footer-heading">EXPLORE</h5>
+        <ul class="footer-links">
+          <li><a href="index.html#story">Story</a></li>
+          <li><a href="index.html#crocodile">Crocodile</a></li>
+          <li><a href="index.html#ostrich">Ostrich</a></li>
+          <li><a href="index.html#python">Python</a></li>
+          <li><a href="shop.html">Shop</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h5 class="footer-heading">FOLLOW</h5>
+        <ul class="footer-links">
+          <li><a href="https://instagram.com/artesano_seoul" target="_blank" rel="noopener">Instagram @artesano_seoul</a></li>
+          <li><a href="#" target="_blank" rel="noopener">KakaoTalk @artesano</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h5 class="footer-heading">COMPANY</h5>
+        <p class="footer-text">
+          대표 김병준<br />
+          사업자등록번호 301-27-53386<br />
+          통신판매신고 2009-5570031-30-2-00006
+        </p>
+      </div>
+
+    </div>
+
+    <div class="footer-bottom">
+      <p>&copy; 2026 CROCINI™. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>

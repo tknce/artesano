@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>M905 — Black — CROCINI 아르테사노</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap"
+    rel="stylesheet"
+  />
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    .product-page .navbar {
+      background: var(--cream);
+      box-shadow: 0 1px 0 rgba(0,0,0,0.08);
+    }
+    .product-page .navbar .logo,
+    .product-page .navbar .nav-menu a {
+      color: var(--black);
+    }
+    .product-page .navbar .hamburger span {
+      background: var(--black);
+    }
+
+    .product-detail {
+      padding: 140px 0 100px;
+      min-height: 80vh;
+    }
+
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-family: var(--font-body);
+      font-size: 0.8rem;
+      font-weight: 500;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--dark-brown);
+      text-decoration: none;
+      margin-bottom: 48px;
+      transition: color 0.2s;
+    }
+    .back-link:hover { color: var(--gold); }
+    .back-link::before { content: '←'; font-size: 1rem; }
+
+    .detail-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 80px;
+      align-items: start;
+    }
+
+    .detail-image {
+      position: relative;
+      aspect-ratio: 3 / 4;
+      overflow: hidden;
+      background: var(--beige);
+    }
+    .detail-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .detail-badge {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      font-family: var(--font-body);
+      font-size: 0.65rem;
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      padding: 5px 12px;
+      background: var(--black);
+      color: var(--cream);
+    }
+    .detail-badge.gold {
+      background: var(--gold);
+      color: var(--black);
+    }
+
+    .detail-info { padding-top: 16px; }
+
+    .detail-category {
+      font-family: var(--font-body);
+      font-size: 0.72rem;
+      font-weight: 500;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 16px;
+    }
+
+    .detail-name {
+      font-family: var(--font-heading);
+      font-size: clamp(1.8rem, 3vw, 2.8rem);
+      font-weight: 400;
+      line-height: 1.15;
+      color: var(--black);
+      margin-bottom: 28px;
+    }
+
+    .detail-divider {
+      width: 40px;
+      height: 1px;
+      background: var(--gold);
+      margin-bottom: 28px;
+    }
+
+    .detail-option {
+      font-family: var(--font-body);
+      font-size: 0.9rem;
+      font-weight: 300;
+      color: #666;
+      line-height: 1.7;
+      margin-bottom: 36px;
+      white-space: pre-line;
+    }
+
+    .detail-price-wrap { margin-bottom: 44px; }
+
+    .detail-price-original {
+      font-family: var(--font-body);
+      font-size: 0.85rem;
+      color: #aaa;
+      text-decoration: line-through;
+      margin-bottom: 4px;
+    }
+    .detail-price-sale {
+      font-family: var(--font-heading);
+      font-size: clamp(1.4rem, 2.5vw, 2rem);
+      font-weight: 500;
+      color: var(--black);
+    }
+    .detail-price-inquiry {
+      font-family: var(--font-heading);
+      font-size: clamp(1.2rem, 2vw, 1.6rem);
+      font-weight: 400;
+      color: var(--dark-brown);
+      font-style: italic;
+    }
+
+    .detail-cta { display: flex; flex-direction: column; gap: 14px; }
+
+    .btn-detail-primary {
+      display: block;
+      text-align: center;
+      padding: 18px 32px;
+      background: var(--black);
+      color: var(--cream);
+      font-family: var(--font-body);
+      font-size: 0.78rem;
+      font-weight: 500;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      text-decoration: none;
+      transition: background 0.3s;
+    }
+    .btn-detail-primary:hover { background: var(--dark-brown); }
+
+    .btn-detail-secondary {
+      display: block;
+      text-align: center;
+      padding: 16px 32px;
+      border: 1px solid var(--black);
+      color: var(--black);
+      font-family: var(--font-body);
+      font-size: 0.78rem;
+      font-weight: 500;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      text-decoration: none;
+      transition: background 0.3s, color 0.3s;
+    }
+    .btn-detail-secondary:hover { background: var(--black); color: var(--cream); }
+
+    /* 샘플 배너 */
+    .sample-banner {
+      background: var(--gold);
+      color: var(--black);
+      text-align: center;
+      padding: 10px;
+      font-family: var(--font-body);
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    @media (max-width: 900px) {
+      .detail-grid { grid-template-columns: 1fr; gap: 40px; }
+      .detail-image { aspect-ratio: 4 / 3; }
+      .product-detail { padding: 120px 0 80px; }
+    }
+  </style>
+</head>
+
+<body class="product-page">
+
+  <!-- 샘플임을 알리는 배너 -->
+  <div class="sample-banner">⚑ 디자인 샘플 — 실제 서버 없이 정적으로 렌더링됨</div>
+
+  <!-- 네비게이션 -->
+  <header class="navbar" id="navbar">
+    <div class="nav-inner">
+      <a href="index.html" class="logo">CROCINI</a>
+      <nav class="nav-menu" id="navMenu">
+        <a href="index.html#story">STORY</a>
+        <a href="index.html#crocodile">CROCODILE</a>
+        <a href="index.html#ostrich">OSTRICH</a>
+        <a href="index.html#python">PYTHON</a>
+        <a href="shop.html">SHOP</a>
+        <a href="index.html#contact">CONTACT</a>
+      </nav>
+      <button class="hamburger" id="hamburger" aria-label="메뉴 열기">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </header>
+
+
+  <!-- 상세 페이지 본문 -->
+  <section class="product-detail">
+    <div class="container">
+
+      <a href="shop.html" class="back-link">SHOP으로 돌아가기</a>
+
+      <div class="detail-grid">
+
+        <!-- 왼쪽: 이미지 -->
+        <div class="detail-image">
+          <img
+            src="https://images.unsplash.com/photo-1548036328-c9fa89d128fa?auto=format&fit=crop&w=900&q=80"
+            alt="M905 — Black"
+          />
+          <!-- 뱃지 없는 상품은 이 부분 생략 -->
+        </div>
+
+        <!-- 오른쪽: 정보 -->
+        <div class="detail-info">
+
+          <p class="detail-category">CROCODILE</p>
+
+          <h1 class="detail-name">M905 — Black</h1>
+
+          <div class="detail-divider"></div>
+
+          <p class="detail-option">1마리 / 스트랩 겸용
+크로커다일 원피스 가죽으로 제작된 시그니처 토트백.
+40년 장인의 손으로 한 땀 한 땀 마감된 한정 수량 제품입니다.</p>
+
+          <!-- 할인가 표시 예시 -->
+          <div class="detail-price-wrap">
+            <p class="detail-price-original">855,000원</p>
+            <p class="detail-price-sale">513,000원</p>
+          </div>
+
+          <div class="detail-cta">
+            <a href="index.html#contact" class="btn-detail-primary">구매 문의하기</a>
+            <a href="shop.html" class="btn-detail-secondary">목록으로 돌아가기</a>
+          </div>
+
+        </div>
+      </div>
+
+
+      <!-- ──────────────────────────────────────────────
+           아래는 다른 상태 UI 미리보기 (참고용)
+           실제 product.html에서는 JS가 하나만 표시함
+           ────────────────────────────────────────────── -->
+
+      <hr style="margin: 80px 0; border-color: var(--beige);" />
+      <p style="font-family:var(--font-body);font-size:0.75rem;letter-spacing:0.12em;text-transform:uppercase;color:#aaa;margin-bottom:48px;">↓ 다른 상태 UI 예시 (참고용)</p>
+
+      <!-- SIGNATURE 뱃지 + 가격 없는 상품 -->
+      <div class="detail-grid" style="margin-bottom:80px;">
+        <div class="detail-image">
+          <img
+            src="https://images.unsplash.com/photo-1584917865442-de89df76afd3?auto=format&fit=crop&w=900&q=80"
+            alt="CR127 — Black"
+          />
+          <span class="detail-badge gold">SIGNATURE</span>
+        </div>
+        <div class="detail-info">
+          <p class="detail-category">CROCODILE</p>
+          <h1 class="detail-name">CR127 — Black</h1>
+          <div class="detail-divider"></div>
+          <p class="detail-option">35cm / 시그니처 라인
+브랜드 창립 이래 단 한 번도 바뀌지 않은 오리지널 실루엣.
+전 세계 40마리 한정 생산.</p>
+          <div class="detail-price-wrap">
+            <p class="detail-price-sale">4,500,000원</p>
+          </div>
+          <div class="detail-cta">
+            <a href="index.html#contact" class="btn-detail-primary">구매 문의하기</a>
+            <a href="shop.html" class="btn-detail-secondary">목록으로 돌아가기</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- MADE TO ORDER + 가격 문의 -->
+      <div class="detail-grid">
+        <div class="detail-image">
+          <img
+            src="https://images.unsplash.com/photo-1627123424574-724758594e93?auto=format&fit=crop&w=900&q=80"
+            alt="PT001 — 파이톤 클러치"
+          />
+          <span class="detail-badge gold">MADE TO ORDER</span>
+        </div>
+        <div class="detail-info">
+          <p class="detail-category">PYTHON</p>
+          <h1 class="detail-name">PT001 — 파이톤 클러치</h1>
+          <div class="detail-divider"></div>
+          <p class="detail-option">파이톤 / 주문제작
+40가지 컬러 중 원하는 색상으로 제작 가능합니다.
+제작 기간 약 4~6주 소요.</p>
+          <div class="detail-price-wrap">
+            <p class="detail-price-inquiry">주문제작 문의</p>
+          </div>
+          <div class="detail-cta">
+            <a href="index.html#contact" class="btn-detail-primary">맞춤 주문제작 문의</a>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- 푸터 -->
+  <footer class="footer">
+    <div class="container footer-inner">
+      <div class="footer-col footer-brand">
+        <h4 class="footer-logo">CROCINI</h4>
+        <p class="footer-slogan">Be One of a Kind With Us.</p>
+      </div>
+      <div class="footer-col">
+        <h5 class="footer-heading">EXPLORE</h5>
+        <ul class="footer-links">
+          <li><a href="index.html#story">Story</a></li>
+          <li><a href="shop.html">Shop</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h5 class="footer-heading">FOLLOW</h5>
+        <ul class="footer-links">
+          <li><a href="https://instagram.com/artesano_seoul" target="_blank" rel="noopener">Instagram @artesano_seoul</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h5 class="footer-heading">COMPANY</h5>
+        <p class="footer-text">대표 김병준<br />사업자등록번호 301-27-53386</p>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>&copy; 2026 CROCINI™. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script>
+    const navbar    = document.getElementById('navbar');
+    const hamburger = document.getElementById('hamburger');
+    const navMenu   = document.getElementById('navMenu');
+    window.addEventListener('scroll', () => {
+      navbar.classList.toggle('scrolled', window.scrollY > 50);
+    });
+    hamburger.addEventListener('click', () => navMenu.classList.toggle('open'));
+    navMenu.querySelectorAll('a').forEach(l => l.addEventListener('click', () => navMenu.classList.remove('open')));
+  </script>
+</body>
+</html>

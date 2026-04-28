@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>상품 상세 — CROCINI 아르테사노</title>
+  <meta name="description" content="CROCINI 상품 상세 페이지" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap"
+    rel="stylesheet"
+  />
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    /* ── 상세 페이지 전용 스타일 ── */
+
+    /* 네비바는 shop-page와 동일하게 항상 밝은 배경 */
+    .product-page .navbar {
+      background: var(--cream);
+      box-shadow: 0 1px 0 rgba(0,0,0,0.08);
+    }
+    .product-page .navbar .logo,
+    .product-page .navbar .nav-menu a {
+      color: var(--black);
+    }
+    .product-page .navbar .hamburger span {
+      background: var(--black);
+    }
+
+    /* 상세 페이지 전체 레이아웃 */
+    .product-detail {
+      padding: 140px 0 100px;
+      min-height: 80vh;
+    }
+
+    /* 뒤로 가기 링크 */
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-family: var(--font-body);
+      font-size: 0.8rem;
+      font-weight: 500;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--dark-brown);
+      text-decoration: none;
+      margin-bottom: 48px;
+      transition: color 0.2s;
+    }
+    .back-link:hover { color: var(--gold); }
+    .back-link::before {
+      content: '←';
+      font-size: 1rem;
+    }
+
+    /* 2단 그리드: 이미지 | 정보 */
+    .detail-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 80px;
+      align-items: start;
+    }
+
+    /* 이미지 영역 */
+    .detail-image {
+      position: relative;
+      aspect-ratio: 3 / 4;
+      overflow: hidden;
+      background: var(--beige);
+    }
+    .detail-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .detail-badge {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      font-family: var(--font-body);
+      font-size: 0.65rem;
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      padding: 5px 12px;
+      background: var(--black);
+      color: var(--cream);
+    }
+    .detail-badge.gold {
+      background: var(--gold);
+      color: var(--black);
+    }
+
+    /* 정보 영역 */
+    .detail-info {
+      padding-top: 16px;
+    }
+
+    .detail-category {
+      font-family: var(--font-body);
+      font-size: 0.72rem;
+      font-weight: 500;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 16px;
+    }
+
+    .detail-name {
+      font-family: var(--font-heading);
+      font-size: clamp(1.8rem, 3vw, 2.8rem);
+      font-weight: 400;
+      line-height: 1.15;
+      color: var(--black);
+      margin-bottom: 28px;
+    }
+
+    .detail-divider {
+      width: 40px;
+      height: 1px;
+      background: var(--gold);
+      margin-bottom: 28px;
+    }
+
+    .detail-option {
+      font-family: var(--font-body);
+      font-size: 0.9rem;
+      font-weight: 300;
+      color: #666;
+      line-height: 1.7;
+      margin-bottom: 36px;
+      white-space: pre-line;
+    }
+
+    /* 가격 표시 */
+    .detail-price-wrap {
+      margin-bottom: 44px;
+    }
+    .detail-price-original {
+      font-family: var(--font-body);
+      font-size: 0.85rem;
+      color: #aaa;
+      text-decoration: line-through;
+      margin-bottom: 4px;
+    }
+    .detail-price-sale {
+      font-family: var(--font-heading);
+      font-size: clamp(1.4rem, 2.5vw, 2rem);
+      font-weight: 500;
+      color: var(--black);
+    }
+    .detail-price-inquiry {
+      font-family: var(--font-heading);
+      font-size: clamp(1.2rem, 2vw, 1.6rem);
+      font-weight: 400;
+      color: var(--dark-brown);
+      font-style: italic;
+    }
+
+    /* CTA 버튼 */
+    .detail-cta {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .btn-detail-primary {
+      display: block;
+      text-align: center;
+      padding: 18px 32px;
+      background: var(--black);
+      color: var(--cream);
+      font-family: var(--font-body);
+      font-size: 0.78rem;
+      font-weight: 500;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      text-decoration: none;
+      transition: background 0.3s, color 0.3s;
+    }
+    .btn-detail-primary:hover {
+      background: var(--dark-brown);
+    }
+    .btn-detail-secondary {
+      display: block;
+      text-align: center;
+      padding: 16px 32px;
+      border: 1px solid var(--black);
+      color: var(--black);
+      font-family: var(--font-body);
+      font-size: 0.78rem;
+      font-weight: 500;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      text-decoration: none;
+      transition: background 0.3s, color 0.3s;
+    }
+    .btn-detail-secondary:hover {
+      background: var(--black);
+      color: var(--cream);
+    }
+
+    /* 로딩 / 에러 상태 */
+    .detail-loading,
+    .detail-error {
+      text-align: center;
+      padding: 100px 0;
+    }
+    .detail-loading .loading-spinner {
+      margin: 0 auto 20px;
+    }
+    .detail-error h2 {
+      font-family: var(--font-heading);
+      font-size: 1.6rem;
+      font-weight: 400;
+      margin-bottom: 12px;
+      color: var(--black);
+    }
+    .detail-error p {
+      font-family: var(--font-body);
+      font-size: 0.9rem;
+      color: #888;
+    }
+
+    /* 반응형 */
+    @media (max-width: 900px) {
+      .detail-grid {
+        grid-template-columns: 1fr;
+        gap: 40px;
+      }
+      .detail-image {
+        aspect-ratio: 4 / 3;
+      }
+      .product-detail {
+        padding: 120px 0 80px;
+      }
+    }
+    @media (max-width: 480px) {
+      .detail-name {
+        font-size: 1.6rem;
+      }
+      .back-link {
+        margin-bottom: 32px;
+      }
+    }
+  </style>
+</head>
+
+<body class="product-page">
+
+  <!-- 네비게이션 (shop.html과 동일 구조) -->
+  <header class="navbar" id="navbar">
+    <div class="nav-inner">
+      <a href="index.html" class="logo">CROCINI</a>
+
+      <nav class="nav-menu" id="navMenu">
+        <a href="index.html#story">STORY</a>
+        <a href="index.html#crocodile">CROCODILE</a>
+        <a href="index.html#ostrich">OSTRICH</a>
+        <a href="index.html#python">PYTHON</a>
+        <a href="shop.html">SHOP</a>
+        <a href="index.html#contact">CONTACT</a>
+      </nav>
+
+      <button class="hamburger" id="hamburger" aria-label="메뉴 열기">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+  </header>
+
+
+  <!-- 상세 페이지 본문 -->
+  <section class="product-detail">
+    <div class="container">
+
+      <!-- 뒤로 가기 -->
+      <a href="shop.html" class="back-link">SHOP으로 돌아가기</a>
+
+      <!-- 로딩 상태 -->
+      <div class="detail-loading" id="detailLoading">
+        <div class="loading-spinner"></div>
+        <p>상품을 불러오는 중...</p>
+      </div>
+
+      <!-- 에러 상태 (기본 숨김) -->
+      <div class="detail-error" id="detailError" hidden>
+        <h2>상품을 찾을 수 없습니다.</h2>
+        <p>서버가 실행 중인지 확인하거나, <a href="shop.html">SHOP</a>으로 돌아가세요.</p>
+      </div>
+
+      <!-- 실제 상세 내용 (JS가 채움, 기본 숨김) -->
+      <div class="detail-grid" id="detailContent" hidden>
+
+        <!-- 왼쪽: 이미지 -->
+        <div class="detail-image" id="detailImageWrap">
+          <img id="detailImage" src="" alt="" />
+          <!-- 뱃지는 JS가 동적으로 삽입 -->
+        </div>
+
+        <!-- 오른쪽: 상품 정보 -->
+        <div class="detail-info">
+          <p class="detail-category" id="detailCategory"></p>
+          <h1 class="detail-name" id="detailName"></h1>
+          <div class="detail-divider"></div>
+          <p class="detail-option" id="detailOption"></p>
+
+          <!-- 가격 -->
+          <div class="detail-price-wrap" id="detailPriceWrap"></div>
+
+          <!-- 버튼 -->
+          <div class="detail-cta" id="detailCta"></div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+
+  <!-- 푸터 -->
+  <footer class="footer">
+    <div class="container footer-inner">
+
+      <div class="footer-col footer-brand">
+        <h4 class="footer-logo">CROCINI</h4>
+        <p class="footer-slogan">Be One of a Kind With Us.</p>
+      </div>
+
+      <div class="footer-col">
+        <h5 class="footer-heading">EXPLORE</h5>
+        <ul class="footer-links">
+          <li><a href="index.html#story">Story</a></li>
+          <li><a href="index.html#crocodile">Crocodile</a></li>
+          <li><a href="index.html#ostrich">Ostrich</a></li>
+          <li><a href="index.html#python">Python</a></li>
+          <li><a href="shop.html">Shop</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h5 class="footer-heading">FOLLOW</h5>
+        <ul class="footer-links">
+          <li><a href="https://instagram.com/artesano_seoul" target="_blank" rel="noopener">Instagram @artesano_seoul</a></li>
+          <li><a href="#" target="_blank" rel="noopener">KakaoTalk @artesano</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h5 class="footer-heading">COMPANY</h5>
+        <p class="footer-text">
+          대표 김병준<br />
+          사업자등록번호 301-27-53386<br />
+          통신판매신고 2009-5570031-30-2-00006
+        </p>
+      </div>
+
+    </div>
+
+    <div class="footer-bottom">
+      <p>&copy; 2026 CROCINI™. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script>
+    /* ============================================================
+       product.html 전용 스크립트
+       1) URL에서 ?id=숫자 읽기
+       2) GET /products/:id 호출
+       3) 받아온 데이터로 화면 채우기
+       ============================================================ */
+
+    /* ── 네비게이션 스크롤 & 햄버거 (script.js와 동일) ── */
+    document.addEventListener('DOMContentLoaded', () => {
+      const navbar    = document.getElementById('navbar');
+      const hamburger = document.getElementById('hamburger');
+      const navMenu   = document.getElementById('navMenu');
+
+      window.addEventListener('scroll', () => {
+        navbar.classList.toggle('scrolled', window.scrollY > 50);
+      });
+
+      hamburger.addEventListener('click', () => {
+        navMenu.classList.toggle('open');
+      });
+      navMenu.querySelectorAll('a').forEach(link => {
+        link.addEventListener('click', () => navMenu.classList.remove('open'));
+      });
+    });
+
+    /* ── 상품 상세 로딩 ── */
+    (async () => {
+      const API_BASE   = 'http://localhost:3000/products';
+      const SERVER_URL = 'http://localhost:3000';
+
+      function resolveImageUrl(url) {
+        if (!url) return '';
+        if (url.startsWith('http://') || url.startsWith('https://')) return url;
+        if (url.startsWith('/')) return SERVER_URL + url;
+        return url;
+      }
+
+      const loadingEl = document.getElementById('detailLoading');
+      const errorEl   = document.getElementById('detailError');
+      const contentEl = document.getElementById('detailContent');
+
+      /* URL 쿼리스트링에서 id 파라미터 읽기 */
+      const params = new URLSearchParams(window.location.search);
+      const id     = params.get('id');
+
+      /* id가 없거나 숫자가 아니면 바로 에러 표시 */
+      if (!id || isNaN(Number(id))) {
+        loadingEl.hidden = true;
+        errorEl.hidden   = false;
+        return;
+      }
+
+      try {
+        const res = await fetch(`${API_BASE}/${id}`);
+
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+        const p = await res.json(); // 상품 객체 1개
+
+        /* 페이지 타이틀 업데이트 */
+        document.title = `${p.name} — CROCINI`;
+
+        /* ── 이미지 ── */
+        const img = document.getElementById('detailImage');
+        img.src = resolveImageUrl(p.image_url);
+        img.alt = p.name;
+
+        /* ── 뱃지 ── */
+        if (p.badge) {
+          const goldBadges = ['SIGNATURE', 'MADE TO ORDER'];
+          const badge      = document.createElement('span');
+          badge.className  = `detail-badge${goldBadges.includes(p.badge) ? ' gold' : ''}`;
+          badge.textContent = p.badge;
+          document.getElementById('detailImageWrap').appendChild(badge);
+        }
+
+        /* ── 카테고리 / 이름 / 옵션 ── */
+        document.getElementById('detailCategory').textContent = p.category.toUpperCase();
+        document.getElementById('detailName').textContent     = p.name;
+        document.getElementById('detailOption').textContent   = p.option_desc || '';
+
+        /* ── 가격 ── */
+        const priceWrap = document.getElementById('detailPriceWrap');
+        if (p.price === null) {
+          priceWrap.innerHTML = `<span class="detail-price-inquiry">주문제작 문의</span>`;
+        } else if (p.original_price) {
+          priceWrap.innerHTML = `
+            <p class="detail-price-original">${Number(p.original_price).toLocaleString('ko-KR')}원</p>
+            <p class="detail-price-sale">${Number(p.price).toLocaleString('ko-KR')}원</p>`;
+        } else {
+          priceWrap.innerHTML = `<p class="detail-price-sale">${Number(p.price).toLocaleString('ko-KR')}원</p>`;
+        }
+
+        /* ── CTA 버튼 ── */
+        const ctaEl = document.getElementById('detailCta');
+        if (p.category === 'python') {
+          /* Python 상품: 주문제작 페이지로 (모델 코드 preselect) */
+          const codeMatch = String(p.name).match(/^[A-Z]{2,5}\d{2,4}/);
+          const code = codeMatch ? codeMatch[0] : '';
+          const href = code ? `custom-order.html?model=${code}` : 'custom-order.html';
+          ctaEl.innerHTML = `
+            <a href="${href}" class="btn-detail-primary">주문제작 문의하기</a>
+            <a href="shop.html" class="btn-detail-secondary">목록으로 돌아가기</a>`;
+        } else if (p.price === null) {
+          /* Python 외에서 가격 NULL인 주문제작 상품 (예: M907 등) */
+          ctaEl.innerHTML = `<a href="index.html#contact" class="btn-detail-primary">맞춤 주문제작 문의</a>`;
+        } else {
+          /* 일반 상품: 구매 문의 + 목록으로 */
+          ctaEl.innerHTML = `
+            <a href="index.html#contact" class="btn-detail-primary">구매 문의하기</a>
+            <a href="shop.html" class="btn-detail-secondary">목록으로 돌아가기</a>`;
+        }
+
+        /* ── 화면 전환: 로딩 숨기고 내용 보이기 ── */
+        loadingEl.hidden = true;
+        contentEl.hidden = false;
+
+      } catch (err) {
+        console.error('[product.html] 상품 로딩 실패:', err.message);
+        loadingEl.hidden = true;
+        errorEl.hidden   = false;
+      }
+    })();
+  </script>
+</body>
+</html>
