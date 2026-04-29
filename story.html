@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CROCINI — Our Story</title>
+  <meta name="description" content="CROCINI 아르테사노의 이야기. 40년 경력 장인, 서울 문정동 아틀리에, 크로커다일·오스트리치·파이톤 핸드메이드 가죽 컬렉션의 탄생 배경." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <header class="navbar" id="navbar">
+    <div class="nav-inner">
+      <a href="index.html" class="logo">CROCINI</a>
+      <nav class="nav-menu" id="navMenu">
+        <a href="story.html" class="active">STORY</a>
+        <a href="crocodile.html">CROCODILE</a>
+        <a href="ostrich.html">OSTRICH</a>
+        <a href="python.html">PYTHON</a>
+        <a href="shop.html">SHOP</a>
+        <a href="index.html#contact">CONTACT</a>
+      </nav>
+      <button class="hamburger" id="hamburger" aria-label="메뉴 열기">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </header>
+
+
+  <!-- ==========================================================
+       1) 히어로
+       ========================================================== -->
+  <section class="hero">
+    <div
+      class="hero-bg"
+      style="background-image: url('https://images.unsplash.com/photo-1644258676710-ffb99d7d7a1b?auto=format&fit=crop&w=1920&q=90');"
+    ></div>
+    <div class="hero-overlay"></div>
+    <div class="hero-content">
+      <div class="hero-pill fade-up" data-delay="0">
+        <span class="hero-pill-dot"></span>
+        HANDCRAFTED IN SEOUL
+      </div>
+      <p class="hero-eyebrow fade-up" data-delay="200">CROCINI 아르테사노</p>
+      <h1 class="hero-title fade-up" data-delay="400">OUR<br />STORY</h1>
+      <p class="hero-tagline fade-up" data-delay="700">40 Years of Korean Craftsmanship</p>
+    </div>
+    <a href="#manifesto" class="scroll-indicator" aria-label="아래로 스크롤">
+      <span class="scroll-line"></span>
+      <span class="scroll-text">SCROLL</span>
+    </a>
+  </section>
+
+
+  <!-- ==========================================================
+       2) 매니페스토 — 대형 인용문 (검정 배경)
+       ========================================================== -->
+  <section class="story-manifesto" id="manifesto">
+    <blockquote class="manifesto-quote reveal">
+      <p>
+        "가죽 한 장은 단순한 소재가 아닙니다.<br />
+        그것은 자연의 시간이며,<br />
+        장인의 손이 더해질 때 비로소<br />
+        당신만의 이야기가 됩니다."
+      </p>
+      <cite>— 아르테사노 대표 김병준</cite>
+    </blockquote>
+  </section>
+
+
+  <!-- ==========================================================
+       3) 브랜드 탄생 — 이미지 좌 + 텍스트 우
+       ========================================================== -->
+  <section class="heritage">
+    <div class="container heritage-inner">
+
+      <div class="heritage-image reveal">
+        <img
+          src="https://images.unsplash.com/photo-1644258676710-ffb99d7d7a1b?auto=format&fit=crop&w=900&q=85"
+          alt="아르테사노 장인 아틀리에"
+        />
+      </div>
+
+      <div class="heritage-text reveal">
+        <p class="section-eyebrow">THE BEGINNING</p>
+        <h2 class="section-title">서울에서 시작된<br /><em>장인의 여정</em></h2>
+        <p class="heritage-desc">
+          CROCINI(아르테사노)는 대한민국 서울, 문정동의 작은 아틀리에에서 시작되었습니다.
+          40년 경력의 월드클래스 장인 김병준 대표는 젊은 시절부터 오직 가죽 하나에
+          인생을 걸었습니다.<br /><br />
+          수십 년간 세계 각지의 최상급 소재를 연구하며 축적한 노하우는
+          크로커다일, 오스트리치, 파이톤이라는 세 가지 시그니처 가죽으로 꽃피었고,
+          이제 그 손길이 당신의 손에 닿습니다.
+        </p>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ==========================================================
+       4) 마퀴 — 무한 흐르는 텍스트
+       ========================================================== -->
+  <section class="marquee">
+    <div class="marquee-track">
+      <span>CROCODILE</span><span class="dot">●</span>
+      <span>OSTRICH</span><span class="dot">●</span>
+      <span>PYTHON</span><span class="dot">●</span>
+      <span>HANDCRAFTED IN SEOUL</span><span class="dot">●</span>
+      <span>CROCODILE</span><span class="dot">●</span>
+      <span>OSTRICH</span><span class="dot">●</span>
+      <span>PYTHON</span><span class="dot">●</span>
+      <span>HANDCRAFTED IN SEOUL</span><span class="dot">●</span>
+    </div>
+  </section>
+
+
+  <!-- ==========================================================
+       5) 숫자로 보는 아르테사노 (Bento Grid)
+       ========================================================== -->
+  <section class="stats" id="numbers">
+    <div class="container">
+      <div class="bento-grid">
+
+        <div class="bento-card bento-dark reveal">
+          <p class="bento-label">YEARS OF CRAFT</p>
+          <span class="stat-num bento-num" data-target="40" data-suffix="">0</span>
+          <p class="bento-desc">월드클래스 장인의<br />40년 경력</p>
+        </div>
+
+        <div class="bento-card bento-light reveal">
+          <p class="bento-label">HANDMADE IN SEOUL</p>
+          <span class="stat-num bento-num" data-target="100" data-suffix="%">0</span>
+          <p class="bento-desc">한 점 한 점, 손으로 완성</p>
+        </div>
+
+        <div class="bento-card bento-muted reveal">
+          <p class="bento-label">COLOR ATELIER</p>
+          <span class="stat-num bento-num" data-target="40" data-suffix="+">0</span>
+          <p class="bento-desc">맞춤 컬러 커스터마이징</p>
+        </div>
+
+        <div class="bento-card bento-quote reveal">
+          <span class="bento-open-quote">"</span>
+          <p class="bento-quote-text">한 점의 가방이<br />완성되기까지<br />평균 80시간</p>
+          <cite class="bento-cite">— CROCINI Artisan Standard</cite>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ==========================================================
+       6) 제작 철학 — 3가지 핵심 가치
+       ========================================================== -->
+  <section class="mat-features" id="philosophy">
+    <div class="container">
+
+      <div class="section-header reveal">
+        <p class="section-eyebrow">OUR PHILOSOPHY</p>
+        <h2 class="section-title">세 가지 약속</h2>
+        <p class="section-desc">
+          CROCINI가 40년간 지켜온 장인 정신의 근본.
+        </p>
+      </div>
+
+      <div class="mat-features-grid">
+
+        <div class="mat-feature reveal">
+          <span class="mat-feature-num">craft</span>
+          <h4>MASTER CRAFTSMANSHIP</h4>
+          <p>
+            모든 제품은 40년 경력 장인의 손에서 시작해 손에서 끝납니다.
+            기계로는 구현할 수 없는 곡선과 솔기, 정교한 마감이
+            CROCINI만의 품격을 만듭니다.
+            한 점을 완성하는 데 평균 80시간의 공정이 투입됩니다.
+          </p>
+        </div>
+
+        <div class="mat-feature reveal">
+          <span class="mat-feature-num">rare</span>
+          <h4>FINEST MATERIALS</h4>
+          <p>
+            크로커다일, 오스트리치, 파이톤 —
+            세계에서 가장 희귀한 세 가지 소재만을 엄선합니다.
+            장인이 직접 스킨을 선별하며,
+            기준에 미치지 못하는 소재는 단 한 장도 사용하지 않습니다.
+          </p>
+        </div>
+
+        <div class="mat-feature reveal">
+          <span class="mat-feature-num">you</span>
+          <h4>BESPOKE FOR YOU</h4>
+          <p>
+            모든 제품은 당신만을 위한 단 하나의 작품입니다.
+            원하는 컬러, 크기, 금장 디테일까지
+            장인과 함께 직접 설계할 수 있습니다.
+            세상에 하나뿐인 가방을 만드세요.
+          </p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ==========================================================
+       7) 장인의 과정 — 텍스트 좌 + 이미지 우 (reversed)
+       ========================================================== -->
+  <section class="heritage" style="background-color: var(--color-cream);">
+    <div class="container heritage-inner reverse">
+
+      <div class="heritage-image reveal">
+        <img
+          src="https://images.unsplash.com/photo-1595026677025-0eff2b5b3a16?auto=format&fit=crop&w=900&q=85"
+          alt="아르테사노 장인 제작 과정"
+        />
+      </div>
+
+      <div class="heritage-text reveal">
+        <p class="section-eyebrow">THE PROCESS</p>
+        <h2 class="section-title">80시간의<br /><em>순수한 집중</em></h2>
+        <p class="heritage-desc">
+          한 점의 가방이 완성되기까지 장인의 손이 거치는 공정은 40단계 이상입니다.
+          스킨 선별에서 재단, 봉제, 마감, 금장 설치, 최종 검수까지
+          어느 한 단계도 기계에 위임하지 않습니다.<br /><br />
+          이것이 CROCINI가 시간을 다루는 방식이며,
+          당신의 가방이 단순한 제품이 아닌
+          하나의 작품으로 태어나는 이유입니다.
+        </p>
+        <a href="custom-order.html" class="btn-line">제작 과정 알아보기</a>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ==========================================================
+       8) 브랜드 타임라인
+       ========================================================== -->
+  <section class="story-timeline" id="timeline">
+    <div class="container">
+
+      <div class="section-header reveal">
+        <p class="section-eyebrow">MILESTONES</p>
+        <h2 class="section-title">아르테사노의 발자취</h2>
+      </div>
+
+      <div class="timeline-list">
+
+        <div class="timeline-item reveal">
+          <span class="timeline-year">'84</span>
+          <div class="timeline-content">
+            <h4>JOURNEY BEGINS</h4>
+            <p>대표 김병준, 가죽 공방에서 첫 도제 생활을 시작. 크로커다일 가죽의 매력에 매료되어 평생을 가죽에 바치기로 결심.</p>
+          </div>
+        </div>
+
+        <div class="timeline-item reveal">
+          <span class="timeline-year">'97</span>
+          <div class="timeline-content">
+            <h4>EXOTIC LEATHER MASTERY</h4>
+            <p>크로커다일, 오스트리치, 파이톤 세 가지 이그조틱 가죽의 독자적인 가공 기술 완성. 국내 최초 핸드메이드 이그조틱 가죽 전문 아틀리에 개설.</p>
+          </div>
+        </div>
+
+        <div class="timeline-item reveal">
+          <span class="timeline-year">'09</span>
+          <div class="timeline-content">
+            <h4>ARTESANO ATELIER</h4>
+            <p>서울 문정동 현재 아틀리에 이전. 연중무휴 365일 맞춤 상담 체계 구축. 주문제작 파이톤 컬렉션 런칭.</p>
+          </div>
+        </div>
+
+        <div class="timeline-item reveal">
+          <span class="timeline-year">'20</span>
+          <div class="timeline-content">
+            <h4>40+ COLORS ATELIER</h4>
+            <p>맞춤 컬러 라인 40종 이상으로 확장. 고객이 원하는 모든 컬러를 구현하는 염색 기술 고도화.</p>
+          </div>
+        </div>
+
+        <div class="timeline-item reveal">
+          <span class="timeline-year">NOW</span>
+          <div class="timeline-content">
+            <h4>CROCINI — BE ONE OF A KIND</h4>
+            <p>브랜드명 CROCINI로 새롭게 출발. 40년의 장인 정신을 담아, 당신만을 위한 세상에 하나뿐인 작품을 완성합니다.</p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ==========================================================
+       9) 세 가지 소재 탐색
+       ========================================================== -->
+  <section class="materials story-explore">
+    <div class="container">
+
+      <div class="section-header reveal">
+        <p class="section-eyebrow">OUR MATERIALS</p>
+        <h2 class="section-title">Three Signature<br />Leathers</h2>
+        <p class="section-desc">
+          자연이 만든 가장 귀한 소재만을 엄선합니다.<br />
+          각 소재의 이야기를 탐색해보세요.
+        </p>
+      </div>
+
+      <div class="materials-grid">
+
+        <a href="crocodile.html" class="material-card reveal">
+          <div class="card-image">
+            <img
+              src="https://images.unsplash.com/photo-1575295912464-fcfd1186d11d?auto=format&fit=crop&w=900&q=85"
+              alt="Crocodile leather collection"
+            />
+            <span class="card-number">01</span>
+          </div>
+          <div class="card-info">
+            <h3 class="card-title">Crocodile</h3>
+            <p class="card-desc">
+              아르테사노의 시그니처.<br />
+              세월이 흐를수록 깊어지는 광택.
+            </p>
+            <span class="card-link">EXPLORE →</span>
+          </div>
+        </a>
+
+        <a href="ostrich.html" class="material-card reveal">
+          <div class="card-image">
+            <img
+              src="https://images.unsplash.com/photo-1590739169125-a9438401596a?auto=format&fit=crop&w=900&q=85"
+              alt="Ostrich leather collection"
+            />
+            <span class="card-number">02</span>
+          </div>
+          <div class="card-info">
+            <h3 class="card-title">Ostrich</h3>
+            <p class="card-desc">
+              부드러우면서도 강인한 텍스처.<br />
+              한 장에서 단 몇 점만 탄생합니다.
+            </p>
+            <span class="card-link">EXPLORE →</span>
+          </div>
+        </a>
+
+        <a href="python.html" class="material-card reveal">
+          <div class="card-image">
+            <img
+              src="https://images.unsplash.com/photo-1702576501484-fc8743c67f37?auto=format&fit=crop&w=900&q=85"
+              alt="Python leather collection"
+            />
+            <span class="card-number">03</span>
+          </div>
+          <div class="card-info">
+            <h3 class="card-title">Python</h3>
+            <p class="card-desc">
+              자연이 만든 단 하나의 패턴.<br />
+              전량 주문제작으로만 완성됩니다.
+            </p>
+            <span class="card-link">EXPLORE →</span>
+          </div>
+        </a>
+
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ==========================================================
+       10) 풀블리드 — 브랜드 철학 인용
+       ========================================================== -->
+  <section class="fullbleed">
+    <div
+      class="fullbleed-bg"
+      style="background-image: url('https://images.unsplash.com/photo-1731272832794-d66014ad7d87?auto=format&fit=crop&w=1920&q=90');"
+    ></div>
+    <div class="fullbleed-overlay"></div>
+    <div class="fullbleed-content reveal">
+      <p class="section-eyebrow gold">BE ONE OF A KIND</p>
+      <h2 class="fullbleed-title">
+        당신의 가방은<br /><em>당신의 이야기</em>
+      </h2>
+      <p class="fullbleed-desc">
+        CROCINI의 모든 제품에는 장인의 40년이 담겨 있습니다.<br />
+        그리고 이제, 당신의 이야기가 더해질 차례입니다.
+      </p>
+    </div>
+  </section>
+
+
+  <!-- ==========================================================
+       11) 최종 CTA
+       ========================================================== -->
+  <section class="mat-cta">
+    <div class="container">
+      <p class="section-eyebrow">CROCINI ATELIER · SEOUL</p>
+      <h2 class="section-title">지금 바로<br /><em>시작하세요</em></h2>
+      <p class="mat-cta-desc">
+        컬렉션을 둘러보거나, 세상에 하나뿐인<br />
+        나만의 가방을 장인과 함께 설계해보세요.
+      </p>
+      <div class="mat-cta-btns">
+        <a href="shop.html" class="btn-line light">SHOP COLLECTION</a>
+        <a href="custom-order.html" class="btn-line light">주문 제작 →</a>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ==========================================================
+       12) 푸터
+       ========================================================== -->
+  <footer class="footer">
+    <div class="container footer-inner">
+
+      <div class="footer-col footer-brand">
+        <h4 class="footer-logo">CROCINI</h4>
+        <p class="footer-slogan">Be One of a Kind With Us.</p>
+      </div>
+
+      <div class="footer-col">
+        <h5 class="footer-heading">EXPLORE</h5>
+        <ul class="footer-links">
+          <li><a href="story.html">Story</a></li>
+          <li><a href="crocodile.html">Crocodile</a></li>
+          <li><a href="ostrich.html">Ostrich</a></li>
+          <li><a href="python.html">Python</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h5 class="footer-heading">FOLLOW</h5>
+        <ul class="footer-links">
+          <li><a href="https://instagram.com/artesano_seoul" target="_blank" rel="noopener">Instagram @artesano_seoul</a></li>
+          <li><a href="#" target="_blank" rel="noopener">KakaoTalk @artesano</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h5 class="footer-heading">COMPANY</h5>
+        <p class="footer-text">
+          대표 김병준<br />
+          사업자등록번호 301-27-53386<br />
+          통신판매신고 2009-5570031-30-2-00006
+        </p>
+      </div>
+
+    </div>
+    <div class="footer-bottom">
+      <p>&copy; 2026 CROCINI™. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>

@@ -56,10 +56,10 @@
       <a href="#" class="logo">CROCINI</a>
 
       <nav class="nav-menu" id="navMenu">
-        <a href="#story">STORY</a>
-        <a href="#crocodile">CROCODILE</a>
-        <a href="#ostrich">OSTRICH</a>
-        <a href="#python">PYTHON</a>
+        <a href="story.html">STORY</a>
+        <a href="crocodile.html">CROCODILE</a>
+        <a href="ostrich.html">OSTRICH</a>
+        <a href="python.html">PYTHON</a>
         <a href="shop.html">SHOP</a>
         <a href="#contact">CONTACT</a>
       </nav>
@@ -80,18 +80,22 @@
     <!-- 배경 이미지 (안 뜨면 다른 Unsplash URL로 교체) -->
     <div
       class="hero-bg"
-      style="background-image: url('https://images.unsplash.com/photo-1473221326025-9183b464bb7e?auto=format&fit=crop&w=1920&q=80');"
+      style="background-image: url('https://images.unsplash.com/photo-1731272832794-d66014ad7d87?auto=format&fit=crop&w=1920&q=90');"
     ></div>
     <div class="hero-overlay"></div>
 
     <div class="hero-content">
-      <p class="hero-eyebrow fade-up" data-delay="0">
-        PREMIUM EXOTIC LEATHER · SEOUL
+      <div class="hero-pill fade-up" data-delay="0">
+        <span class="hero-pill-dot"></span>
+        SEOUL ATELIER
+      </div>
+      <p class="hero-eyebrow fade-up" data-delay="200">
+        PREMIUM EXOTIC LEATHER
       </p>
-      <h1 class="hero-title fade-up" data-delay="200">
+      <h1 class="hero-title fade-up" data-delay="400">
         BE ONE<br />OF A KIND
       </h1>
-      <p class="hero-tagline fade-up" data-delay="500">
+      <p class="hero-tagline fade-up" data-delay="700">
         Handcrafted by Master Artisans of 40 Years
       </p>
     </div>
@@ -128,25 +132,30 @@
        ========================================================== -->
   <section class="stats" id="story">
     <div class="container">
-      <div class="stats-grid">
+      <div class="bento-grid">
 
-        <div class="stat reveal">
-          <!-- data-target = 카운트업 목표값, data-suffix = 숫자 뒤에 붙는 기호 -->
-          <span class="stat-num" data-target="40" data-suffix="">0</span>
-          <span class="stat-label">YEARS OF CRAFT</span>
-          <p class="stat-desc">월드클래스 장인의 40년 경력</p>
+        <div class="bento-card bento-dark reveal">
+          <p class="bento-label">YEARS OF CRAFT</p>
+          <span class="stat-num bento-num" data-target="40" data-suffix="">0</span>
+          <p class="bento-desc">월드클래스 장인의<br>40년 경력</p>
         </div>
 
-        <div class="stat reveal">
-          <span class="stat-num" data-target="100" data-suffix="%">0</span>
-          <span class="stat-label">HANDMADE IN SEOUL</span>
-          <p class="stat-desc">한 점 한 점, 손으로 완성</p>
+        <div class="bento-card bento-light reveal">
+          <p class="bento-label">HANDMADE IN SEOUL</p>
+          <span class="stat-num bento-num" data-target="100" data-suffix="%">0</span>
+          <p class="bento-desc">한 점 한 점, 손으로 완성</p>
         </div>
 
-        <div class="stat reveal">
-          <span class="stat-num" data-target="40" data-suffix="+">0</span>
-          <span class="stat-label">COLOR ATELIER</span>
-          <p class="stat-desc">맞춤 컬러 커스터마이징</p>
+        <div class="bento-card bento-muted reveal">
+          <p class="bento-label">COLOR ATELIER</p>
+          <span class="stat-num bento-num" data-target="40" data-suffix="+">0</span>
+          <p class="bento-desc">맞춤 컬러 커스터마이징</p>
+        </div>
+
+        <div class="bento-card bento-quote reveal">
+          <span class="bento-open-quote">"</span>
+          <p class="bento-quote-text">한 점의 가방이<br>완성되기까지<br>평균 80시간</p>
+          <cite class="bento-cite">— CROCINI Artisan Standard</cite>
         </div>
 
       </div>
@@ -173,10 +182,10 @@
       <div class="materials-grid">
 
         <!-- CROCODILE -->
-        <a href="#" class="material-card reveal" id="crocodile">
+        <a href="crocodile.html" class="material-card reveal" id="crocodile">
           <div class="card-image">
             <img
-              src="https://images.unsplash.com/photo-1584917865442-de89df76afd3?auto=format&fit=crop&w=900&q=80"
+              src="https://images.unsplash.com/photo-1575295912464-fcfd1186d11d?auto=format&fit=crop&w=900&q=85"
               alt="Crocodile leather collection"
             />
             <span class="card-number">01</span>
@@ -192,10 +201,10 @@
         </a>
 
         <!-- OSTRICH -->
-        <a href="#" class="material-card reveal" id="ostrich">
+        <a href="ostrich.html" class="material-card reveal" id="ostrich">
           <div class="card-image">
             <img
-              src="https://images.unsplash.com/photo-1591348122449-02525d70379b?auto=format&fit=crop&w=900&q=80"
+              src="https://images.unsplash.com/photo-1590739169125-a9438401596a?auto=format&fit=crop&w=900&q=85"
               alt="Ostrich leather collection"
             />
             <span class="card-number">02</span>
@@ -214,7 +223,7 @@
         <a href="custom-order.html" class="material-card reveal" id="python">
           <div class="card-image">
             <img
-              src="https://images.unsplash.com/photo-1627123424574-724758594e93?auto=format&fit=crop&w=900&q=80"
+              src="https://images.unsplash.com/photo-1702576501484-fc8743c67f37?auto=format&fit=crop&w=900&q=85"
               alt="Python leather collection"
             />
             <span class="card-number">03</span>
@@ -242,7 +251,7 @@
 
       <div class="heritage-image reveal">
         <img
-          src="https://images.unsplash.com/photo-1452860606245-08befc0ff44b?auto=format&fit=crop&w=900&q=80"
+          src="https://images.unsplash.com/photo-1644258676710-ffb99d7d7a1b?auto=format&fit=crop&w=900&q=85"
           alt="Master artisan crafting leather"
         />
       </div>
@@ -270,7 +279,7 @@
   <section class="fullbleed">
     <div
       class="fullbleed-bg"
-      style="background-image: url('https://images.unsplash.com/photo-1624222247344-550fb60583dc?auto=format&fit=crop&w=1920&q=80');"
+      style="background-image: url('https://images.unsplash.com/photo-1595026677025-0eff2b5b3a16?auto=format&fit=crop&w=1920&q=90');"
     ></div>
     <div class="fullbleed-overlay"></div>
 
@@ -326,12 +335,8 @@
 
       </div>
 
-      <!-- 빠른 연결 버튼 — 전화 / 카카오톡 / 폼 -->
+      <!-- 빠른 연결 버튼 — 카카오톡 / 폼 -->
       <div class="contact-actions reveal">
-        <a href="tel:010-8708-3261" class="contact-action">
-          <span class="contact-action-label">CALL</span>
-          <span class="contact-action-text">전화 걸기</span>
-        </a>
         <!-- TODO: 실제 카카오 채널 또는 오픈채팅 URL로 교체 -->
         <a href="https://pf.kakao.com/_artesano" target="_blank" rel="noopener" class="contact-action">
           <span class="contact-action-label">KAKAO</span>
