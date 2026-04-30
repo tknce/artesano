@@ -10,10 +10,11 @@
 //    반드시 다른 require 보다 먼저 실행해야 함
 require('dotenv').config();
 
-const express = require('express');
-const cors    = require('cors');
-const path    = require('path');
-const multer  = require('multer');
+const express   = require('express');
+const cors      = require('cors');
+const path      = require('path');
+const multer    = require('multer');
+const basicAuth = require('express-basic-auth');
 
 // 라우터 파일 불러오기
 const productsRouter     = require('./routes/products');
@@ -36,6 +37,14 @@ app.use(express.json());
 // -----------------------------------------------
 // 라우터 연결
 // -----------------------------------------------
+
+// 관리자 페이지 Basic Auth
+const adminAuth = basicAuth({
+  users: { [process.env.ADMIN_USER || 'admin']: process.env.ADMIN_PASSWORD || 'changeme' },
+  challenge: true,
+  realm: 'CROCINI Admin',
+});
+app.use('/admin.html', adminAuth);
 
 // 업로드된 이미지 정적 서빙: /uploads/xxx.jpg → backend/uploads/xxx.jpg
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
