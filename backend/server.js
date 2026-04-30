@@ -40,6 +40,9 @@ app.use(express.json());
 // 업로드된 이미지 정적 서빙: /uploads/xxx.jpg → backend/uploads/xxx.jpg
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
+// 프론트엔드 정적 파일 서빙 (HTML/CSS/JS/이미지)
+app.use(express.static(path.join(__dirname, '..')));
+
 // /products 로 들어오는 요청은 products.js 라우터가 처리
 app.use('/products',      productsRouter);
 app.use('/inquiries',     inquiriesRouter);

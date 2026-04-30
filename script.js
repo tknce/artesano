@@ -121,7 +121,7 @@ document.addEventListener('DOMContentLoaded', () => {
      ========================================================== */
   const inquiryForm = document.getElementById('inquiryForm');
   if (inquiryForm) {
-    const INQUIRY_API = 'http://localhost:3000/inquiries';
+    const INQUIRY_API = '/inquiries';
     const submitBtn   = document.getElementById('inquirySubmit');
     const statusEl    = document.getElementById('inquiryStatus');
 
@@ -189,8 +189,8 @@ document.addEventListener('DOMContentLoaded', () => {
   if (productGrid) {
 
     /* 백엔드 API 주소 (서버 주소가 바뀌면 여기만 수정) */
-    const API_URL    = 'http://localhost:3000/products';
-    const SERVER_URL = 'http://localhost:3000';
+    const API_URL    = '/products';
+    const SERVER_URL = '';
 
     /* image_url 이 /uploads/... 로 시작하면 절대 URL로 변환,
        이미 http로 시작하면(외부 이미지) 그대로 사용 */
