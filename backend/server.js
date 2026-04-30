@@ -41,7 +41,8 @@ app.use(express.json());
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // 프론트엔드 정적 파일 서빙 (HTML/CSS/JS/이미지)
-app.use(express.static(path.join(__dirname, '..')));
+const FRONTEND_DIR = process.env.FRONTEND_DIR || path.join(__dirname, '..');
+app.use(express.static(FRONTEND_DIR));
 
 // /products 로 들어오는 요청은 products.js 라우터가 처리
 app.use('/products',      productsRouter);
