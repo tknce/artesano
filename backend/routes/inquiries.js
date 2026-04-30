@@ -62,4 +62,22 @@ router.get('/', async (req, res) => {
   }
 });
 
+// -----------------------------------------------
+// DELETE /inquiries/:id — 문의 삭제 (관리자용)
+// -----------------------------------------------
+router.delete('/:id', async (req, res) => {
+  try {
+    const id = parseInt(req.params.id, 10);
+    if (isNaN(id)) return res.status(400).json({ error: '유효하지 않은 ID입니다.' });
+
+    const [result] = await pool.query('DELETE FROM inquiries WHERE id = ?', [id]);
+    if (result.affectedRows === 0) return res.status(404).json({ error: '해당 문의를 찾을 수 없습니다.' });
+
+    res.json({ success: true });
+  } catch (err) {
+    console.error('[DELETE /inquiries/:id] 오류:', err.message);
+    res.status(500).json({ error: '서버 오류가 발생했습니다.' });
+  }
+});
+
 module.exports = router;

@@ -284,7 +284,7 @@ async function loadInquiries() {
     const list = await res.json();
 
     if (list.length === 0) {
-      inquiryTableBody.innerHTML = '<tr><td colspan="7" class="admin-empty">접수된 문의가 없습니다.</td></tr>';
+      inquiryTableBody.innerHTML = '<tr><td colspan="8" class="admin-empty">접수된 문의가 없습니다.</td></tr>';
       return;
     }
 
@@ -297,15 +297,38 @@ async function loadInquiries() {
         <td>${escapeHtml(q.email || '-')}</td>
         <td class="inquiry-message">${escapeHtml(q.message)}</td>
         <td style="font-size:12px;color:#666;">${formatDate(q.created_at)}</td>
+        <td>
+          <button type="button" class="btn-danger" data-action="delete-inquiry" data-id="${q.id}">삭제</button>
+        </td>
       </tr>
     `).join('');
   } catch (err) {
     console.error('문의 로딩 실패:', err);
-    inquiryTableBody.innerHTML = `<tr><td colspan="7" class="admin-loading">불러오기 실패: ${err.message}</td></tr>`;
+    inquiryTableBody.innerHTML = `<tr><td colspan="8" class="admin-loading">불러오기 실패: ${err.message}</td></tr>`;
   }
 }
 
 btnRefreshInquiries.addEventListener('click', loadInquiries);
+
+inquiryTableBody.addEventListener('click', (e) => {
+  const btn = e.target.closest('button[data-action="delete-inquiry"]');
+  if (!btn) return;
+  deleteInquiry(parseInt(btn.dataset.id, 10));
+});
+
+async function deleteInquiry(id) {
+  if (!confirm(`문의 #${id}를 정말 삭제하시겠습니까?`)) return;
+  try {
+    const res = await fetch(`${API}/inquiries/${id}`, { method: 'DELETE' });
+    if (!res.ok) {
+      const d = await res.json().catch(() => ({}));
+      throw new Error(d.error || `HTTP ${res.status}`);
+    }
+    await loadInquiries();
+  } catch (err) {
+    alert('삭제 실패: ' + err.message);
+  }
+}
 
 
 /* ============================================================
@@ -328,7 +351,7 @@ async function loadCustomOrders() {
     const list = await res.json();
 
     if (list.length === 0) {
-      customOrderTableBody.innerHTML = '<tr><td colspan="8" class="admin-empty">접수된 주문제작이 없습니다.</td></tr>';
+      customOrderTableBody.innerHTML = '<tr><td colspan="9" class="admin-empty">접수된 주문제작이 없습니다.</td></tr>';
       return;
     }
 
@@ -359,15 +382,38 @@ async function loadCustomOrders() {
           <td>${optsHtml}</td>
           <td class="inquiry-message">${escapeHtml(o.message || '-')}</td>
           <td style="font-size:12px;color:#666;">${formatDate(o.created_at)}</td>
+          <td>
+            <button type="button" class="btn-danger" data-action="delete-custom-order" data-id="${o.id}">삭제</button>
+          </td>
         </tr>`;
     }).join('');
   } catch (err) {
     console.error('주문제작 로딩 실패:', err);
-    customOrderTableBody.innerHTML = `<tr><td colspan="8" class="admin-loading">불러오기 실패: ${err.message}</td></tr>`;
+    customOrderTableBody.innerHTML = `<tr><td colspan="9" class="admin-loading">불러오기 실패: ${err.message}</td></tr>`;
   }
 }
 
 btnRefreshCustomOrders.addEventListener('click', loadCustomOrders);
+
+customOrderTableBody.addEventListener('click', (e) => {
+  const btn = e.target.closest('button[data-action="delete-custom-order"]');
+  if (!btn) return;
+  deleteCustomOrder(parseInt(btn.dataset.id, 10));
+});
+
+async function deleteCustomOrder(id) {
+  if (!confirm(`주문제작 #${id}를 정말 삭제하시겠습니까?`)) return;
+  try {
+    const res = await fetch(`${API}/custom-orders/${id}`, { method: 'DELETE' });
+    if (!res.ok) {
+      const d = await res.json().catch(() => ({}));
+      throw new Error(d.error || `HTTP ${res.status}`);
+    }
+    await loadCustomOrders();
+  } catch (err) {
+    alert('삭제 실패: ' + err.message);
+  }
+}
 
 
 /* ============================================================
