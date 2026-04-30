@@ -14,6 +14,7 @@ const mysql = require('mysql2/promise');
 // (반드시 server.js에서 require('dotenv').config() 먼저 실행되어야 함)
 const pool = mysql.createPool({
   host:     process.env.DB_HOST,
+  port:     parseInt(process.env.DB_PORT || '3306', 10),
   user:     process.env.DB_USER,
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
