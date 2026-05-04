@@ -46,7 +46,7 @@ async function loadProducts() {
     renderProducts();
   } catch (err) {
     console.error('상품 로딩 실패:', err);
-    productTableBody.innerHTML = `<tr><td colspan="7" class="admin-loading">불러오기 실패: ${err.message}</td></tr>`;
+    productTableBody.innerHTML = `<tr><td colspan="7" class="admin-loading">불러오기 실패: ${escapeHtml(err.message)}</td></tr>`;
   }
 }
 
@@ -180,8 +180,9 @@ fImageFile.addEventListener('change', () => {
 
 // 외부 URL 입력 시 미리보기
 fImageUrl.addEventListener('input', () => {
-  if (fImageUrl.value && !fImageFile.files[0]) {
-    fImagePreview.src = fImageUrl.value;
+  const url = fImageUrl.value.trim();
+  if (url && !fImageFile.files[0] && /^https?:\/\//i.test(url)) {
+    fImagePreview.src = url;
   }
 });
 
@@ -293,7 +294,7 @@ async function loadInquiries() {
     `).join('');
   } catch (err) {
     console.error('문의 로딩 실패:', err);
-    inquiryTableBody.innerHTML = `<tr><td colspan="8" class="admin-loading">불러오기 실패: ${err.message}</td></tr>`;
+    inquiryTableBody.innerHTML = `<tr><td colspan="8" class="admin-loading">불러오기 실패: ${escapeHtml(err.message)}</td></tr>`;
   }
 }
 
@@ -378,7 +379,7 @@ async function loadCustomOrders() {
     }).join('');
   } catch (err) {
     console.error('주문제작 로딩 실패:', err);
-    customOrderTableBody.innerHTML = `<tr><td colspan="9" class="admin-loading">불러오기 실패: ${err.message}</td></tr>`;
+    customOrderTableBody.innerHTML = `<tr><td colspan="9" class="admin-loading">불러오기 실패: ${escapeHtml(err.message)}</td></tr>`;
   }
 }
 

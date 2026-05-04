@@ -1,11 +1,18 @@
 require('dotenv').config();
 
-const express = require('express');
-const cors    = require('cors');
-const path    = require('path');
-const fs      = require('fs');
-const multer  = require('multer');
-const session = require('express-session');
+if (!process.env.SESSION_SECRET) {
+  console.error('FATAL: SESSION_SECRET 환경변수가 설정되지 않았습니다.');
+  process.exit(1);
+}
+
+const express   = require('express');
+const cors      = require('cors');
+const path      = require('path');
+const fs        = require('fs');
+const multer    = require('multer');
+const session   = require('express-session');
+const helmet    = require('helmet');
+const rateLimit = require('express-rate-limit');
 
 const productsRouter     = require('./routes/products');
 const inquiriesRouter    = require('./routes/inquiries');
@@ -14,13 +21,60 @@ const customOrdersRouter = require('./routes/custom-orders');
 const app  = express();
 const PORT = process.env.PORT || 3000;
 
-app.use(cors());
+// Railway 등 리버스 프록시 뒤에서 클라이언트 IP를 올바르게 인식
+app.set('trust proxy', 1);
+
+// -----------------------------------------------
+// 보안 헤더 (helmet)
+// -----------------------------------------------
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc:  ["'self'", "'unsafe-inline'"],
+      styleSrc:   ["'self'", 'https://fonts.googleapis.com', "'unsafe-inline'"],
+      fontSrc:    ["'self'", 'https://fonts.gstatic.com'],
+      imgSrc:     ["'self'", 'data:', 'blob:', 'https:', 'http:'],
+      connectSrc: ["'self'"],
+      frameSrc:   ["'none'"],
+      objectSrc:  ["'none'"],
+      baseUri:    ["'self'"],
+      formAction: ["'self'"],
+    },
+  },
+}));
+
+// -----------------------------------------------
+// CORS — 허용된 출처만 API 접근 가능
+// -----------------------------------------------
+const ALLOWED_ORIGINS = new Set([
+  'https://www.crocini.co.kr',
+  'https://crocini.co.kr',
+  'http://localhost:3000',
+]);
+app.use(cors({
+  origin: (origin, cb) => {
+    if (!origin || ALLOWED_ORIGINS.has(origin)) return cb(null, true);
+    cb(new Error('허용되지 않은 출처입니다.'));
+  },
+  credentials: true,
+}));
+
 app.use(express.json());
+
+// -----------------------------------------------
+// 세션
+// -----------------------------------------------
 app.use(session({
-  secret: process.env.SESSION_SECRET || 'crocini-dev-secret',
+  secret: process.env.SESSION_SECRET,
   resave: false,
   saveUninitialized: false,
-  cookie: { httpOnly: true, sameSite: 'strict', maxAge: 8 * 60 * 60 * 1000 },
+  cookie: {
+    httpOnly: true,
+    sameSite: 'strict',
+    maxAge: 8 * 60 * 60 * 1000,
+    secure: process.env.NODE_ENV === 'production',
+  },
 }));
 
 // -----------------------------------------------
@@ -32,9 +86,20 @@ function requireAdmin(req, res, next) {
 }
 
 // -----------------------------------------------
+// 로그인 브루트포스 방지 (15분에 최대 10회)
+// -----------------------------------------------
+const loginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 10,
+  message: { error: '너무 많은 로그인 시도입니다. 15분 후 다시 시도해주세요.' },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+// -----------------------------------------------
 // 관리자 인증 API
 // -----------------------------------------------
-app.post('/api/admin/login', (req, res) => {
+app.post('/api/admin/login', loginLimiter, (req, res) => {
   const { username, password } = req.body || {};
   if (
     username === (process.env.ADMIN_USER || 'admin') &&
@@ -63,7 +128,7 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 const FRONTEND_DIR = process.env.FRONTEND_DIR || path.join(__dirname, '..');
 
 // -----------------------------------------------
-// .html → 클린 URL 301 리다이렉트 (express.static 보다 먼저 등록)
+// .html → 클린 URL 301 리다이렉트
 // -----------------------------------------------
 function redirectTo(cleanUrl) {
   return (req, res) => {
@@ -98,26 +163,22 @@ Object.entries(PAGES).forEach(([url, file]) => {
   app.get(url, (req, res) => res.sendFile(path.join(FRONTEND_DIR, file)));
 });
 
-// 프론트엔드 정적 파일 서빙 (CSS, JS, 이미지 등)
+// 프론트엔드 정적 파일 서빙
 app.use(express.static(FRONTEND_DIR));
 
 // -----------------------------------------------
 // API 라우터 (인증 적용)
 // -----------------------------------------------
-
-// 상품 — GET은 공개, POST/PUT/DELETE는 관리자 전용
 app.use('/products', (req, res, next) => {
   if (['POST', 'PUT', 'DELETE'].includes(req.method)) return requireAdmin(req, res, next);
   next();
 }, productsRouter);
 
-// 문의 — POST(접수)는 공개, GET(목록)/DELETE는 관리자 전용
 app.use('/inquiries', (req, res, next) => {
   if (req.method === 'GET' || req.method === 'DELETE') return requireAdmin(req, res, next);
   next();
 }, inquiriesRouter);
 
-// 주문제작 — POST(접수)는 공개, GET(목록)/DELETE는 관리자 전용
 app.use('/custom-orders', (req, res, next) => {
   if (req.method === 'GET' || req.method === 'DELETE') return requireAdmin(req, res, next);
   next();
@@ -132,9 +193,8 @@ app.use((err, req, res, next) => {
     if (err.code === 'LIMIT_FILE_SIZE') return res.status(400).json({ error: '파일 크기는 10MB 이하여야 합니다.' });
     return res.status(400).json({ error: `업로드 오류: ${err.message}` });
   }
-  if (err?.message?.includes('이미지 파일만')) {
-    return res.status(400).json({ error: err.message });
-  }
+  if (err?.message?.includes('이미지 파일만')) return res.status(400).json({ error: err.message });
+  if (err?.message === '허용되지 않은 출처입니다.') return res.status(403).json({ error: err.message });
   console.error(`[${req.method} ${req.path}] 오류:`, err.message);
   res.status(500).json({ error: '서버 오류가 발생했습니다.' });
 });
