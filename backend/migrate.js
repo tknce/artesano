@@ -30,6 +30,14 @@ async function migrate() {
     await pool.query('ALTER TABLE custom_orders ADD CONSTRAINT fk_custom_orders_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL');
   }
 
+  const [dCols] = await pool.query(`
+    SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'products' AND COLUMN_NAME = 'description'
+  `);
+  if (dCols.length === 0) {
+    await pool.query('ALTER TABLE products ADD COLUMN description TEXT NULL');
+  }
+
   console.log('✓ DB 마이그레이션 완료');
 }
 

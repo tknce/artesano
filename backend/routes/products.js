@@ -59,7 +59,8 @@ function parseProductBody(body) {
     out.category = body.category;
   }
 
-  out.option_desc    = body.option_desc ? String(body.option_desc).trim() : null;
+  out.option_desc    = body.option_desc   ? String(body.option_desc).trim()   : null;
+  out.description    = body.description   ? String(body.description).trim()   : null;
   out.badge          = body.badge       ? String(body.badge).trim()       : null;
   out.price          = parseIntField(body.price,          'price',          errors);
   out.original_price = parseIntField(body.original_price, 'original_price', errors);
@@ -102,8 +103,8 @@ router.post('/', upload.single('image'), asyncHandler(async (req, res) => {
   if (errors.length > 0) return res.status(400).json({ error: errors.join(' ') });
 
   const [result] = await pool.query(
-    'INSERT INTO products (name, category, option_desc, price, original_price, image_url, is_custom_order, badge) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
-    [data.name, data.category, data.option_desc, data.price, data.original_price, imageUrl, data.is_custom_order, data.badge]
+    'INSERT INTO products (name, category, option_desc, description, price, original_price, image_url, is_custom_order, badge) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+    [data.name, data.category, data.option_desc, data.description, data.price, data.original_price, imageUrl, data.is_custom_order, data.badge]
   );
   const [rows] = await pool.query('SELECT * FROM products WHERE id = ?', [result.insertId]);
   res.status(201).json(rows[0]);
@@ -133,8 +134,8 @@ router.put('/:id', upload.single('image'), asyncHandler(async (req, res) => {
   }
 
   await pool.query(
-    'UPDATE products SET name=?, category=?, option_desc=?, price=?, original_price=?, image_url=?, is_custom_order=?, badge=? WHERE id=?',
-    [data.name, data.category, data.option_desc, data.price, data.original_price, imageUrl, data.is_custom_order, data.badge, id]
+    'UPDATE products SET name=?, category=?, option_desc=?, description=?, price=?, original_price=?, image_url=?, is_custom_order=?, badge=? WHERE id=?',
+    [data.name, data.category, data.option_desc, data.description, data.price, data.original_price, imageUrl, data.is_custom_order, data.badge, id]
   );
   if (oldUrlToDelete) await deleteImage(oldUrlToDelete);
 

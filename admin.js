@@ -120,6 +120,7 @@ const fId             = document.getElementById('productId');
 const fName           = document.getElementById('fName');
 const fCategory       = document.getElementById('fCategory');
 const fOptionDesc     = document.getElementById('fOptionDesc');
+const fDescription    = document.getElementById('fDescription');
 const fPrice          = document.getElementById('fPrice');
 const fOriginalPrice  = document.getElementById('fOriginalPrice');
 const fBadge          = document.getElementById('fBadge');
@@ -143,6 +144,7 @@ function openProductModal(id) {
     fName.value           = p.name;
     fCategory.value       = p.category;
     fOptionDesc.value     = p.option_desc || '';
+    fDescription.value    = p.description || '';
     fPrice.value          = p.price ?? '';
     fOriginalPrice.value  = p.original_price ?? '';
     fBadge.value          = p.badge || '';
@@ -202,6 +204,7 @@ productForm.addEventListener('submit', async (e) => {
     fd.append('name',            fName.value.trim());
     fd.append('category',        fCategory.value);
     fd.append('option_desc',     fOptionDesc.value.trim());
+    fd.append('description',     fDescription.value.trim());
     fd.append('price',           fPrice.value);
     fd.append('original_price',  fOriginalPrice.value);
     fd.append('badge',           fBadge.value.trim());

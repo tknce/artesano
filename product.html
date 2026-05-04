@@ -302,6 +302,55 @@
       color: var(--color-muted);
     }
 
+    /* ── 상세 탭 ── */
+    .detail-tabs-section {
+      padding: 60px 0 0;
+      border-top: 1px solid #f0f0f0;
+    }
+    .detail-tabs {
+      display: flex;
+      gap: 0;
+      border-bottom: 1px solid #e8e8e8;
+      margin-bottom: 40px;
+    }
+    .detail-tab {
+      font-family: var(--font-sans);
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      color: #aaa;
+      background: none;
+      border: none;
+      padding: 14px 28px;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -1px;
+      transition: color 0.2s, border-color 0.2s;
+    }
+    .detail-tab.active {
+      color: var(--color-black);
+      border-bottom-color: var(--color-black);
+    }
+    .detail-tab:hover { color: var(--color-black); }
+    .detail-tab-body { min-height: 160px; padding-bottom: 80px; }
+    .detail-tab-panel { display: none; }
+    .detail-tab-panel.active { display: block; }
+    .tab-desc-content {
+      font-family: var(--font-sans);
+      font-size: 14px;
+      font-weight: 300;
+      line-height: 2;
+      color: #555;
+      white-space: pre-line;
+    }
+    .tab-desc-content p { margin-bottom: 8px; }
+    .tab-empty {
+      font-size: 13px;
+      color: #ccc;
+      letter-spacing: 0.04em;
+    }
+
     @media (max-width: 900px) {
       .related-grid { grid-template-columns: repeat(2, 1fr); }
     }
@@ -363,6 +412,33 @@
           <p class="detail-option" id="detailOption"></p>
           <div class="detail-price-wrap" id="detailPriceWrap"></div>
           <div class="detail-cta" id="detailCta"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 상품 상세 탭 -->
+  <section class="detail-tabs-section container" id="detailTabsSection" hidden>
+    <div class="detail-tabs">
+      <button class="detail-tab active" data-tab="desc">상품 설명</button>
+      <button class="detail-tab" data-tab="material">소재 정보</button>
+      <button class="detail-tab" data-tab="care">케어 가이드</button>
+    </div>
+    <div class="detail-tab-body">
+      <div class="detail-tab-panel active" id="tabDesc">
+        <p class="tab-empty" id="tabDescEmpty">등록된 상세 설명이 없습니다.</p>
+        <div class="tab-desc-content" id="tabDescContent" hidden></div>
+      </div>
+      <div class="detail-tab-panel" id="tabMaterial" hidden>
+        <div class="tab-desc-content" id="tabMaterialContent"></div>
+      </div>
+      <div class="detail-tab-panel" id="tabCare" hidden>
+        <div class="tab-desc-content">
+          <p>· 직사광선 및 고온 다습한 환경을 피해 보관하세요.</p>
+          <p>· 사용 후 부드러운 천으로 표면을 가볍게 닦아주세요.</p>
+          <p>· 가죽 전용 크림으로 주기적으로 유분을 보충해주세요.</p>
+          <p>· 비나 물에 젖었을 경우 직사광선을 피해 자연 건조하세요.</p>
+          <p>· 장기 보관 시 전용 보관 백에 넣어 통풍이 잘 되는 곳에 보관하세요.</p>
         </div>
       </div>
     </div>
@@ -479,6 +555,19 @@
       document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLightbox(); });
     })();
 
+    // 탭 전환
+    (() => {
+      document.querySelectorAll('.detail-tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+          document.querySelectorAll('.detail-tab').forEach(t => t.classList.remove('active'));
+          document.querySelectorAll('.detail-tab-panel').forEach(p => { p.classList.remove('active'); p.hidden = true; });
+          tab.classList.add('active');
+          const panel = document.getElementById('tab' + tab.dataset.tab.charAt(0).toUpperCase() + tab.dataset.tab.slice(1));
+          if (panel) { panel.classList.add('active'); panel.hidden = false; }
+        });
+      });
+    })();
+
     // 상품 상세 로딩
     (async () => {
       const loadingEl  = document.getElementById('detailLoading');
@@ -566,6 +655,28 @@
 
         loadingEl.hidden = true;
         contentEl.hidden = false;
+
+        // 상세 탭 채우기
+        const tabsSection   = document.getElementById('detailTabsSection');
+        const tabDescEmpty   = document.getElementById('tabDescEmpty');
+        const tabDescContent = document.getElementById('tabDescContent');
+        const tabMaterial    = document.getElementById('tabMaterialContent');
+
+        if (p.description) {
+          tabDescEmpty.hidden = true;
+          tabDescContent.textContent = p.description;
+          tabDescContent.hidden = false;
+        }
+
+        const materialMap = {
+          crocodile: '· 소재: 나일 크로커다일 (Nile Crocodile)\n· 등급: 최상급 A급 스킨, 장인이 직접 선별\n· 특징: 세월이 흐를수록 깊어지는 고유의 광택과 패턴\n· 원산지: 아프리카산 / CITES 협약 준수 합법 유통',
+          python:    '· 소재: 레티쿨라투스 파이톤 (Python Reticulatus)\n· 등급: 최상급 A급 스킨, 장인이 직접 선별\n· 특징: 자연이 만든 단 하나의 패턴, 전량 주문제작\n· 원산지: 동남아시아산 / CITES 협약 준수 합법 유통',
+          ostrich:   '· 소재: 아프리카 오스트리치 (Ostrich)\n· 등급: 최상급 A급 스킨, 장인이 직접 선별\n· 특징: 부드러운 촉감과 특유의 퀼 패턴\n· 원산지: 남아프리카산 / CITES 협약 준수 합법 유통',
+        };
+        tabMaterial.style.whiteSpace = 'pre-line';
+        tabMaterial.textContent = materialMap[p.category] || '소재 정보를 준비 중입니다.';
+
+        tabsSection.hidden = false;
 
         // 연관 상품
         const relRes  = await fetch(`/products?category=${p.category}`);
