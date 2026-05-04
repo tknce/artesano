@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>CROCINI — Our Story</title>
-  <meta name="description" content="CROCINI 아르테사노의 이야기. 40년 경력 장인, 서울 아틀리에, 핸드메이드 가죽 컬렉션의 탄생 배경." />
+  <title>CROCINI — Contact</title>
+  <meta name="description" content="CROCINI 아르테사노 — 서울 아틀리에 방문 예약 및 제품 문의." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Inter:wght@300;400;500&family=Bebas+Neue&display=swap" rel="stylesheet" />
@@ -16,11 +16,11 @@
     <div class="nav-inner">
       <a href="index.html" class="logo">CROCINI</a>
       <nav class="nav-menu" id="navMenu">
-        <a href="story.html" class="active">STORY</a>
+        <a href="story.html">STORY</a>
         <!-- <a href="crocodile.html">CROCODILE</a> -->
         <!-- <a href="python.html">PYTHON</a> -->
         <a href="shop.html">SHOP</a>
-        <a href="contact.html">CONTACT</a>
+        <a href="contact.html" class="active">CONTACT</a>
       </nav>
       <button class="hamburger" id="hamburger" aria-label="메뉴 열기">
         <span></span><span></span><span></span>
@@ -30,55 +30,45 @@
 
   <main>
 
-    <!-- 브랜드 소개 -->
     <section class="m-section m-contact-page">
-      <p class="m-label">OUR STORY</p>
-      <p class="m-serif-lg"><em>40년,<br />오직 가죽 하나.</em></p>
+      <p class="m-label">ATELIER SEOUL</p>
+      <p class="m-serif-lg"><em>찾아오세요.</em></p>
       <p class="m-body">
-        서울 아틀리에에서 시작된 CROCINI(아르테사노).<br />
-        대표 박진호는 40년간 크로커다일, 파이톤을<br />
-        오직 손으로만 다뤄왔습니다.<br /><br />
-        한 점을 완성하는 데 평균 80시간.<br />
-        기계로는 구현할 수 없는 곡선과 마감이<br />
-        CROCINI만의 품격을 만듭니다.
+        서울특별시 송파구 법원로11길 7<br />
+        070-8875-0028 · 010-8708-3261<br />
+        연중무휴 24시간
       </p>
-    </section>
-
-    <!-- 철학 -->
-    <section class="m-section m-philosophy">
-      <p class="m-label">PHILOSOPHY</p>
-      <div class="m-phil-list">
-        <div class="m-phil-item">
-          <span class="m-phil-key">craft</span>
-          <div>
-            <p class="m-phil-title">MASTER CRAFTSMANSHIP</p>
-            <p class="m-body">모든 제품은 40년 경력 장인의 손에서 시작해 손에서 끝납니다. 한 점 완성에 평균 80시간.</p>
-          </div>
-        </div>
-        <div class="m-phil-item">
-          <span class="m-phil-key">rare</span>
-          <div>
-            <p class="m-phil-title">FINEST MATERIALS</p>
-            <p class="m-body">크로커다일, 파이톤 — 세계에서 가장 희귀한 소재만을 장인이 직접 선별합니다.</p>
-          </div>
-        </div>
-        <div class="m-phil-item">
-          <span class="m-phil-key">you</span>
-          <div>
-            <p class="m-phil-title">BESPOKE FOR YOU</p>
-            <p class="m-body">컬러, 크기, 금장 디테일까지 장인과 함께 직접 설계하는 세상에 단 하나의 작품.</p>
-          </div>
-        </div>
+      <div class="m-contact-links">
+        <a href="https://pf.kakao.com/_artesano" target="_blank" rel="noopener" class="m-contact-btn">KakaoTalk</a>
       </div>
     </section>
 
-    <!-- 인용 -->
-    <section class="m-section m-quote" style="padding-bottom: 160px;">
-      <p class="m-serif-md">
-        <em>"가죽 한 장은 단순한 소재가 아닙니다.<br />
-        장인의 손이 더해질 때 비로소<br />
-        당신만의 이야기가 됩니다."</em>
-      </p>
+    <section class="m-section m-form" id="inquiry-form">
+      <p class="m-label">INQUIRY</p>
+      <form class="inquiry-form" id="inquiryForm" novalidate>
+        <div class="inquiry-row">
+          <label class="inquiry-field">
+            <span class="inquiry-label">이름 <em>*</em></span>
+            <input type="text" name="name" maxlength="100" required />
+          </label>
+          <label class="inquiry-field">
+            <span class="inquiry-label">연락처 <em>*</em></span>
+            <input type="tel" name="phone" maxlength="50" placeholder="010-0000-0000" required />
+          </label>
+        </div>
+        <label class="inquiry-field">
+          <span class="inquiry-label">이메일</span>
+          <input type="email" name="email" maxlength="255" placeholder="(선택)" />
+        </label>
+        <label class="inquiry-field">
+          <span class="inquiry-label">문의 내용 <em>*</em></span>
+          <textarea name="message" rows="5" required placeholder="문의하실 내용을 자세히 적어주세요."></textarea>
+        </label>
+        <div class="inquiry-submit-row">
+          <p class="inquiry-status" id="inquiryStatus" hidden></p>
+          <button type="submit" class="btn-line" id="inquirySubmit">문의하기</button>
+        </div>
+      </form>
     </section>
 
   </main>
@@ -93,8 +83,8 @@
         <h5 class="footer-heading">EXPLORE</h5>
         <ul class="footer-links">
           <li><a href="story.html">Story</a></li>
-          <li><a href="shop.html">Shop</a></li>
-          <li><a href="contact.html">Contact</a></li>
+          <li><a href="crocodile.html">Crocodile</a></li>
+          <li><a href="python.html">Python</a></li>
         </ul>
       </div>
       <div class="footer-col">
