@@ -126,9 +126,10 @@
 
     .detail-name {
       font-family: var(--font-serif);
-      font-size: clamp(1.8rem, 3vw, 2.8rem);
-      font-weight: 400;
-      line-height: 1.15;
+      font-size: clamp(1.8rem, 3vw, 2.6rem);
+      font-weight: 300;
+      line-height: 1.2;
+      letter-spacing: 0.03em;
       color: var(--color-black);
       margin-bottom: 28px;
     }
@@ -159,17 +160,19 @@
       margin-bottom: 4px;
     }
     .detail-price-sale {
-      font-family: var(--font-serif);
-      font-size: clamp(1.4rem, 2.5vw, 2rem);
-      font-weight: 500;
+      font-family: var(--font-sans);
+      font-size: clamp(1.2rem, 2vw, 1.6rem);
+      font-weight: 300;
+      letter-spacing: 0.08em;
       color: var(--color-black);
     }
     .detail-price-inquiry {
-      font-family: var(--font-serif);
-      font-size: clamp(1.2rem, 2vw, 1.6rem);
+      font-family: var(--font-sans);
+      font-size: 0.85rem;
       font-weight: 400;
-      color: var(--color-brown);
-      font-style: italic;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--color-gold);
     }
 
     .detail-cta { display: flex; flex-direction: column; gap: 14px; }
