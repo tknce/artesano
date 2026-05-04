@@ -80,7 +80,19 @@
       display: block;
       transition: transform 0.5s ease;
     }
-    .detail-image:hover img { transform: scale(1.06); }
+    .magnifier-lens {
+      display: none;
+      position: absolute;
+      width: 130px;
+      height: 130px;
+      border-radius: 50%;
+      border: 1.5px solid rgba(201,169,97,0.7);
+      pointer-events: none;
+      background-repeat: no-repeat;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.25);
+      transform: translate(-50%, -50%);
+      z-index: 10;
+    }
 
     .detail-badge {
       position: absolute;
@@ -413,6 +425,29 @@
       });
       hamburger.addEventListener('click', () => navMenu.classList.toggle('open'));
       navMenu.querySelectorAll('a').forEach(a => a.addEventListener('click', () => navMenu.classList.remove('open')));
+    })();
+
+    // 돋보기
+    (() => {
+      const wrap = document.getElementById('detailImageWrap');
+      const img  = document.getElementById('detailImage');
+      const lens = document.createElement('div');
+      lens.className = 'magnifier-lens';
+      wrap.appendChild(lens);
+      const ZOOM = 2.8;
+
+      wrap.addEventListener('mousemove', e => {
+        const rect = wrap.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        lens.style.left = x + 'px';
+        lens.style.top  = y + 'px';
+        lens.style.backgroundImage    = `url('${img.src}')`;
+        lens.style.backgroundSize     = `${rect.width * ZOOM}px ${rect.height * ZOOM}px`;
+        lens.style.backgroundPosition = `-${x * ZOOM - 65}px -${y * ZOOM - 65}px`;
+        lens.style.display = 'block';
+      });
+      wrap.addEventListener('mouseleave', () => { lens.style.display = 'none'; });
     })();
 
     // 라이트박스
