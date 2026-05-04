@@ -417,8 +417,26 @@ async function deleteCustomOrder(id) {
 
 
 /* ============================================================
-   초기 로드
+   로그아웃
    ============================================================ */
-loadProducts();
-loadInquiries();
-loadCustomOrders();
+document.getElementById('btnLogout').addEventListener('click', async () => {
+  await fetch('/api/admin/logout', { method: 'POST' });
+  location.replace('/admin-login');
+});
+
+/* ============================================================
+   초기 로드 (세션 확인 후)
+   ============================================================ */
+(async function init() {
+  try {
+    const r = await fetch('/api/admin/check');
+    if (!r.ok) { location.replace('/admin-login.html'); return; }
+  } catch {
+    location.replace('/admin-login');
+    return;
+  }
+  document.body.style.visibility = 'visible';
+  loadProducts();
+  loadInquiries();
+  loadCustomOrders();
+})();
