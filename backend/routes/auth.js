@@ -82,14 +82,24 @@ router.post('/logout', (req, res) => {
 });
 
 // GET /api/auth/me
-router.get('/me', (req, res) => {
+router.get('/me', asyncHandler(async (req, res) => {
   if (!req.session?.userId) return res.status(401).json({ error: 'Unauthorized' });
+
+  // 이전 세션에 email/phone이 없으면 DB에서 보완
+  if (!req.session.userEmail) {
+    const [rows] = await pool.query('SELECT email, phone FROM users WHERE id = ?', [req.session.userId]);
+    if (rows.length > 0) {
+      req.session.userEmail = rows[0].email;
+      req.session.userPhone = rows[0].phone ?? null;
+    }
+  }
+
   res.json({
     id:    req.session.userId,
     name:  req.session.userName,
     email: req.session.userEmail ?? null,
     phone: req.session.userPhone ?? null,
   });
-});
+}));
 
 module.exports = router;
