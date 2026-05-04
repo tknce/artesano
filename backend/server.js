@@ -10,9 +10,10 @@ const cors      = require('cors');
 const path      = require('path');
 const fs        = require('fs');
 const multer    = require('multer');
-const session   = require('express-session');
-const helmet    = require('helmet');
-const rateLimit = require('express-rate-limit');
+const session    = require('express-session');
+const MySQLStore = require('express-mysql-session')(session);
+const helmet     = require('helmet');
+const rateLimit  = require('express-rate-limit');
 
 const productsRouter     = require('./routes/products');
 const inquiriesRouter    = require('./routes/inquiries');
@@ -65,10 +66,23 @@ app.use(express.json());
 // -----------------------------------------------
 // 세션
 // -----------------------------------------------
+const sessionStore = new MySQLStore({
+  host:                    process.env.DB_HOST,
+  port:                    parseInt(process.env.DB_PORT || '3306', 10),
+  user:                    process.env.DB_USER,
+  password:                process.env.DB_PASSWORD,
+  database:                process.env.DB_NAME,
+  clearExpired:            true,
+  checkExpirationInterval: 15 * 60 * 1000,
+  expiration:              8 * 60 * 60 * 1000,
+  createDatabaseTable:     true,
+});
+
 app.use(session({
   secret: process.env.SESSION_SECRET,
   resave: false,
   saveUninitialized: false,
+  store: sessionStore,
   cookie: {
     httpOnly: true,
     sameSite: 'strict',
