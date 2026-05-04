@@ -1,9 +1,8 @@
-const express = require('express');
-const fs      = require('fs');
-const path    = require('path');
-const router  = express.Router();
-const pool    = require('../db');
-const upload  = require('../middleware/upload');
+const express    = require('express');
+const router     = express.Router();
+const pool       = require('../db');
+const upload     = require('../middleware/upload');
+const cloudinary = require('../lib/cloudinary');
 
 const ALLOWED_CATEGORIES = ['crocodile', 'ostrich', 'python'];
 
@@ -15,15 +14,26 @@ function parseId(str) {
   return isNaN(id) ? null : id;
 }
 
+// multer-storage-cloudinary: req.file.path = Cloudinary secure URL
 function fileToUrl(file) {
-  return `/uploads/${file.filename}`;
+  return file.path;
 }
 
-function deleteUploadedFile(imageUrl) {
-  if (!imageUrl || !imageUrl.startsWith('/uploads/')) return;
-  fs.unlink(path.join(__dirname, '..', imageUrl), err => {
-    if (err && err.code !== 'ENOENT') console.error('[unlink] 삭제 실패:', err.message);
-  });
+// public_id 추출: https://res.cloudinary.com/.../upload/v123/crocini/name.jpg → crocini/name
+function getPublicId(imageUrl) {
+  if (!imageUrl || !imageUrl.includes('cloudinary.com')) return null;
+  const match = imageUrl.match(/\/upload\/(?:v\d+\/)?(.+)\.[^.]+$/);
+  return match ? match[1] : null;
+}
+
+async function deleteImage(imageUrl) {
+  const publicId = getPublicId(imageUrl);
+  if (!publicId) return;
+  try {
+    await cloudinary.uploader.destroy(publicId);
+  } catch (err) {
+    console.error('[cloudinary] 삭제 실패:', err.message);
+  }
 }
 
 function parseIntField(value, label, errors) {
@@ -111,22 +121,22 @@ router.put('/:id', upload.single('image'), asyncHandler(async (req, res) => {
   const { errors, data } = parseProductBody(req.body);
   if (errors.length > 0) return res.status(400).json({ error: errors.join(' ') });
 
-  let imageUrl      = old.image_url;
-  let oldFileToDelete = null;
+  let imageUrl        = old.image_url;
+  let oldUrlToDelete  = null;
 
   if (req.file) {
-    imageUrl        = fileToUrl(req.file);
-    oldFileToDelete = old.image_url;
+    imageUrl       = fileToUrl(req.file);
+    oldUrlToDelete = old.image_url;
   } else if (req.body.image_url !== undefined) {
     const v = String(req.body.image_url).trim();
-    if (v && v !== old.image_url) { imageUrl = v; oldFileToDelete = old.image_url; }
+    if (v && v !== old.image_url) { imageUrl = v; oldUrlToDelete = old.image_url; }
   }
 
   await pool.query(
     'UPDATE products SET name=?, category=?, option_desc=?, price=?, original_price=?, image_url=?, is_custom_order=?, badge=? WHERE id=?',
     [data.name, data.category, data.option_desc, data.price, data.original_price, imageUrl, data.is_custom_order, data.badge, id]
   );
-  if (oldFileToDelete) deleteUploadedFile(oldFileToDelete);
+  if (oldUrlToDelete) await deleteImage(oldUrlToDelete);
 
   const [rows] = await pool.query('SELECT * FROM products WHERE id = ?', [id]);
   res.json(rows[0]);
@@ -141,7 +151,7 @@ router.delete('/:id', asyncHandler(async (req, res) => {
   if (existing.length === 0) return res.status(404).json({ error: '상품을 찾을 수 없습니다.' });
 
   await pool.query('DELETE FROM products WHERE id = ?', [id]);
-  deleteUploadedFile(existing[0].image_url);
+  await deleteImage(existing[0].image_url);
   res.json({ success: true, id });
 }));
 

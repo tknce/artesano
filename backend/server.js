@@ -5,11 +5,11 @@ if (!process.env.SESSION_SECRET) {
   process.exit(1);
 }
 
-const express   = require('express');
-const cors      = require('cors');
-const path      = require('path');
-const fs        = require('fs');
-const multer    = require('multer');
+const express    = require('express');
+const cors       = require('cors');
+const path       = require('path');
+const multer     = require('multer');
+const cloudinary = require('./lib/cloudinary');
 const session    = require('express-session');
 const MySQLStore = require('express-mysql-session')(session);
 const helmet     = require('helmet');
@@ -202,7 +202,7 @@ app.use('/custom-orders', (req, res, next) => {
 // 에러 핸들러
 // -----------------------------------------------
 app.use((err, req, res, next) => {
-  if (req.file) fs.unlink(req.file.path, () => {});
+  if (req.file?.filename) cloudinary.uploader.destroy(req.file.filename).catch(() => {});
   if (err instanceof multer.MulterError) {
     if (err.code === 'LIMIT_FILE_SIZE') return res.status(400).json({ error: '파일 크기는 10MB 이하여야 합니다.' });
     return res.status(400).json({ error: `업로드 오류: ${err.message}` });

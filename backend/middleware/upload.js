@@ -1,25 +1,14 @@
-// ==============================================
-// middleware/upload.js — multer 이미지 업로드 설정
-//
-// - 저장 위치: backend/uploads/
-// - 파일명: 타임스탬프 + 랜덤 + 원본 확장자 (충돌 방지)
-// - 허용 확장자: jpg, jpeg, png, webp
-// - 최대 크기: 10MB
-// ==============================================
+const multer              = require('multer');
+const path                = require('path');
+const { CloudinaryStorage } = require('multer-storage-cloudinary');
+const cloudinary          = require('../lib/cloudinary');
 
-const multer = require('multer');
-const path   = require('path');
-const crypto = require('crypto');
-
-const UPLOAD_DIR = path.join(__dirname, '..', 'uploads');
-
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, UPLOAD_DIR),
-  filename: (req, file, cb) => {
-    const ext   = path.extname(file.originalname).toLowerCase();
-    const stamp = Date.now();
-    const rand  = crypto.randomBytes(6).toString('hex');
-    cb(null, `${stamp}-${rand}${ext}`);
+const storage = new CloudinaryStorage({
+  cloudinary,
+  params: {
+    folder:          'crocini',
+    allowed_formats: ['jpg', 'jpeg', 'png', 'webp'],
+    resource_type:   'image',
   },
 });
 
