@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>회원가입 — CROCINI 아르테사노</title>
+  <meta name="robots" content="noindex" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body class="auth-page">
+
+  <div class="auth-card">
+    <p class="auth-logo">CROCINI <span>ARTESANO</span></p>
+    <p class="auth-subtitle">회원가입</p>
+
+    <form id="registerForm" novalidate>
+      <div class="auth-field">
+        <label for="name">이름</label>
+        <input type="text" id="name" autocomplete="name" required />
+      </div>
+      <div class="auth-field">
+        <label for="email">이메일</label>
+        <input type="email" id="email" autocomplete="email" required />
+      </div>
+      <div class="auth-field">
+        <label for="phone">연락처 (선택)</label>
+        <input type="tel" id="phone" autocomplete="tel" placeholder="010-0000-0000" />
+      </div>
+      <div class="auth-field">
+        <label for="password">비밀번호 (8자 이상)</label>
+        <input type="password" id="password" autocomplete="new-password" required />
+      </div>
+      <div class="auth-field">
+        <label for="passwordConfirm">비밀번호 확인</label>
+        <input type="password" id="passwordConfirm" autocomplete="new-password" required />
+      </div>
+      <p class="auth-error" id="errMsg" hidden></p>
+      <button type="submit" class="auth-btn" id="submitBtn">가입하기</button>
+    </form>
+
+    <p class="auth-link">이미 계정이 있으신가요? <a href="/login">로그인</a></p>
+    <p class="auth-link" style="margin-top:8px;"><a href="/">홈으로</a></p>
+  </div>
+
+  <script>
+    // 이미 로그인 상태면 마이페이지로
+    fetch('/api/auth/me').then(r => { if (r.ok) location.replace('/mypage'); });
+
+    document.getElementById('registerForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btn    = document.getElementById('submitBtn');
+      const errEl  = document.getElementById('errMsg');
+      btn.disabled = true;
+      btn.textContent = '처리 중...';
+      errEl.hidden = true;
+
+      const password = document.getElementById('password').value;
+      const confirm  = document.getElementById('passwordConfirm').value;
+      if (password !== confirm) {
+        errEl.textContent = '비밀번호가 일치하지 않습니다.';
+        errEl.hidden = false;
+        btn.disabled = false;
+        btn.textContent = '가입하기';
+        return;
+      }
+
+      try {
+        const res  = await fetch('/api/auth/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name:     document.getElementById('name').value,
+            email:    document.getElementById('email').value,
+            phone:    document.getElementById('phone').value,
+            password,
+          }),
+        });
+        const data = await res.json();
+        if (res.ok) {
+          location.replace('/mypage');
+        } else {
+          errEl.textContent = data.error || '가입에 실패했습니다.';
+          errEl.hidden = false;
+          btn.disabled = false;
+          btn.textContent = '가입하기';
+        }
+      } catch {
+        errEl.textContent = '서버에 연결할 수 없습니다.';
+        errEl.hidden = false;
+        btn.disabled = false;
+        btn.textContent = '가입하기';
+      }
+    });
+  </script>
+
+</body>
+</html>

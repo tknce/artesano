@@ -18,6 +18,8 @@ const rateLimit  = require('express-rate-limit');
 const productsRouter     = require('./routes/products');
 const inquiriesRouter    = require('./routes/inquiries');
 const customOrdersRouter = require('./routes/custom-orders');
+const authRouter         = require('./routes/auth');
+const userRouter         = require('./routes/user');
 
 const app  = express();
 const PORT = process.env.PORT || 3000;
@@ -160,6 +162,9 @@ app.get('/ostrich.html',      redirectTo('/ostrich'));
 app.get('/python.html',       redirectTo('/python'));
 app.get('/admin.html',        redirectTo('/admin'));
 app.get('/admin-login.html',  redirectTo('/admin-login'));
+app.get('/login.html',        redirectTo('/login'));
+app.get('/register.html',     redirectTo('/register'));
+app.get('/mypage.html',       redirectTo('/mypage'));
 
 // 클린 URL → HTML 파일 서빙
 const PAGES = {
@@ -172,6 +177,9 @@ const PAGES = {
   '/python':       'python.html',
   '/admin':        'admin.html',
   '/admin-login':  'admin-login.html',
+  '/login':        'login.html',
+  '/register':     'register.html',
+  '/mypage':       'mypage.html',
 };
 Object.entries(PAGES).forEach(([url, file]) => {
   app.get(url, (req, res) => res.sendFile(path.join(FRONTEND_DIR, file)));
@@ -197,6 +205,9 @@ app.use('/custom-orders', (req, res, next) => {
   if (req.method === 'GET' || req.method === 'DELETE') return requireAdmin(req, res, next);
   next();
 }, customOrdersRouter);
+
+app.use('/api/auth', authRouter);
+app.use('/api/user', userRouter);
 
 // -----------------------------------------------
 // 에러 핸들러

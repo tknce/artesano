@@ -51,18 +51,19 @@ router.post('/', asyncHandler(async (req, res) => {
     })
   );
 
+  const userId = req.session?.userId ?? null;
   const [result] = await pool.query(
     `INSERT INTO custom_orders
      (product_id, product_code, leather_color, hardware, lining_color, initials,
-      desired_lead_time, budget_range, name, phone, email, message)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      desired_lead_time, budget_range, name, phone, email, message, user_id)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     [
       productId, productCode,
       opts.leather_color, opts.hardware, opts.lining_color, opts.initials,
       opts.desired_lead_time, opts.budget_range,
       String(name).trim(), String(phone).trim(),
       email ? String(email).trim() : null,
-      opts.message,
+      opts.message, userId,
     ]
   );
   res.status(201).json({ id: result.insertId, success: true });

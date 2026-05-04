@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>마이페이지 — CROCINI 아르테사노</title>
+  <meta name="robots" content="noindex" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body style="visibility:hidden">
+
+  <div class="mypage-wrap">
+
+    <div class="mypage-greeting">
+      <p class="eyebrow">MEMBER</p>
+      <h1 id="greetingName">안녕하세요.</h1>
+      <button class="mypage-logout-btn" id="logoutBtn" style="margin-top:20px;">로그아웃</button>
+    </div>
+
+    <!-- 문의 내역 -->
+    <section class="mypage-section">
+      <p class="mypage-section-title">문의 내역</p>
+      <table class="mypage-table" id="inquiriesTable">
+        <thead>
+          <tr>
+            <th>날짜</th>
+            <th>내용</th>
+            <th>이메일</th>
+          </tr>
+        </thead>
+        <tbody id="inquiriesTbody">
+          <tr class="empty-row"><td colspan="3">불러오는 중...</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- 커스텀 주문 내역 -->
+    <section class="mypage-section">
+      <p class="mypage-section-title">주문제작 신청 내역</p>
+      <table class="mypage-table" id="ordersTable">
+        <thead>
+          <tr>
+            <th>날짜</th>
+            <th>상품</th>
+            <th>가죽 색상</th>
+            <th>금장/은장</th>
+            <th>예산</th>
+          </tr>
+        </thead>
+        <tbody id="ordersTbody">
+          <tr class="empty-row"><td colspan="5">불러오는 중...</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <p style="text-align:center;margin-top:40px;">
+      <a href="/" style="font-size:12px;letter-spacing:2px;color:var(--color-gold);text-transform:uppercase;">← 홈으로</a>
+    </p>
+
+  </div>
+
+  <script>
+    function fmt(dateStr) {
+      return new Date(dateStr).toLocaleDateString('ko-KR', { year: 'numeric', month: '2-digit', day: '2-digit' });
+    }
+
+    function escHtml(s) {
+      return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    }
+
+    async function init() {
+      const meRes = await fetch('/api/auth/me');
+      if (!meRes.ok) { location.replace('/login'); return; }
+      const me = await meRes.json();
+
+      document.body.style.visibility = '';
+      document.getElementById('greetingName').textContent = `안녕하세요, ${me.name}님.`;
+
+      // 문의 내역
+      const iRes  = await fetch('/api/user/inquiries');
+      const iData = await iRes.json();
+      const iTbody = document.getElementById('inquiriesTbody');
+      if (!Array.isArray(iData) || iData.length === 0) {
+        iTbody.innerHTML = '<tr class="empty-row"><td colspan="3">문의 내역이 없습니다.</td></tr>';
+      } else {
+        iTbody.innerHTML = iData.map(r => `
+          <tr>
+            <td>${fmt(r.created_at)}</td>
+            <td><div class="mypage-msg-preview">${escHtml(r.message)}</div></td>
+            <td>${escHtml(r.email ?? '—')}</td>
+          </tr>
+        `).join('');
+      }
+
+      // 커스텀 주문 내역
+      const oRes  = await fetch('/api/user/custom-orders');
+      const oData = await oRes.json();
+      const oTbody = document.getElementById('ordersTbody');
+      if (!Array.isArray(oData) || oData.length === 0) {
+        oTbody.innerHTML = '<tr class="empty-row"><td colspan="5">주문제작 신청 내역이 없습니다.</td></tr>';
+      } else {
+        oTbody.innerHTML = oData.map(r => `
+          <tr>
+            <td>${fmt(r.created_at)}</td>
+            <td>${escHtml(r.product_name ?? r.product_code ?? '—')}</td>
+            <td>${escHtml(r.leather_color ?? '—')}</td>
+            <td>${escHtml(r.hardware ?? '—')}</td>
+            <td>${escHtml(r.budget_range ?? '—')}</td>
+          </tr>
+        `).join('');
+      }
+    }
+
+    document.getElementById('logoutBtn').addEventListener('click', async () => {
+      await fetch('/api/auth/logout', { method: 'POST' });
+      location.replace('/');
+    });
+
+    init();
+  </script>
+
+</body>
+</html>

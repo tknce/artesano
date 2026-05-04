@@ -2177,3 +2177,229 @@ body.shop-page {
     margin-top: 48px;
   }
 }
+
+/* ============================================================
+   회원 페이지 공통 (로그인 / 회원가입 / 마이페이지)
+   ============================================================ */
+.auth-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 120px 20px 60px;
+  background: var(--color-cream);
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 480px;
+  background: var(--color-white);
+  border: 1px solid rgba(201,169,97,0.2);
+  padding: 56px 48px;
+}
+
+.auth-logo {
+  font-family: var(--font-serif);
+  font-size: 22px;
+  font-weight: 500;
+  letter-spacing: 6px;
+  color: var(--color-black);
+  text-align: center;
+  margin-bottom: 8px;
+}
+
+.auth-logo span {
+  color: var(--color-gold);
+  font-size: 11px;
+  letter-spacing: 4px;
+  display: block;
+  margin-top: 4px;
+}
+
+.auth-subtitle {
+  text-align: center;
+  font-size: 13px;
+  color: var(--color-muted);
+  letter-spacing: 1px;
+  margin-bottom: 40px;
+}
+
+.auth-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.auth-field label {
+  font-size: 11px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--color-muted);
+  font-weight: 500;
+}
+
+.auth-field input {
+  width: 100%;
+  padding: 14px 16px;
+  border: 1px solid #ddd;
+  background: var(--color-cream);
+  font-family: var(--font-sans);
+  font-size: 14px;
+  color: var(--color-black);
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.auth-field input:focus {
+  border-color: var(--color-gold);
+}
+
+.auth-btn {
+  width: 100%;
+  padding: 16px;
+  background: var(--color-black);
+  color: var(--color-white);
+  border: none;
+  font-family: var(--font-sans);
+  font-size: 12px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  cursor: pointer;
+  margin-top: 8px;
+  transition: background 0.2s;
+}
+
+.auth-btn:hover { background: var(--color-brown); }
+.auth-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.auth-error {
+  color: #c0392b;
+  font-size: 13px;
+  text-align: center;
+  margin-top: 12px;
+}
+
+.auth-link {
+  text-align: center;
+  margin-top: 28px;
+  font-size: 13px;
+  color: var(--color-muted);
+}
+
+.auth-link a {
+  color: var(--color-gold);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+/* 마이페이지 */
+.mypage-wrap {
+  min-height: 100vh;
+  padding: 120px 40px 80px;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.mypage-greeting {
+  margin-bottom: 60px;
+}
+
+.mypage-greeting .eyebrow {
+  font-size: 11px;
+  letter-spacing: 4px;
+  color: var(--color-gold);
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+
+.mypage-greeting h1 {
+  font-family: var(--font-serif);
+  font-size: 36px;
+  font-weight: 400;
+  color: var(--color-black);
+}
+
+.mypage-section {
+  margin-bottom: 64px;
+}
+
+.mypage-section-title {
+  font-size: 11px;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: var(--color-muted);
+  border-bottom: 1px solid rgba(201,169,97,0.3);
+  padding-bottom: 16px;
+  margin-bottom: 24px;
+}
+
+.mypage-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.mypage-table th {
+  text-align: left;
+  padding: 10px 14px;
+  font-size: 11px;
+  letter-spacing: 1px;
+  color: var(--color-muted);
+  font-weight: 500;
+  border-bottom: 1px solid #eee;
+}
+
+.mypage-table td {
+  padding: 14px 14px;
+  border-bottom: 1px solid #f0f0f0;
+  color: var(--color-black);
+  vertical-align: top;
+}
+
+.mypage-table .empty-row td {
+  text-align: center;
+  color: var(--color-muted);
+  padding: 40px 0;
+}
+
+.mypage-msg-preview {
+  max-width: 300px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--color-muted);
+}
+
+.mypage-logout-btn {
+  background: none;
+  border: 1px solid #ddd;
+  padding: 10px 24px;
+  font-family: var(--font-sans);
+  font-size: 11px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  cursor: pointer;
+  color: var(--color-muted);
+  transition: all 0.2s;
+}
+
+.mypage-logout-btn:hover {
+  border-color: var(--color-black);
+  color: var(--color-black);
+}
+
+/* nav 로그인 링크 */
+.nav-auth-link {
+  font-size: 12px;
+  letter-spacing: 2px;
+  color: var(--color-gold) !important;
+}
+
+@media (max-width: 768px) {
+  .auth-card { padding: 40px 28px; }
+  .mypage-wrap { padding: 100px 20px 60px; }
+  .mypage-table { font-size: 12px; }
+  .mypage-table th,
+  .mypage-table td { padding: 10px 8px; }
+}

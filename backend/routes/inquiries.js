@@ -21,9 +21,10 @@ router.post('/', asyncHandler(async (req, res) => {
   if (phone.length   > 50)  return res.status(400).json({ error: '연락처는 50자 이내로 입력해주세요.' });
   if (email?.length  > 255) return res.status(400).json({ error: '이메일은 255자 이내로 입력해주세요.' });
 
+  const userId = req.session?.userId ?? null;
   const [result] = await pool.query(
-    'INSERT INTO inquiries (name, phone, email, message) VALUES (?, ?, ?, ?)',
-    [name.trim(), phone.trim(), email?.trim() ?? null, message.trim()]
+    'INSERT INTO inquiries (name, phone, email, message, user_id) VALUES (?, ?, ?, ?, ?)',
+    [name.trim(), phone.trim(), email?.trim() ?? null, message.trim(), userId]
   );
   res.status(201).json({ id: result.insertId, success: true });
 }));
