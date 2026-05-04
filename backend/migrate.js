@@ -38,6 +38,17 @@ async function migrate() {
     await pool.query('ALTER TABLE products ADD COLUMN description TEXT NULL');
   }
 
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS product_detail_images (
+      id          INT AUTO_INCREMENT PRIMARY KEY,
+      product_id  INT NOT NULL,
+      image_url   TEXT NOT NULL,
+      sort_order  INT NOT NULL DEFAULT 0,
+      created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+  `);
+
   console.log('✓ DB 마이그레이션 완료');
 }
 

@@ -130,11 +130,58 @@ const fImageUrl       = document.getElementById('fImageUrl');
 const fImagePreview   = document.getElementById('fImagePreview');
 const formStatus      = document.getElementById('formStatus');
 const btnSubmit       = document.getElementById('btnSubmit');
+const detailImagesField = document.getElementById('detailImagesField');
+const detailImgList     = document.getElementById('detailImgList');
+const fDetailImage      = document.getElementById('fDetailImage');
+
+// 상세 이미지 목록 렌더
+function renderDetailImages(images) {
+  detailImgList.innerHTML = images.map(img => `
+    <div class="detail-img-item" data-img-id="${img.id}">
+      <img src="${img.image_url}" alt="" />
+      <button type="button" class="detail-img-del" data-img-id="${img.id}">×</button>
+    </div>
+  `).join('');
+}
+
+// 상세 이미지 삭제
+detailImgList.addEventListener('click', async (e) => {
+  const btn = e.target.closest('.detail-img-del');
+  if (!btn) return;
+  const imgId = btn.dataset.imgId;
+  const productId = fId.value;
+  if (!confirm('이 이미지를 삭제하시겠습니까?')) return;
+  await fetch(`/products/${productId}/detail-images/${imgId}`, { method: 'DELETE' });
+  btn.closest('.detail-img-item').remove();
+});
+
+// 상세 이미지 추가
+fDetailImage.addEventListener('change', async () => {
+  const file = fDetailImage.files[0];
+  if (!file) return;
+  const productId = fId.value;
+  if (!productId) return;
+  const fd = new FormData();
+  fd.append('image', file);
+  const res = await fetch(`/products/${productId}/detail-images`, { method: 'POST', body: fd });
+  if (res.ok) {
+    const img = await res.json();
+    const item = document.createElement('div');
+    item.className = 'detail-img-item';
+    item.dataset.imgId = img.id;
+    item.innerHTML = `<img src="${img.image_url}" alt="" /><button type="button" class="detail-img-del" data-img-id="${img.id}">×</button>`;
+    detailImgList.appendChild(item);
+  }
+  fDetailImage.value = '';
+});
 
 function openProductModal(id) {
   productForm.reset();
   fImagePreview.removeAttribute('src');
   formStatus.hidden = true;
+
+  detailImgList.innerHTML = '';
+  detailImagesField.hidden = true;
 
   if (id) {
     const p = allProducts.find(x => x.id === id);
@@ -151,9 +198,14 @@ function openProductModal(id) {
     fCustomOrder.value    = p.is_custom_order ? '1' : '0';
     if (p.image_url) {
       fImagePreview.src = resolveImageUrl(p.image_url);
-      // 외부 URL 이면 details 영역에도 채워둠
       if (p.image_url.startsWith('http')) fImageUrl.value = p.image_url;
     }
+    // 상세 이미지 로드
+    detailImagesField.hidden = false;
+    fetch(`/products/${p.id}/detail-images`)
+      .then(r => r.json())
+      .then(imgs => renderDetailImages(imgs))
+      .catch(() => {});
   } else {
     modalTitle.textContent = '새 상품 등록';
     fId.value = '';

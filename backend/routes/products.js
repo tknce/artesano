@@ -156,4 +156,61 @@ router.delete('/:id', asyncHandler(async (req, res) => {
   res.json({ success: true, id });
 }));
 
+// ── 상세 이미지 ──────────────────────────────────────────────
+
+// GET /products/:id/detail-images
+router.get('/:id/detail-images', asyncHandler(async (req, res) => {
+  const id = parseId(req.params.id);
+  if (id === null) return res.status(400).json({ error: '올바른 상품 ID가 아닙니다.' });
+  const [rows] = await pool.query(
+    'SELECT * FROM product_detail_images WHERE product_id = ? ORDER BY sort_order ASC, id ASC', [id]
+  );
+  res.json(rows);
+}));
+
+// POST /products/:id/detail-images — 이미지 1장씩 업로드
+router.post('/:id/detail-images', upload.single('image'), asyncHandler(async (req, res) => {
+  const id = parseId(req.params.id);
+  if (id === null) return res.status(400).json({ error: '올바른 상품 ID가 아닙니다.' });
+  if (!req.file) return res.status(400).json({ error: '이미지 파일이 필요합니다.' });
+
+  const imageUrl = fileToUrl(req.file);
+  const [result] = await pool.query(
+    'INSERT INTO product_detail_images (product_id, image_url, sort_order) VALUES (?, ?, ?)',
+    [id, imageUrl, 0]
+  );
+  res.status(201).json({ id: result.insertId, product_id: id, image_url: imageUrl });
+}));
+
+// DELETE /products/:id/detail-images/:imgId
+router.delete('/:id/detail-images/:imgId', asyncHandler(async (req, res) => {
+  const id    = parseId(req.params.id);
+  const imgId = parseId(req.params.imgId);
+  if (id === null || imgId === null) return res.status(400).json({ error: '잘못된 ID입니다.' });
+
+  const [rows] = await pool.query(
+    'SELECT * FROM product_detail_images WHERE id = ? AND product_id = ?', [imgId, id]
+  );
+  if (rows.length === 0) return res.status(404).json({ error: '이미지를 찾을 수 없습니다.' });
+
+  await pool.query('DELETE FROM product_detail_images WHERE id = ?', [imgId]);
+  await deleteImage(rows[0].image_url);
+  res.json({ success: true });
+}));
+
+// PUT /products/:id/detail-images/reorder — 순서 변경
+router.put('/:id/detail-images/reorder', asyncHandler(async (req, res) => {
+  const id = parseId(req.params.id);
+  if (id === null) return res.status(400).json({ error: '올바른 상품 ID가 아닙니다.' });
+  const { order } = req.body; // [{ id, sort_order }, ...]
+  if (!Array.isArray(order)) return res.status(400).json({ error: 'order 배열이 필요합니다.' });
+  for (const item of order) {
+    await pool.query(
+      'UPDATE product_detail_images SET sort_order = ? WHERE id = ? AND product_id = ?',
+      [item.sort_order, item.id, id]
+    );
+  }
+  res.json({ success: true });
+}));
+
 module.exports = router;

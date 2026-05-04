@@ -350,6 +350,8 @@
       color: #ccc;
       letter-spacing: 0.04em;
     }
+    .detail-desc-images { display: flex; flex-direction: column; gap: 0; }
+    .detail-desc-images img { width: 100%; display: block; }
 
     @media (max-width: 900px) {
       .related-grid { grid-template-columns: repeat(2, 1fr); }
@@ -374,12 +376,11 @@
     <div class="nav-inner">
       <a href="/" class="logo">CROCINI</a>
       <nav class="nav-menu" id="navMenu">
-        <a href="/story">STORY</a>
-        <a href="/crocodile">CROCODILE</a><!-- OSTRICH-NAV
-        <a href="/ostrich">OSTRICH</a> -->
-        <a href="/python">PYTHON</a>
-        <a href="/shop">SHOP</a>
-        <a href="/#contact">CONTACT</a>
+        <a href="story.html">STORY</a>
+        <!-- <a href="crocodile.html">CROCODILE</a> -->
+        <!-- <a href="python.html">PYTHON</a> -->
+        <a href="shop.html">SHOP</a>
+        <a href="contact.html">CONTACT</a>
       </nav>
       <button class="hamburger" id="hamburger" aria-label="메뉴 열기">
         <span></span><span></span><span></span>
@@ -427,7 +428,7 @@
     <div class="detail-tab-body">
       <div class="detail-tab-panel active" id="tabDesc">
         <p class="tab-empty" id="tabDescEmpty">등록된 상세 설명이 없습니다.</p>
-        <div class="tab-desc-content" id="tabDescContent" hidden></div>
+        <div class="detail-desc-images" id="tabDescImages"></div>
       </div>
       <div class="detail-tab-panel" id="tabMaterial" hidden>
         <div class="tab-desc-content" id="tabMaterialContent"></div>
@@ -657,21 +658,27 @@
         contentEl.hidden = false;
 
         // 상세 탭 채우기
-        const tabsSection   = document.getElementById('detailTabsSection');
+        const tabsSection    = document.getElementById('detailTabsSection');
         const tabDescEmpty   = document.getElementById('tabDescEmpty');
-        const tabDescContent = document.getElementById('tabDescContent');
+        const tabDescImages  = document.getElementById('tabDescImages');
         const tabMaterial    = document.getElementById('tabMaterialContent');
 
-        if (p.description) {
-          tabDescEmpty.hidden = true;
-          tabDescContent.textContent = p.description;
-          tabDescContent.hidden = false;
-        }
+        // 상세 이미지 로드
+        fetch(`/products/${id}/detail-images`)
+          .then(r => r.json())
+          .then(imgs => {
+            if (imgs.length > 0) {
+              tabDescEmpty.hidden = true;
+              tabDescImages.innerHTML = imgs.map(img =>
+                `<img src="${img.image_url}" alt="상세 이미지" loading="lazy" />`
+              ).join('');
+            }
+          }).catch(() => {});
 
         const materialMap = {
-          crocodile: '· 소재: 나일 크로커다일 (Nile Crocodile)\n· 등급: 최상급 A급 스킨, 장인이 직접 선별\n· 특징: 세월이 흐를수록 깊어지는 고유의 광택과 패턴\n· 원산지: 아프리카산 / CITES 협약 준수 합법 유통',
-          python:    '· 소재: 레티쿨라투스 파이톤 (Python Reticulatus)\n· 등급: 최상급 A급 스킨, 장인이 직접 선별\n· 특징: 자연이 만든 단 하나의 패턴, 전량 주문제작\n· 원산지: 동남아시아산 / CITES 협약 준수 합법 유통',
-          ostrich:   '· 소재: 아프리카 오스트리치 (Ostrich)\n· 등급: 최상급 A급 스킨, 장인이 직접 선별\n· 특징: 부드러운 촉감과 특유의 퀼 패턴\n· 원산지: 남아프리카산 / CITES 협약 준수 합법 유통',
+          crocodile: '· 소재: 나일 크로커다일 (Nile Crocodile)\n· 등급: 최상급 A급 스킨, 장인이 직접 선별\n· 특징: 세월이 흐를수록 깊어지는 고유의 광택과 패턴\n· 원산지: 콜롬비아산 / CITES 협약 준수 합법 유통',
+          python:    '· 소재: 레티쿨라투스 파이톤 (Python Reticulatus)\n· 등급: 최상급 A급 스킨, 장인이 직접 선별\n· 특징: 자연이 만든 단 하나의 패턴, 전량 주문제작\n· 원산지: 콜롬비아산 / CITES 협약 준수 합법 유통',
+          ostrich:   '· 소재: 아프리카 오스트리치 (Ostrich)\n· 등급: 최상급 A급 스킨, 장인이 직접 선별\n· 특징: 부드러운 촉감과 특유의 퀼 패턴\n· 원산지: 콜롬비아산 / CITES 협약 준수 합법 유통',
         };
         tabMaterial.style.whiteSpace = 'pre-line';
         tabMaterial.textContent = materialMap[p.category] || '소재 정보를 준비 중입니다.';
