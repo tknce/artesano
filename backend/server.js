@@ -3,6 +3,7 @@ require('dotenv').config();
 const express = require('express');
 const cors    = require('cors');
 const path    = require('path');
+const fs      = require('fs');
 const multer  = require('multer');
 const session = require('express-session');
 
@@ -126,14 +127,15 @@ app.use('/custom-orders', (req, res, next) => {
 // 에러 핸들러
 // -----------------------------------------------
 app.use((err, req, res, next) => {
+  if (req.file) fs.unlink(req.file.path, () => {});
   if (err instanceof multer.MulterError) {
     if (err.code === 'LIMIT_FILE_SIZE') return res.status(400).json({ error: '파일 크기는 10MB 이하여야 합니다.' });
     return res.status(400).json({ error: `업로드 오류: ${err.message}` });
   }
-  if (err && err.message && err.message.includes('이미지 파일만')) {
+  if (err?.message?.includes('이미지 파일만')) {
     return res.status(400).json({ error: err.message });
   }
-  console.error('[server] 처리되지 않은 오류:', err);
+  console.error(`[${req.method} ${req.path}] 오류:`, err.message);
   res.status(500).json({ error: '서버 오류가 발생했습니다.' });
 });
 

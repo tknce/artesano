@@ -1,14 +1,3 @@
-/* ============================================================
-   admin.js — CROCINI 관리자 페이지
-   기능:
-     1) 상품 목록 조회 + 카테고리 필터
-     2) 상품 등록 (이미지 업로드 또는 외부 URL)
-     3) 상품 수정 (이미지 교체 가능)
-     4) 상품 삭제
-     5) 문의 목록 조회
-   ============================================================ */
-
-const API = '';
 
 /* ============================================================
    유틸
@@ -51,7 +40,7 @@ let allProducts = [];
 async function loadProducts() {
   productTableBody.innerHTML = '<tr><td colspan="7" class="admin-loading">불러오는 중...</td></tr>';
   try {
-    const res = await fetch(`${API}/products`);
+    const res = await fetch(`/products`);
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     allProducts = await res.json();
     renderProducts();
@@ -223,7 +212,7 @@ productForm.addEventListener('submit', async (e) => {
       fd.append('image_url', fImageUrl.value.trim());
     }
 
-    const url    = id ? `${API}/products/${id}` : `${API}/products`;
+    const url    = id ? `/products/${id}` : `/products`;
     const method = id ? 'PUT' : 'POST';
 
     const res  = await fetch(url, { method, body: fd });
@@ -258,7 +247,7 @@ async function deleteProduct(id) {
   if (!confirm(`'${p.name}' 상품을 정말 삭제하시겠습니까?\n(이미지 파일도 같이 삭제됩니다)`)) return;
 
   try {
-    const res = await fetch(`${API}/products/${id}`, { method: 'DELETE' });
+    const res = await fetch(`/products/${id}`, { method: 'DELETE' });
     if (!res.ok) {
       const d = await res.json().catch(() => ({}));
       throw new Error(d.error || `HTTP ${res.status}`);
@@ -277,9 +266,9 @@ const inquiryTableBody    = document.getElementById('inquiryTableBody');
 const btnRefreshInquiries = document.getElementById('btnRefreshInquiries');
 
 async function loadInquiries() {
-  inquiryTableBody.innerHTML = '<tr><td colspan="7" class="admin-loading">불러오는 중...</td></tr>';
+  inquiryTableBody.innerHTML = '<tr><td colspan="8" class="admin-loading">불러오는 중...</td></tr>';
   try {
-    const res = await fetch(`${API}/inquiries`);
+    const res = await fetch(`/inquiries`);
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const list = await res.json();
 
@@ -319,7 +308,7 @@ inquiryTableBody.addEventListener('click', (e) => {
 async function deleteInquiry(id) {
   if (!confirm(`문의 #${id}를 정말 삭제하시겠습니까?`)) return;
   try {
-    const res = await fetch(`${API}/inquiries/${id}`, { method: 'DELETE' });
+    const res = await fetch(`/inquiries/${id}`, { method: 'DELETE' });
     if (!res.ok) {
       const d = await res.json().catch(() => ({}));
       throw new Error(d.error || `HTTP ${res.status}`);
@@ -344,9 +333,9 @@ const HARDWARE_LABEL = {
 };
 
 async function loadCustomOrders() {
-  customOrderTableBody.innerHTML = '<tr><td colspan="8" class="admin-loading">불러오는 중...</td></tr>';
+  customOrderTableBody.innerHTML = '<tr><td colspan="9" class="admin-loading">불러오는 중...</td></tr>';
   try {
-    const res = await fetch(`${API}/custom-orders`);
+    const res = await fetch(`/custom-orders`);
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const list = await res.json();
 
@@ -404,7 +393,7 @@ customOrderTableBody.addEventListener('click', (e) => {
 async function deleteCustomOrder(id) {
   if (!confirm(`주문제작 #${id}를 정말 삭제하시겠습니까?`)) return;
   try {
-    const res = await fetch(`${API}/custom-orders/${id}`, { method: 'DELETE' });
+    const res = await fetch(`/custom-orders/${id}`, { method: 'DELETE' });
     if (!res.ok) {
       const d = await res.json().catch(() => ({}));
       throw new Error(d.error || `HTTP ${res.status}`);
