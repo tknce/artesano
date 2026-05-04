@@ -20,6 +20,7 @@ const inquiriesRouter    = require('./routes/inquiries');
 const customOrdersRouter = require('./routes/custom-orders');
 const authRouter         = require('./routes/auth');
 const userRouter         = require('./routes/user');
+const migrate            = require('./migrate');
 
 const app  = express();
 const PORT = process.env.PORT || 3000;
@@ -225,9 +226,16 @@ app.use((err, req, res, next) => {
 });
 
 // -----------------------------------------------
-// 서버 시작
+// 서버 시작 (마이그레이션 후)
 // -----------------------------------------------
-app.listen(PORT, () => {
-  console.log(`✓ CROCINI 서버 실행 중: http://localhost:${PORT}`);
-  console.log(`  관리자 로그인: http://localhost:${PORT}/admin-login`);
-});
+migrate()
+  .then(() => {
+    app.listen(PORT, () => {
+      console.log(`✓ CROCINI 서버 실행 중: http://localhost:${PORT}`);
+      console.log(`  관리자 로그인: http://localhost:${PORT}/admin-login`);
+    });
+  })
+  .catch(err => {
+    console.error('FATAL: DB 마이그레이션 실패:', err.message);
+    process.exit(1);
+  });
