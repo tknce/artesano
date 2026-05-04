@@ -132,6 +132,15 @@ document.addEventListener('DOMContentLoaded', () => {
       statusEl.hidden = false;
     }
 
+    // 로그인한 경우 이름·연락처·이메일 자동 입력
+    fetch('/api/auth/me').then(async r => {
+      if (!r.ok) return;
+      const me = await r.json();
+      if (me.name)  inquiryForm.querySelector('[name="name"]').value  = me.name;
+      if (me.phone) inquiryForm.querySelector('[name="phone"]').value = me.phone;
+      if (me.email) inquiryForm.querySelector('[name="email"]').value = me.email;
+    }).catch(() => {});
+
     inquiryForm.addEventListener('submit', async (e) => {
       e.preventDefault();
 
