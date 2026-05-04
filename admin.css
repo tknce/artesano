@@ -380,6 +380,7 @@ a { color: inherit; text-decoration: none; }
 .form-field input[type="number"],
 .form-field input[type="url"],
 .form-field input[type="email"],
+.form-field input[type="password"],
 .form-field select,
 .form-field textarea {
   padding: 10px 12px;
