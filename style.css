@@ -214,11 +214,8 @@ ul  { list-style: none; }
   display: block;
   width: 24px;
   height: 2px;
-  background-color: var(--color-white);
-  transition: all 0.3s ease;
-}
-.navbar.scrolled .hamburger span {
   background-color: var(--color-black);
+  transition: all 0.3s ease;
 }
 
 
