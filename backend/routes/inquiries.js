@@ -1,6 +1,7 @@
 const express = require('express');
 const router  = express.Router();
 const pool    = require('../db');
+const { sendInquiryNotification } = require('../lib/mailer');
 
 const asyncHandler = fn => (req, res, next) =>
   Promise.resolve(fn(req, res, next)).catch(next);
@@ -22,10 +23,17 @@ router.post('/', asyncHandler(async (req, res) => {
   if (email?.length  > 255) return res.status(400).json({ error: '이메일은 255자 이내로 입력해주세요.' });
 
   const userId = req.session?.userId ?? null;
+  const trimmed = {
+    name: name.trim(),
+    phone: phone.trim(),
+    email: email?.trim() ?? null,
+    message: message.trim(),
+  };
   const [result] = await pool.query(
     'INSERT INTO inquiries (name, phone, email, message, user_id) VALUES (?, ?, ?, ?, ?)',
-    [name.trim(), phone.trim(), email?.trim() ?? null, message.trim(), userId]
+    [trimmed.name, trimmed.phone, trimmed.email, trimmed.message, userId]
   );
+  sendInquiryNotification(trimmed);
   res.status(201).json({ id: result.insertId, success: true });
 }));
 

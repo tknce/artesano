@@ -211,6 +211,19 @@ app.use('/api/auth', authRouter);
 app.use('/api/user', userRouter);
 
 // -----------------------------------------------
+// 404 — 매칭되지 않은 경로 (API는 JSON, 그 외는 HTML)
+// -----------------------------------------------
+app.use((req, res, next) => {
+  if (req.path.startsWith('/api/') ||
+      req.path.startsWith('/products') ||
+      req.path.startsWith('/inquiries') ||
+      req.path.startsWith('/custom-orders')) {
+    return res.status(404).json({ error: '요청하신 리소스를 찾을 수 없습니다.' });
+  }
+  res.status(404).sendFile(path.join(FRONTEND_DIR, '404.html'));
+});
+
+// -----------------------------------------------
 // 에러 핸들러
 // -----------------------------------------------
 app.use((err, req, res, next) => {

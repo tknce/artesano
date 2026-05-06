@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>페이지를 찾을 수 없습니다 — CROCINI 아르테사노</title>
+  <meta name="description" content="요청하신 페이지가 존재하지 않습니다." />
+  <meta name="robots" content="noindex" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Inter:wght@300;400;500&family=Bebas+Neue&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+  <script src="analytics.js" defer></script>
+  <style>
+    .nf-wrap {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 120px 24px 80px;
+      background-color: var(--color-cream);
+    }
+    .nf-code {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(120px, 22vw, 220px);
+      line-height: 1;
+      letter-spacing: 0.04em;
+      color: var(--color-black);
+      margin: 0 0 16px;
+    }
+    .nf-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(28px, 4vw, 40px);
+      font-weight: 400;
+      font-style: italic;
+      color: var(--color-black);
+      margin: 0 0 12px;
+    }
+    .nf-sub {
+      font-family: 'Inter', sans-serif;
+      font-size: 14px;
+      color: rgba(0, 0, 0, 0.6);
+      margin: 0 0 40px;
+      letter-spacing: 0.02em;
+    }
+    .nf-btn {
+      display: inline-block;
+      padding: 14px 36px;
+      border: 1px solid var(--color-black);
+      color: var(--color-black);
+      font-family: 'Inter', sans-serif;
+      font-size: 12px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      text-decoration: none;
+      transition: background-color 0.2s, color 0.2s;
+    }
+    .nf-btn:hover {
+      background-color: var(--color-black);
+      color: var(--color-cream);
+    }
+  </style>
+</head>
+<body>
+  <main class="nf-wrap">
+    <p class="nf-code">404</p>
+    <p class="nf-title">길을 잃으셨나요</p>
+    <p class="nf-sub">요청하신 페이지를 찾을 수 없습니다.</p>
+    <a href="/" class="nf-btn">홈으로 돌아가기</a>
+  </main>
+</body>
+</html>

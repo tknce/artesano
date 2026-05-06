@@ -3,6 +3,12 @@ const router     = express.Router();
 const pool       = require('../db');
 const upload     = require('../middleware/upload');
 const cloudinary = require('../lib/cloudinary');
+const { optimize } = require('../lib/cloudinary');
+
+// products row에 image_url 변환 적용
+function withOptimized(row) {
+  return row && row.image_url ? { ...row, image_url: optimize(row.image_url) } : row;
+}
 
 const ALLOWED_CATEGORIES = ['crocodile', 'ostrich', 'python'];
 
@@ -79,7 +85,7 @@ router.get('/', asyncHandler(async (req, res) => {
     ? ['SELECT * FROM products WHERE category = ? ORDER BY id ASC', [category]]
     : ['SELECT * FROM products ORDER BY id ASC', []];
   const [rows] = await pool.query(sql, params);
-  res.json(rows);
+  res.json(rows.map(withOptimized));
 }));
 
 // GET /products/:id — 상품 1개
@@ -88,7 +94,7 @@ router.get('/:id', asyncHandler(async (req, res) => {
   if (id === null) return res.status(400).json({ error: '올바른 상품 ID가 아닙니다.' });
   const [rows] = await pool.query('SELECT * FROM products WHERE id = ?', [id]);
   if (rows.length === 0) return res.status(404).json({ error: '상품을 찾을 수 없습니다.' });
-  res.json(rows[0]);
+  res.json(withOptimized(rows[0]));
 }));
 
 // POST /products — 상품 등록 (multipart/form-data)
@@ -107,7 +113,7 @@ router.post('/', upload.single('image'), asyncHandler(async (req, res) => {
     [data.name, data.category, data.option_desc, data.description, data.price, data.original_price, imageUrl, data.is_custom_order, data.badge]
   );
   const [rows] = await pool.query('SELECT * FROM products WHERE id = ?', [result.insertId]);
-  res.status(201).json(rows[0]);
+  res.status(201).json(withOptimized(rows[0]));
 }));
 
 // PUT /products/:id — 상품 수정
@@ -140,7 +146,7 @@ router.put('/:id', upload.single('image'), asyncHandler(async (req, res) => {
   if (oldUrlToDelete) await deleteImage(oldUrlToDelete);
 
   const [rows] = await pool.query('SELECT * FROM products WHERE id = ?', [id]);
-  res.json(rows[0]);
+  res.json(withOptimized(rows[0]));
 }));
 
 // DELETE /products/:id — 상품 삭제
@@ -165,7 +171,7 @@ router.get('/:id/detail-images', asyncHandler(async (req, res) => {
   const [rows] = await pool.query(
     'SELECT * FROM product_detail_images WHERE product_id = ? ORDER BY sort_order ASC, id ASC', [id]
   );
-  res.json(rows);
+  res.json(rows.map(withOptimized));
 }));
 
 // POST /products/:id/detail-images — 이미지 1장씩 업로드
@@ -179,7 +185,7 @@ router.post('/:id/detail-images', upload.single('image'), asyncHandler(async (re
     'INSERT INTO product_detail_images (product_id, image_url, sort_order) VALUES (?, ?, ?)',
     [id, imageUrl, 0]
   );
-  res.status(201).json({ id: result.insertId, product_id: id, image_url: imageUrl });
+  res.status(201).json({ id: result.insertId, product_id: id, image_url: optimize(imageUrl) });
 }));
 
 // DELETE /products/:id/detail-images/:imgId

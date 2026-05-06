@@ -1,6 +1,7 @@
 const express = require('express');
 const router  = express.Router();
 const pool    = require('../db');
+const { sendCustomOrderNotification } = require('../lib/mailer');
 
 const asyncHandler = fn => (req, res, next) =>
   Promise.resolve(fn(req, res, next)).catch(next);
@@ -52,6 +53,9 @@ router.post('/', asyncHandler(async (req, res) => {
   );
 
   const userId = req.session?.userId ?? null;
+  const trimmedName  = String(name).trim();
+  const trimmedPhone = String(phone).trim();
+  const trimmedEmail = email ? String(email).trim() : null;
   const [result] = await pool.query(
     `INSERT INTO custom_orders
      (product_id, product_code, leather_color, hardware, lining_color, initials,
@@ -61,11 +65,15 @@ router.post('/', asyncHandler(async (req, res) => {
       productId, productCode,
       opts.leather_color, opts.hardware, opts.lining_color, opts.initials,
       opts.desired_lead_time, opts.budget_range,
-      String(name).trim(), String(phone).trim(),
-      email ? String(email).trim() : null,
+      trimmedName, trimmedPhone, trimmedEmail,
       opts.message, userId,
     ]
   );
+  sendCustomOrderNotification({
+    name: trimmedName, phone: trimmedPhone, email: trimmedEmail,
+    product_code: productCode,
+    ...opts,
+  });
   res.status(201).json({ id: result.insertId, success: true });
 }));
 
