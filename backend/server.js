@@ -15,12 +15,15 @@ const MySQLStore = require('express-mysql-session')(session);
 const helmet     = require('helmet');
 const rateLimit  = require('express-rate-limit');
 
+const cron       = require('node-cron');
+
 const productsRouter     = require('./routes/products');
 const inquiriesRouter    = require('./routes/inquiries');
 const customOrdersRouter = require('./routes/custom-orders');
 const authRouter         = require('./routes/auth');
 const userRouter         = require('./routes/user');
 const migrate            = require('./migrate');
+const { sendBackup }     = require('./lib/backup');
 
 const app  = express();
 const PORT = process.env.PORT || 3000;
@@ -273,6 +276,12 @@ migrate()
       console.log(`✓ CROCINI 서버 실행 중: http://localhost:${PORT}`);
       console.log(`  관리자 로그인: http://localhost:${PORT}/admin-login`);
     });
+
+    // 매일 새벽 3시 (KST) DB 백업 발송
+    cron.schedule('0 3 * * *', () => {
+      sendBackup().catch(err => console.error('[backup] 실패:', err.message));
+    }, { timezone: 'Asia/Seoul' });
+    console.log('  DB 백업: 매일 03:00 KST 자동 발송');
   })
   .catch(err => {
     console.error('FATAL: DB 마이그레이션 실패:', err.message);
