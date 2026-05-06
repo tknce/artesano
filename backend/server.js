@@ -8,6 +8,7 @@ if (!process.env.SESSION_SECRET) {
 const express    = require('express');
 const cors       = require('cors');
 const path       = require('path');
+const fs         = require('fs');
 const multer     = require('multer');
 const cloudinary = require('./lib/cloudinary');
 const session    = require('express-session');
@@ -148,10 +149,30 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 const FRONTEND_DIR = process.env.FRONTEND_DIR || path.join(__dirname, '..');
 
 // -----------------------------------------------
+// 페이지 렌더 — partials/nav.html, partials/footer.html 토큰 치환
+// 시작 시 partials와 페이지를 메모리에 캐시. 페이지 변경 시 서버 재시작 필요.
+// -----------------------------------------------
+const NAV    = fs.readFileSync(path.join(FRONTEND_DIR, 'partials/nav.html'),    'utf8');
+const FOOTER = fs.readFileSync(path.join(FRONTEND_DIR, 'partials/footer.html'), 'utf8');
+const pageCache = {};
+function renderPage(file) {
+  return (req, res) => {
+    let html = pageCache[file];
+    if (!html) {
+      html = fs.readFileSync(path.join(FRONTEND_DIR, file), 'utf8')
+        .replace('<!--#NAV#-->',    NAV)
+        .replace('<!--#FOOTER#-->', FOOTER);
+      pageCache[file] = html;
+    }
+    res.type('html').send(html);
+  };
+}
+
+// -----------------------------------------------
 // SEO — sitemap.xml (정적 페이지 + DB 상품)
 // -----------------------------------------------
 const SITE_URL = process.env.SITE_URL || 'https://www.crocini.co.kr';
-const STATIC_PATHS = ['/', '/shop', '/story', '/contact', '/crocodile', '/ostrich', '/python', '/custom-order'];
+const STATIC_PATHS = ['/', '/shop', '/story', '/contact', '/custom-order'];
 
 app.get('/sitemap.xml', async (req, res) => {
   const today = new Date().toISOString().split('T')[0];
@@ -185,26 +206,27 @@ function redirectTo(cleanUrl) {
 app.get('/index.html',        redirectTo('/'));
 app.get('/shop.html',         redirectTo('/shop'));
 app.get('/story.html',        redirectTo('/story'));
+app.get('/contact.html',      redirectTo('/contact'));
 app.get('/custom-order.html', redirectTo('/custom-order'));
 app.get('/product.html',      redirectTo('/product'));
-app.get('/crocodile.html',    redirectTo('/crocodile'));
-app.get('/ostrich.html',      redirectTo('/ostrich'));
-app.get('/python.html',       redirectTo('/python'));
 app.get('/admin.html',        redirectTo('/admin'));
 app.get('/admin-login.html',  redirectTo('/admin-login'));
 app.get('/login.html',        redirectTo('/login'));
 app.get('/register.html',     redirectTo('/register'));
 app.get('/mypage.html',       redirectTo('/mypage'));
 
-// 클린 URL → HTML 파일 서빙
+// 사라진 카테고리 페이지 — /shop으로 301 (외부 색인 보존)
+['/crocodile', '/ostrich', '/python', '/crocodile.html', '/ostrich.html', '/python.html']
+  .forEach(p => app.get(p, (req, res) => res.redirect(301, '/shop')));
+
+// 클린 URL → HTML 파일 렌더 (nav/footer 토큰 치환)
 const PAGES = {
+  '/':             'index.html',
   '/shop':         'shop.html',
   '/story':        'story.html',
+  '/contact':      'contact.html',
   '/custom-order': 'custom-order.html',
   '/product':      'product.html',
-  '/crocodile':    'crocodile.html',
-  '/ostrich':      'ostrich.html',
-  '/python':       'python.html',
   '/admin':        'admin.html',
   '/admin-login':  'admin-login.html',
   '/login':        'login.html',
@@ -212,7 +234,7 @@ const PAGES = {
   '/mypage':       'mypage.html',
 };
 Object.entries(PAGES).forEach(([url, file]) => {
-  app.get(url, (req, res) => res.sendFile(path.join(FRONTEND_DIR, file)));
+  app.get(url, renderPage(file));
 });
 
 // 프론트엔드 정적 파일 서빙

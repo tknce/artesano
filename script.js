@@ -10,57 +10,10 @@
 
 document.addEventListener('DOMContentLoaded', () => {
 
-  /* ==========================================================
-     1) 네비게이션 — 스크롤 시 .scrolled 추가
-        + 모바일: 다운 스크롤 시 .nav-hidden 추가, 업 스크롤 시 제거
-     ========================================================== */
-  const navbar = document.getElementById('navbar');
-  let lastScrollY = window.scrollY;
-
-  window.addEventListener('scroll', () => {
-    const currentY = window.scrollY;
-
-    if (currentY > 50) navbar.classList.add('scrolled');
-    else navbar.classList.remove('scrolled');
-
-    // 메뉴 열린 상태에서는 숨기지 않음
-    const menuOpen = navbar.querySelector('.nav-menu')?.classList.contains('open');
-
-    // 맨 위 부근(80px 이내)이면 항상 표시
-    if (currentY < 80 || menuOpen) {
-      navbar.classList.remove('nav-hidden');
-    } else if (currentY > lastScrollY + 5) {
-      // 다운 스크롤 (5px 이상) — 숨김
-      navbar.classList.add('nav-hidden');
-    } else if (currentY < lastScrollY - 5) {
-      // 업 스크롤 — 표시
-      navbar.classList.remove('nav-hidden');
-    }
-
-    lastScrollY = currentY;
-  }, { passive: true });
-
+  /* nav 토글 / 스크롤 / 인증 표시는 partials/nav.html의 inline script가 처리 */
 
   /* ==========================================================
-     2) 모바일 햄버거 메뉴 토글
-     ========================================================== */
-  const hamburger = document.getElementById('hamburger');
-  const navMenu   = document.getElementById('navMenu');
-
-  hamburger.addEventListener('click', () => {
-    navMenu.classList.toggle('open');
-  });
-
-  /* 메뉴 항목 클릭 시 자동 닫기 */
-  navMenu.querySelectorAll('a').forEach((link) => {
-    link.addEventListener('click', () => {
-      navMenu.classList.remove('open');
-    });
-  });
-
-
-  /* ==========================================================
-     3) 스크롤 리빌 — .reveal 요소가 화면에 들어오면 .visible 추가
+     스크롤 리빌 — .reveal 요소가 화면에 들어오면 .visible 추가
      ========================================================== */
   const revealEls = document.querySelectorAll('.reveal');
 

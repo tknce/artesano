@@ -1,0 +1,59 @@
+<header class="navbar" id="navbar">
+  <div class="nav-inner">
+    <a href="/" class="logo">CROCINI</a>
+    <nav class="nav-menu" id="navMenu">
+      <a href="/story" data-nav="story">STORY</a>
+      <a href="/shop" data-nav="shop">SHOP</a>
+      <a href="/contact" data-nav="contact">CONTACT</a>
+    </nav>
+    <button class="hamburger" id="hamburger" aria-label="메뉴 열기">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</header>
+<script>
+(() => {
+  const navbar    = document.getElementById('navbar');
+  const hamburger = document.getElementById('hamburger');
+  const navMenu   = document.getElementById('navMenu');
+  if (!navbar || !hamburger || !navMenu) return;
+
+  // active 링크 표시 (현재 경로 기반)
+  const seg = location.pathname.replace(/^\//, '').split('?')[0].split('/')[0];
+  const link = navMenu.querySelector(`a[data-nav="${seg}"]`);
+  if (link) link.classList.add('active');
+
+  // 햄버거 토글
+  hamburger.addEventListener('click', () => navMenu.classList.toggle('open'));
+  navMenu.querySelectorAll('a').forEach(a =>
+    a.addEventListener('click', () => navMenu.classList.remove('open'))
+  );
+
+  // 스크롤 — .scrolled / 모바일 다운 스크롤 시 숨김
+  let lastY = window.scrollY;
+  window.addEventListener('scroll', () => {
+    const y = window.scrollY;
+    navbar.classList.toggle('scrolled', y > 50);
+    const menuOpen = navMenu.classList.contains('open');
+    if (y < 80 || menuOpen) navbar.classList.remove('nav-hidden');
+    else if (y > lastY + 5) navbar.classList.add('nav-hidden');
+    else if (y < lastY - 5) navbar.classList.remove('nav-hidden');
+    lastY = y;
+  }, { passive: true });
+
+  // 로그인 상태 nav 링크 (마이페이지 또는 로그인)
+  fetch('/api/auth/me').then(async r => {
+    const a = document.createElement('a');
+    a.className = 'nav-auth-link';
+    if (r.ok) {
+      const { name } = await r.json();
+      a.href = '/mypage';
+      a.textContent = name;
+    } else {
+      a.href = '/login';
+      a.textContent = '로그인';
+    }
+    navMenu.appendChild(a);
+  }).catch(() => {});
+})();
+</script>

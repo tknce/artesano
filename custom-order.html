@@ -39,27 +39,7 @@
 
 <body class="shop-page">
 
-  <!-- 네비게이션 (shop과 동일 — 밝은 톤) -->
-  <header class="navbar" id="navbar">
-    <div class="nav-inner">
-      <a href="index.html" class="logo">CROCINI</a>
-
-      <nav class="nav-menu" id="navMenu">
-        <a href="story.html">STORY</a>
-        <!-- <a href="crocodile.html">CROCODILE</a> --><!-- OSTRICH-NAV 
-        <a href="ostrich.html">OSTRICH</a> -->
-        <!-- <a href="python.html">PYTHON</a> -->
-        <a href="shop.html">SHOP</a>
-        <a href="contact.html">CONTACT</a>
-      </nav>
-
-      <button class="hamburger" id="hamburger" aria-label="메뉴 열기">
-        <span></span>
-        <span></span>
-        <span></span>
-      </button>
-    </div>
-  </header>
+  <!--#NAV#-->
 
 
   <!-- 페이지 헤더 -->
@@ -232,49 +212,7 @@
   </section>
 
 
-  <!-- 푸터 (다른 페이지와 동일) -->
-  <footer class="footer">
-    <div class="container footer-inner">
-
-      <div class="footer-col footer-brand">
-        <h4 class="footer-logo">CROCINI</h4>
-        <p class="footer-slogan">Be One of a Kind With Us.</p>
-      </div>
-
-      <div class="footer-col">
-        <h5 class="footer-heading">EXPLORE</h5>
-        <ul class="footer-links">
-          <li><a href="story.html">Story</a></li>
-          <li><a href="crocodile.html">Crocodile</a></li>
-          <li><!-- OSTRICH-NAV <a href="ostrich.html">Ostrich</a> --></li>
-          <li><a href="python.html">Python</a></li>
-          <li><a href="shop.html">Shop</a></li>
-        </ul>
-      </div>
-
-      <div class="footer-col">
-        <h5 class="footer-heading">FOLLOW</h5>
-        <ul class="footer-links">
-          <li><a href="https://instagram.com/artesano_seoul" target="_blank" rel="noopener">Instagram @artesano_seoul</a></li>
-          <li><a href="#" target="_blank" rel="noopener">KakaoTalk @artesano</a></li>
-        </ul>
-      </div>
-
-      <div class="footer-col">
-        <h5 class="footer-heading">COMPANY</h5>
-        <p class="footer-text">
-          대표 박진호<br />
-          사업자등록번호 301-27-53386<br />
-          통신판매신고 2009-5570031-30-2-00006
-        </p>
-      </div>
-
-    </div>
-
-    <div class="footer-bottom">
-      <p>&copy; 2026 CROCINI™. All rights reserved.</p>
-    </div>
-  </footer>
+  <!--#FOOTER#-->
 
 
   <script>
@@ -300,24 +238,7 @@
           .replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;');
       }
 
-      // --- 햄버거 토글 + 모바일 다운 스크롤 시 navbar 숨김 ---
-      document.getElementById('hamburger').addEventListener('click', () => {
-        document.getElementById('navMenu').classList.toggle('open');
-      });
-      (() => {
-        const navbar  = document.getElementById('navbar');
-        const navMenu = document.getElementById('navMenu');
-        let lastY = window.scrollY;
-        window.addEventListener('scroll', () => {
-          const y = window.scrollY;
-          navbar.classList.toggle('scrolled', y > 50);
-          const menuOpen = navMenu.classList.contains('open');
-          if (y < 80 || menuOpen) navbar.classList.remove('nav-hidden');
-          else if (y > lastY + 5) navbar.classList.add('nav-hidden');
-          else if (y < lastY - 5) navbar.classList.remove('nav-hidden');
-          lastY = y;
-        }, { passive: true });
-      })();
+      // 네비 토글/스크롤은 partials/nav.html이 처리
 
       // --- Python 상품 카드 렌더링 ---
       const cardsWrap   = document.getElementById('modelCards');
