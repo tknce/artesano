@@ -297,10 +297,24 @@
           .replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;');
       }
 
-      // --- 햄버거 토글 (모바일) ---
+      // --- 햄버거 토글 + 모바일 다운 스크롤 시 navbar 숨김 ---
       document.getElementById('hamburger').addEventListener('click', () => {
         document.getElementById('navMenu').classList.toggle('open');
       });
+      (() => {
+        const navbar  = document.getElementById('navbar');
+        const navMenu = document.getElementById('navMenu');
+        let lastY = window.scrollY;
+        window.addEventListener('scroll', () => {
+          const y = window.scrollY;
+          navbar.classList.toggle('scrolled', y > 50);
+          const menuOpen = navMenu.classList.contains('open');
+          if (y < 80 || menuOpen) navbar.classList.remove('nav-hidden');
+          else if (y > lastY + 5) navbar.classList.add('nav-hidden');
+          else if (y < lastY - 5) navbar.classList.remove('nav-hidden');
+          lastY = y;
+        }, { passive: true });
+      })();
 
       // --- Python 상품 카드 렌더링 ---
       const cardsWrap   = document.getElementById('modelCards');

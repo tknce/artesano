@@ -495,14 +495,21 @@
   </footer>
 
   <script>
-    // 네비 스크롤 & 햄버거
+    // 네비 스크롤 & 햄버거 + 모바일 다운 스크롤 시 숨김
     (() => {
       const navbar    = document.getElementById('navbar');
       const hamburger = document.getElementById('hamburger');
       const navMenu   = document.getElementById('navMenu');
+      let lastY = window.scrollY;
       window.addEventListener('scroll', () => {
-        navbar.classList.toggle('scrolled', window.scrollY > 50);
-      });
+        const y = window.scrollY;
+        navbar.classList.toggle('scrolled', y > 50);
+        const menuOpen = navMenu.classList.contains('open');
+        if (y < 80 || menuOpen) navbar.classList.remove('nav-hidden');
+        else if (y > lastY + 5) navbar.classList.add('nav-hidden');
+        else if (y < lastY - 5) navbar.classList.remove('nav-hidden');
+        lastY = y;
+      }, { passive: true });
       hamburger.addEventListener('click', () => navMenu.classList.toggle('open'));
       navMenu.querySelectorAll('a').forEach(a => a.addEventListener('click', () => navMenu.classList.remove('open')));
     })();

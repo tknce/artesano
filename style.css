@@ -148,6 +148,17 @@ ul  { list-style: none; }
   box-shadow: 0 1px 0 rgba(0, 0, 0, 0.06);
 }
 
+/* 모바일: 스크롤 다운 시 navbar 숨김, 스크롤 업 시 다시 표시 */
+@media (max-width: 768px) {
+  .navbar {
+    transform: translateY(0);
+    transition: transform 0.3s ease, background-color 0.4s ease, padding 0.4s ease;
+  }
+  .navbar.nav-hidden {
+    transform: translateY(-100%);
+  }
+}
+
 .nav-inner {
   max-width: 1440px;
   margin: 0 auto;
@@ -2397,6 +2408,8 @@ body.shop-page {
 
 @media (max-width: 768px) {
   .auth-card { padding: 40px 28px; }
+  /* iOS Safari 자동 줌 방지 — 입력란 16px 이상 강제 */
+  .auth-field input { font-size: 16px; }
   .mypage-wrap { padding: 100px 20px 60px; }
   .mypage-table { font-size: 12px; }
   .mypage-table th,

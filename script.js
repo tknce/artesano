@@ -11,16 +11,34 @@
 document.addEventListener('DOMContentLoaded', () => {
 
   /* ==========================================================
-     1) 네비게이션 — 스크롤 시 .scrolled 클래스 추가
+     1) 네비게이션 — 스크롤 시 .scrolled 추가
+        + 모바일: 다운 스크롤 시 .nav-hidden 추가, 업 스크롤 시 제거
      ========================================================== */
   const navbar = document.getElementById('navbar');
+  let lastScrollY = window.scrollY;
+
   window.addEventListener('scroll', () => {
-    if (window.scrollY > 50) {
-      navbar.classList.add('scrolled');
-    } else {
-      navbar.classList.remove('scrolled');
+    const currentY = window.scrollY;
+
+    if (currentY > 50) navbar.classList.add('scrolled');
+    else navbar.classList.remove('scrolled');
+
+    // 메뉴 열린 상태에서는 숨기지 않음
+    const menuOpen = navbar.querySelector('.nav-menu')?.classList.contains('open');
+
+    // 맨 위 부근(80px 이내)이면 항상 표시
+    if (currentY < 80 || menuOpen) {
+      navbar.classList.remove('nav-hidden');
+    } else if (currentY > lastScrollY + 5) {
+      // 다운 스크롤 (5px 이상) — 숨김
+      navbar.classList.add('nav-hidden');
+    } else if (currentY < lastScrollY - 5) {
+      // 업 스크롤 — 표시
+      navbar.classList.remove('nav-hidden');
     }
-  });
+
+    lastScrollY = currentY;
+  }, { passive: true });
 
 
   /* ==========================================================
