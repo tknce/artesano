@@ -145,6 +145,32 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 const FRONTEND_DIR = process.env.FRONTEND_DIR || path.join(__dirname, '..');
 
 // -----------------------------------------------
+// SEO — sitemap.xml (정적 페이지 + DB 상품)
+// -----------------------------------------------
+const SITE_URL = process.env.SITE_URL || 'https://www.crocini.co.kr';
+const STATIC_PATHS = ['/', '/shop', '/story', '/contact', '/crocodile', '/ostrich', '/python', '/custom-order'];
+
+app.get('/sitemap.xml', async (req, res) => {
+  const today = new Date().toISOString().split('T')[0];
+  let productUrls = '';
+  try {
+    const pool = require('./db');
+    const [rows] = await pool.query('SELECT id FROM products');
+    productUrls = rows.map(r =>
+      `  <url><loc>${SITE_URL}/product?id=${r.id}</loc><lastmod>${today}</lastmod><changefreq>weekly</changefreq></url>`
+    ).join('\n');
+  } catch (err) {
+    console.error('[sitemap] DB 조회 실패:', err.message);
+  }
+  const staticUrls = STATIC_PATHS.map(p =>
+    `  <url><loc>${SITE_URL}${p}</loc><lastmod>${today}</lastmod><changefreq>weekly</changefreq><priority>${p === '/' ? '1.0' : '0.8'}</priority></url>`
+  ).join('\n');
+  res.type('application/xml').send(
+    `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${staticUrls}\n${productUrls}\n</urlset>`
+  );
+});
+
+// -----------------------------------------------
 // .html → 클린 URL 301 리다이렉트
 // -----------------------------------------------
 function redirectTo(cleanUrl) {

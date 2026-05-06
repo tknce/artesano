@@ -7,17 +7,18 @@
   <meta name="description" content="CROCINI 컬렉션의 프리미엄 가죽 핸드백 상세 정보. 40년 장인의 손으로 완성된 크로커다일, 오스트리치, 파이톤 작품." />
   <meta name="theme-color" content="#1a1a1a" />
 
+  <link rel="canonical" href="https://www.crocini.co.kr/product" id="canonicalLink" />
   <meta property="og:type"        content="product" />
   <meta property="og:site_name"   content="CROCINI 아르테사노" />
   <meta property="og:title"       content="CROCINI 컬렉션 — 프리미엄 가죽 핸드백" id="ogTitle" />
   <meta property="og:description" content="40년 장인의 손으로 완성된 핸드메이드 가죽 작품." id="ogDescription" />
-  <meta property="og:image"       content="images/hero-main.jpg" id="ogImage" />
+  <meta property="og:image"       content="https://www.crocini.co.kr/images/hero-main.jpg" id="ogImage" />
   <meta property="og:locale"      content="ko_KR" />
 
   <meta name="twitter:card"        content="summary_large_image" />
   <meta name="twitter:title"       content="CROCINI 컬렉션" id="twTitle" />
   <meta name="twitter:description" content="40년 장인의 손으로 완성된 핸드메이드 가죽 작품." id="twDescription" />
-  <meta name="twitter:image"       content="images/hero-main.jpg" id="twImage" />
+  <meta name="twitter:image"       content="https://www.crocini.co.kr/images/hero-main.jpg" id="twImage" />
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -603,8 +604,10 @@
 
         // 메타 업데이트
         const desc = `${p.name}${p.option_desc ? ' · ' + p.option_desc : ''} — CROCINI 아르테사노 컬렉션`;
+        const canonicalUrl = `https://www.crocini.co.kr/product?id=${p.id}`;
         document.title = `${p.name} — CROCINI`;
         document.querySelector('meta[name="description"]')?.setAttribute('content', desc);
+        document.getElementById('canonicalLink')?.setAttribute('href', canonicalUrl);
         document.getElementById('ogTitle')?.setAttribute('content', `${p.name} — CROCINI`);
         document.getElementById('ogDescription')?.setAttribute('content', desc);
         document.getElementById('twTitle')?.setAttribute('content', `${p.name} — CROCINI`);
@@ -613,6 +616,33 @@
           document.getElementById('ogImage')?.setAttribute('content', p.image_url);
           document.getElementById('twImage')?.setAttribute('content', p.image_url);
         }
+
+        // JSON-LD Product schema (구글 리치 결과)
+        const ld = {
+          '@context': 'https://schema.org',
+          '@type': 'Product',
+          name: p.name,
+          description: p.description || desc,
+          image: p.image_url ? [p.image_url] : undefined,
+          brand: { '@type': 'Brand', name: 'CROCINI 아르테사노' },
+          category: p.category,
+          offers: p.price !== null ? {
+            '@type': 'Offer',
+            priceCurrency: 'KRW',
+            price: p.price,
+            availability: 'https://schema.org/InStock',
+            url: location.href,
+          } : {
+            '@type': 'Offer',
+            priceCurrency: 'KRW',
+            availability: 'https://schema.org/PreOrder',
+            url: location.href,
+          },
+        };
+        const ldScript = document.createElement('script');
+        ldScript.type = 'application/ld+json';
+        ldScript.textContent = JSON.stringify(ld);
+        document.head.appendChild(ldScript);
 
         // 이미지
         const img = document.getElementById('detailImage');
