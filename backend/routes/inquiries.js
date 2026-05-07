@@ -1,12 +1,13 @@
 const express = require('express');
 const router  = express.Router();
 const { requireAdmin } = require('../middleware/auth');
+const { validate, schemas } = require('../middleware/validate');
 const inquiryService = require('../services/inquiry.service');
 
 const asyncHandler = fn => (req, res, next) => Promise.resolve(fn(req, res, next)).catch(next);
 
-router.post('/', asyncHandler(async (req, res) => {
-  const result = await inquiryService.create(req.body, req.session?.userId);
+router.post('/', validate(schemas.inquiry), asyncHandler(async (req, res) => {
+  const result = await inquiryService.create(req.validated, req.session?.userId);
   if (result.error) return res.status(result.status).json({ error: result.error });
   res.status(201).json({ id: result.id, success: true });
 }));

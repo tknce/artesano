@@ -2,6 +2,7 @@ const express = require('express');
 const rateLimit = require('express-rate-limit');
 const router = express.Router();
 const { requireUser } = require('../middleware/auth');
+const { validate, schemas } = require('../middleware/validate');
 const authService = require('../services/auth.service');
 
 const asyncHandler = fn => (req, res, next) => Promise.resolve(fn(req, res, next)).catch(next);
@@ -9,8 +10,8 @@ const asyncHandler = fn => (req, res, next) => Promise.resolve(fn(req, res, next
 const loginLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 10, message: { error: '너무 많은 로그인 시도입니다. 15분 후 다시 시도해주세요.' }, standardHeaders: true, legacyHeaders: false });
 const registerLimiter = rateLimit({ windowMs: 60 * 60 * 1000, max: 10, message: { error: '너무 많은 가입 시도입니다. 1시간 후 다시 시도해주세요.' }, standardHeaders: true, legacyHeaders: false });
 
-router.post('/register', registerLimiter, asyncHandler(async (req, res) => {
-  const result = await authService.register(req.body || {});
+router.post('/register', registerLimiter, validate(schemas.register), asyncHandler(async (req, res) => {
+  const result = await authService.register(req.validated);
   if (result.error) return res.status(result.status).json({ error: result.error });
   req.session.userId = result.id;
   req.session.userName = result.name;
@@ -19,8 +20,8 @@ router.post('/register', registerLimiter, asyncHandler(async (req, res) => {
   res.status(201).json({ ok: true, name: result.name });
 }));
 
-router.post('/login', loginLimiter, asyncHandler(async (req, res) => {
-  const result = await authService.login(req.body || {});
+router.post('/login', loginLimiter, validate(schemas.login), asyncHandler(async (req, res) => {
+  const result = await authService.login(req.validated);
   if (result.error) return res.status(result.status).json({ error: result.error });
   const { user } = result;
   req.session.userId = user.id;

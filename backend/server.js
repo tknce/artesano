@@ -17,6 +17,7 @@ const helmet     = require('helmet');
 const rateLimit  = require('express-rate-limit');
 
 const cron       = require('node-cron');
+const logger     = require('./lib/logger');
 
 const productsRouter     = require('./routes/products');
 const inquiriesRouter    = require('./routes/inquiries');
@@ -314,37 +315,32 @@ app.use((req, res, next) => {
 });
 
 // -----------------------------------------------
-// 에러 핸들러
+// 글로벌 에러 핸들러
 // -----------------------------------------------
-app.use((err, req, res, next) => {
-  if (req.file?.filename) cloudinary.uploader.destroy(req.file.filename).catch(() => {});
-  if (err instanceof multer.MulterError) {
-    if (err.code === 'LIMIT_FILE_SIZE') return res.status(400).json({ error: '파일 크기는 10MB 이하여야 합니다.' });
-    return res.status(400).json({ error: `업로드 오류: ${err.message}` });
-  }
-  if (err?.message?.includes('이미지 파일만')) return res.status(400).json({ error: err.message });
-  if (err?.message === '허용되지 않은 출처입니다.') return res.status(403).json({ error: err.message });
-  console.error(`[${req.method} ${req.path}] 오류:`, err.message);
-  res.status(500).json({ error: '서버 오류가 발생했습니다.' });
-});
+const { errorHandler } = require('./middleware/error');
+app.use(errorHandler);
 
 // -----------------------------------------------
 // 서버 시작 (마이그레이션 후)
 // -----------------------------------------------
-migrate()
-  .then(() => {
-    app.listen(PORT, () => {
-      console.log(`✓ CROCINI 서버 실행 중: http://localhost:${PORT}`);
-      console.log(`  관리자 로그인: http://localhost:${PORT}/admin-login`);
+// -----------------------------------------------
+// 서버 시작 (마이그레이션 후) — 테스트 시에는 listen 안 함
+// -----------------------------------------------
+if (require.main === module) {
+  migrate()
+    .then(() => {
+      app.listen(PORT, () => {
+        logger.info({ port: PORT }, 'CROCINI 서버 실행 중');
+      });
+      cron.schedule('0 3 * * *', () => {
+        sendBackup().catch(err => logger.error({ err }, 'DB 백업 실패'));
+      }, { timezone: 'Asia/Seoul' });
+      logger.info('DB 백업: 매일 03:00 KST 자동 발송');
+    })
+    .catch(err => {
+      logger.fatal({ err }, 'DB 마이그레이션 실패');
+      process.exit(1);
     });
+}
 
-    // 매일 새벽 3시 (KST) DB 백업 발송
-    cron.schedule('0 3 * * *', () => {
-      sendBackup().catch(err => console.error('[backup] 실패:', err.message));
-    }, { timezone: 'Asia/Seoul' });
-    console.log('  DB 백업: 매일 03:00 KST 자동 발송');
-  })
-  .catch(err => {
-    console.error('FATAL: DB 마이그레이션 실패:', err.message);
-    process.exit(1);
-  });
+module.exports = app;
