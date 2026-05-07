@@ -3778,3 +3778,135 @@ textarea:focus-visible {
 .naver-btn:hover {
   background: #02b351;
 }
+
+/* ==========================================================
+   모바일 접근성 강화 — 30~40대 여성 타겟
+   최소 폰트 14px, 터치 영역 44px, 가격 강조
+   ========================================================== */
+
+/* 전역 최소 폰트 크기 보장 (모바일) */
+@media (max-width: 768px) {
+  body {
+    font-size: 15px;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  /* 10~12px → 13px 최소 보장 */
+  .product-category,
+  .product-option,
+  .section-eyebrow,
+  .filter-btn,
+  .shop-search,
+  .shop-sort,
+  .order-status,
+  .timeline-label,
+  .mypage-msg-preview {
+    font-size: 13px !important;
+  }
+
+  /* 네비게이션 링크 */
+  .nav-menu a {
+    font-size: 16px;
+    padding: 12px 0;
+  }
+
+  /* 필터 버튼 — 터치 영역 44px 보장 */
+  .filter-btn {
+    min-height: 44px;
+    padding: 12px 20px;
+    font-size: 14px !important;
+  }
+
+  /* 위시리스트 하트 — 44px 터치 영역 */
+  .wishlist-btn {
+    width: 44px;
+    height: 44px;
+    font-size: 20px;
+  }
+
+  /* 모든 버튼/링크 최소 터치 영역 */
+  button,
+  .auth-btn,
+  .kakao-btn,
+  .naver-btn,
+  .empty-state-btn,
+  a.product-link {
+    min-height: 44px;
+  }
+
+  /* 상품 가격 강조 */
+  .product-price {
+    font-size: 16px;
+    font-weight: 500;
+  }
+  .price-original {
+    text-decoration: line-through;
+    color: rgba(0,0,0,0.4);
+    font-size: 13px;
+  }
+  .price-sale {
+    color: #c0392b;
+    font-weight: 600;
+  }
+
+  /* 상품명 가독성 */
+  .product-name {
+    font-size: 16px;
+    line-height: 1.4;
+  }
+
+  /* 입력 필드 크기 */
+  input, select, textarea {
+    font-size: 16px !important; /* iOS 줌 방지 */
+    min-height: 44px;
+    padding: 12px;
+  }
+
+  /* 체크아웃 필드 라벨 */
+  .checkout-field label,
+  .auth-field label {
+    font-size: 14px;
+    margin-bottom: 6px;
+  }
+
+  /* 마이페이지 테이블 가독성 */
+  .mypage-table th,
+  .mypage-table td {
+    font-size: 13px;
+    padding: 12px 8px;
+  }
+}
+
+/* 가격 취소선 (데스크톱 포함) */
+.price-original {
+  text-decoration: line-through;
+  opacity: 0.6;
+}
+.price-sale {
+  color: #c0392b;
+  font-weight: 500;
+}
+
+/* 결제 단계 인디케이터 */
+.checkout-steps {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 32px;
+  padding-top: 20px;
+}
+.checkout-step {
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  color: rgba(0,0,0,0.35);
+  font-weight: 400;
+}
+.checkout-step.active {
+  color: var(--color-black);
+  font-weight: 600;
+}
+.checkout-step-arrow {
+  color: rgba(0,0,0,0.2);
+  font-size: 12px;
+}
