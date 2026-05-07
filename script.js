@@ -194,6 +194,10 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentSearch = '';
     let currentSort   = 'latest';
 
+    // 위시리스트 상태
+    let isLoggedIn  = false;
+    let wishlistIds = new Set();
+
     /* --------------------------------------------------
        가격을 "1,440,000원" 형태로 포맷하는 함수
        toLocaleString('ko-KR') 이 천 단위 콤마를 자동으로 찍어줌
@@ -213,6 +217,10 @@ document.addEventListener('DOMContentLoaded', () => {
       const badgeHTML  = p.badge
         ? `<span class="product-badge ${goldBadges.includes(p.badge) ? 'gold' : ''}">${p.badge}</span>`
         : '';
+
+      /* 하트 버튼 */
+      const heartClass = wishlistIds.has(p.id) ? ' wishlisted' : '';
+      const heartHTML  = `<button class="wishlist-btn${heartClass}" data-id="${p.id}" aria-label="찜하기">♥</button>`;
 
       /* 가격 HTML: python처럼 price가 null이면 "주문제작 문의" 표시 */
       let priceHTML;
@@ -238,6 +246,7 @@ document.addEventListener('DOMContentLoaded', () => {
             <div class="product-image">
               <img src="${resolveImageUrl(p.image_url)}" alt="${p.name}" loading="lazy" />
               ${badgeHTML}
+              ${heartHTML}
             </div>
             <div class="product-info">
               <span class="product-category">${categoryLabel}</span>
@@ -306,6 +315,49 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     /* --------------------------------------------------
+       하트 버튼 클릭 — event delegation
+    -------------------------------------------------- */
+    productGrid.addEventListener('click', async (e) => {
+      const btn = e.target.closest('.wishlist-btn');
+      if (!btn) return;
+      e.preventDefault();
+      e.stopPropagation();
+
+      if (!isLoggedIn) { location.href = '/login'; return; }
+
+      const id = parseInt(btn.dataset.id, 10);
+      const wishlisted = wishlistIds.has(id);
+
+      try {
+        btn.disabled = true;
+        const res = await fetch(`/api/wishlist/${id}`, {
+          method: wishlisted ? 'DELETE' : 'POST',
+        });
+        if (!res.ok) throw new Error();
+        if (wishlisted) wishlistIds.delete(id);
+        else            wishlistIds.add(id);
+        btn.classList.toggle('wishlisted', wishlistIds.has(id));
+      } catch (_) {
+        /* 실패 시 상태 유지 */
+      } finally {
+        btn.disabled = false;
+      }
+    });
+
+    /* --------------------------------------------------
+       위시리스트 상태 초기화 — 로그인 확인 후 찜 ID 로드
+    -------------------------------------------------- */
+    async function loadWishlistState() {
+      const meRes = await fetch('/api/auth/me');
+      if (!meRes.ok) return;
+      isLoggedIn = true;
+      const idsRes = await fetch('/api/wishlist/ids');
+      if (!idsRes.ok) return;
+      wishlistIds = new Set(await idsRes.json());
+      if (wishlistIds.size > 0) applyFilters();
+    }
+
+    /* --------------------------------------------------
        카테고리 fetch — DB에서 받아서 필터 버튼 동적 생성
        (실패 시 ALL만 남고 조용히 넘어감 — 상품은 정상 로드)
     -------------------------------------------------- */
@@ -340,8 +392,9 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
 
-    /* 페이지 로드 시 즉시 실행 — 카테고리 먼저, 그다음 상품 */
+    /* 페이지 로드 시 즉시 실행 */
     loadCategories().then(loadProducts);
+    loadWishlistState(); // 위시리스트 상태를 상품 로딩과 병행
   }
 
 });

@@ -20,6 +20,14 @@
       <button class="mypage-logout-btn" id="logoutBtn" style="margin-top:20px;">로그아웃</button>
     </div>
 
+    <!-- 찜 목록 -->
+    <section class="mypage-section">
+      <p class="mypage-section-title">찜 목록</p>
+      <div class="wishlist-grid" id="wishlistGrid">
+        <p class="wishlist-empty">불러오는 중...</p>
+      </div>
+    </section>
+
     <!-- 문의 내역 -->
     <section class="mypage-section">
       <p class="mypage-section-title">문의 내역</p>
@@ -78,6 +86,25 @@
 
       document.body.style.visibility = '';
       document.getElementById('greetingName').textContent = `안녕하세요, ${me.name}님.`;
+
+      // 찜 목록
+      const wRes  = await fetch('/api/wishlist');
+      const wData = await wRes.json();
+      const wGrid = document.getElementById('wishlistGrid');
+      if (!Array.isArray(wData) || wData.length === 0) {
+        wGrid.innerHTML = '<p class="wishlist-empty">찜한 상품이 없습니다.</p>';
+      } else {
+        function fmtPrice(p) { return Number(p).toLocaleString('ko-KR') + '원'; }
+        wGrid.innerHTML = wData.map(p => `
+          <a href="/product?id=${p.id}" class="wishlist-card">
+            <div class="wishlist-card-img">
+              <img src="${escHtml(p.image_url || '')}" alt="${escHtml(p.name)}" loading="lazy" />
+            </div>
+            <p class="wishlist-card-name">${escHtml(p.name)}</p>
+            <p class="wishlist-card-price">${p.price === null ? '주문제작 문의' : fmtPrice(p.price)}</p>
+          </a>
+        `).join('');
+      }
 
       // 문의 내역
       const iRes  = await fetch('/api/user/inquiries');

@@ -696,6 +696,45 @@
             <a href="/shop" class="btn-detail-secondary">계속하기</a>`;
         }
 
+        // 찜하기 버튼
+        const wishBtn = document.createElement('button');
+        wishBtn.id        = 'detailWishBtn';
+        wishBtn.className = 'btn-detail-secondary';
+        wishBtn.style.cssText = 'display:flex;align-items:center;justify-content:center;gap:8px;';
+        wishBtn.innerHTML = '<span id="wishHeart">♡</span> <span id="wishLabel">찜하기</span>';
+        ctaEl.appendChild(wishBtn);
+
+        // 초기 상태 로드
+        let detailWishlisted = false;
+        fetch('/api/wishlist/ids').then(async r => {
+          if (!r.ok) return;
+          const ids = await r.json();
+          if (ids.includes(p.id)) {
+            detailWishlisted = true;
+            document.getElementById('wishHeart').textContent = '♥';
+            document.getElementById('wishLabel').textContent = '찜 해제';
+            wishBtn.style.color = 'var(--color-gold)';
+          }
+        }).catch(() => {});
+
+        wishBtn.addEventListener('click', async () => {
+          const meRes = await fetch('/api/auth/me');
+          if (!meRes.ok) { location.href = '/login'; return; }
+
+          wishBtn.disabled = true;
+          try {
+            const res = await fetch(`/api/wishlist/${p.id}`, {
+              method: detailWishlisted ? 'DELETE' : 'POST',
+            });
+            if (!res.ok) throw new Error();
+            detailWishlisted = !detailWishlisted;
+            document.getElementById('wishHeart').textContent = detailWishlisted ? '♥' : '♡';
+            document.getElementById('wishLabel').textContent = detailWishlisted ? '찜 해제' : '찜하기';
+            wishBtn.style.color = detailWishlisted ? 'var(--color-gold)' : '';
+          } catch (_) {}
+          finally { wishBtn.disabled = false; }
+        });
+
         loadingEl.hidden = true;
         contentEl.hidden = false;
 

@@ -78,6 +78,18 @@ async function migrate() {
     await pool.query('ALTER TABLE products MODIFY COLUMN category VARCHAR(50) NOT NULL');
   }
 
+  // 위시리스트 테이블
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS wishlists (
+      user_id    INT NOT NULL,
+      product_id INT NOT NULL,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      PRIMARY KEY (user_id, product_id),
+      FOREIGN KEY (user_id)    REFERENCES users(id)    ON DELETE CASCADE,
+      FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+  `);
+
   console.log('✓ DB 마이그레이션 완료');
 }
 
