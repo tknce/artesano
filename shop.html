@@ -64,11 +64,21 @@
 
   <!-- ==========================================================
        필터 탭 — ALL + 카테고리 버튼 (script.js가 /categories에서 동적 생성)
+       검색 + 정렬 컨트롤
        ========================================================== -->
   <section class="filter-section">
     <div class="container">
       <div class="filter-tabs" id="filterTabs">
         <button class="filter-btn active" data-filter="all">ALL</button>
+      </div>
+      <div class="shop-controls">
+        <input type="search" id="shopSearch" class="shop-search" placeholder="상품명 검색" autocomplete="off" />
+        <select id="shopSort" class="shop-sort">
+          <option value="latest">최신순</option>
+          <option value="price-asc">가격 낮은순</option>
+          <option value="price-desc">가격 높은순</option>
+          <option value="name">이름순</option>
+        </select>
       </div>
     </div>
   </section>

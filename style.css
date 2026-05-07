@@ -1428,6 +1428,51 @@ body.shop-page {
 }
 
 
+/* shop 검색 / 정렬 컨트롤 */
+.shop-controls {
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+  margin-top: 24px;
+  flex-wrap: wrap;
+}
+.shop-search,
+.shop-sort {
+  font-family: var(--font-sans);
+  font-size: 12px;
+  letter-spacing: 2px;
+  color: var(--color-black);
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.2);
+  padding: 8px 4px;
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+.shop-search {
+  width: 240px;
+  max-width: 100%;
+}
+.shop-search:focus,
+.shop-sort:focus {
+  border-bottom-color: var(--color-black);
+}
+.shop-search::placeholder {
+  color: var(--color-muted);
+  letter-spacing: 2px;
+}
+.shop-sort {
+  cursor: pointer;
+  padding-right: 20px;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'><path d='M1 1l4 4 4-4' stroke='%23000' fill='none' stroke-width='1'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 4px center;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+}
+
+
 /* S3-1) 로딩 / 에러 상태 */
 .loading-state,
 .error-state {

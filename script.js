@@ -185,6 +185,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const errorState   = document.getElementById('errorState');
     const emptyMessage = document.getElementById('emptyMessage');
     const filterTabs   = document.getElementById('filterTabs');
+    const shopSearch   = document.getElementById('shopSearch');
+    const shopSort     = document.getElementById('shopSort');
+
+    // 원본 상품 + 현재 필터/검색/정렬 상태
+    let productsData  = [];
+    let currentFilter = 'all';
+    let currentSearch = '';
+    let currentSort   = 'latest';
 
     /* --------------------------------------------------
        가격을 "1,440,000원" 형태로 포맷하는 함수
@@ -243,28 +251,53 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     /* --------------------------------------------------
-       필터 로직 (카드가 렌더링된 후 호출됨)
+       카테고리 + 검색 + 정렬을 모두 적용해서 그리드를 다시 그림
+       (DOM 토글 대신 매번 새로 렌더 — 정렬 순서까지 깔끔하게 반영)
     -------------------------------------------------- */
-    function initFilters() {
-      const filterBtns = filterTabs.querySelectorAll('.filter-btn');
-      filterBtns.forEach((btn) => {
-        btn.addEventListener('click', () => {
-          const filter = btn.dataset.filter;
+    function applyFilters() {
+      let list = productsData;
 
-          filterBtns.forEach((b) => b.classList.remove('active'));
-          btn.classList.add('active');
+      if (currentFilter !== 'all') {
+        list = list.filter(p => p.category === currentFilter);
+      }
+      if (currentSearch) {
+        const q = currentSearch.toLowerCase();
+        list = list.filter(p => p.name.toLowerCase().includes(q));
+      }
+      // 정렬: 가격 NULL(주문제작)은 항상 뒤로 보냄
+      if (currentSort === 'price-asc') {
+        list = [...list].sort((a, b) => (a.price ?? Infinity) - (b.price ?? Infinity));
+      } else if (currentSort === 'price-desc') {
+        list = [...list].sort((a, b) => (b.price ?? -Infinity) - (a.price ?? -Infinity));
+      } else if (currentSort === 'name') {
+        list = [...list].sort((a, b) => a.name.localeCompare(b.name, 'ko'));
+      }
+      // 'latest'는 API 기본 순서 그대로
 
-          const cards = productGrid.querySelectorAll('.product-card');
-          let visibleCount = 0;
+      productGrid.innerHTML = list.map(createCardHTML).join('');
+      if (emptyMessage) emptyMessage.hidden = list.length > 0;
+    }
 
-          cards.forEach((card) => {
-            const matches = filter === 'all' || card.dataset.category === filter;
-            card.classList.toggle('hidden', !matches);
-            if (matches) visibleCount++;
-          });
+    // 필터 탭: event delegation (카테고리는 동적 추가되므로)
+    filterTabs.addEventListener('click', (e) => {
+      const btn = e.target.closest('.filter-btn');
+      if (!btn) return;
+      filterTabs.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      currentFilter = btn.dataset.filter;
+      applyFilters();
+    });
 
-          if (emptyMessage) emptyMessage.hidden = visibleCount > 0;
-        });
+    if (shopSearch) {
+      shopSearch.addEventListener('input', () => {
+        currentSearch = shopSearch.value.trim();
+        applyFilters();
+      });
+    }
+    if (shopSort) {
+      shopSort.addEventListener('change', () => {
+        currentSort = shopSort.value;
+        applyFilters();
       });
     }
 
@@ -291,27 +324,12 @@ document.addEventListener('DOMContentLoaded', () => {
     -------------------------------------------------- */
     async function loadProducts() {
       try {
-        /* fetch(): 브라우저 내장 HTTP 요청 함수 */
         const response = await fetch(API_URL);
-
-        /* HTTP 오류 응답(404, 500 등) 처리 */
-        if (!response.ok) {
-          throw new Error(`서버 오류: ${response.status}`);
-        }
-
-        const products = await response.json();  // JSON → 배열로 변환
-
-        /* 로딩 스피너 숨기기 */
+        if (!response.ok) throw new Error(`서버 오류: ${response.status}`);
+        productsData = await response.json();
         if (loadingState) loadingState.hidden = true;
-
-        /* 카드 HTML 생성 후 그리드에 한번에 삽입 */
-        productGrid.innerHTML = products.map(createCardHTML).join('');
-
-        /* 카드가 다 그려진 후에 필터 이벤트 연결 */
-        initFilters();
-
+        applyFilters();
       } catch (err) {
-        /* 네트워크 오류 or 서버 꺼져 있을 때 */
         console.error('[SHOP] 상품 로딩 실패:', err.message);
         if (loadingState) loadingState.hidden = true;
         if (errorState)   errorState.hidden   = false;
