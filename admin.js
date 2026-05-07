@@ -108,7 +108,7 @@ function renderCategoryTable() {
     const isLast  = idx === allCategories.length - 1;
     return `
       <tr data-id="${c.id}">
-        <td>${c.id}</td>
+        <td>${idx + 1}</td>
         <td><code>${escapeHtml(c.slug)}</code>${protectedNote}</td>
         <td>${escapeHtml(c.name)}</td>
         <td>${usage}</td>
