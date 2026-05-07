@@ -127,7 +127,7 @@
       const opData = await opRes.json();
       const opTbody = document.getElementById('ordersPaidTbody');
       if (!Array.isArray(opData) || opData.length === 0) {
-        opTbody.innerHTML = '<tr class="empty-row"><td colspan="5">주문 내역이 없습니다.</td></tr>';
+        opTbody.innerHTML = '<tr class="empty-row"><td colspan="5"><div class="empty-state"><div class="empty-state-icon">📦</div><p class="empty-state-title">주문 내역이 없습니다</p><p class="empty-state-desc">마음에 드는 상품을 찾아보세요</p><a href="/shop" class="empty-state-btn">쇼핑하러 가기</a></div></td></tr>';
       } else {
         opTbody.innerHTML = opData.map(o => {
           let trackingHtml = '';
@@ -135,6 +135,18 @@
             const carrier = CARRIERS_TRACK[o.shipping_carrier];
             trackingHtml = `<br /><a href="${carrier.url(o.tracking_number)}" target="_blank" rel="noopener" style="font-size:11px;color:var(--color-gold);">${carrier.name} ${escHtml(o.tracking_number)} ↗</a>`;
           }
+          // 주문 타임라인
+          const steps = ['paid','preparing','shipping','delivered'];
+          const stepLabels = ['결제완료','준비중','배송중','배송완료'];
+          const currentIdx = steps.indexOf(o.status);
+          const timelineHtml = (currentIdx >= 0) ? `
+            <div class="order-timeline">
+              ${steps.map((s, i) => {
+                const cls = i < currentIdx ? 'completed' : i === currentIdx ? 'active' : '';
+                const line = i < steps.length - 1 ? `<div class="timeline-line${i < currentIdx ? ' completed' : ''}"></div>` : '';
+                return `<div class="timeline-step ${cls}"><div class="timeline-dot"></div><span class="timeline-label">${stepLabels[i]}</span></div>${line}`;
+              }).join('')}
+            </div>` : '';
           return `
             <tr>
               <td><code style="font-size:11px;color:#888">${escHtml(o.order_id)}</code></td>
@@ -147,6 +159,7 @@
               <td>${fmtPriceFull(o.amount)}</td>
               <td>
                 <span class="order-status ${o.status}">${STATUS_LABEL[o.status] || o.status}</span>
+                ${timelineHtml}
                 ${trackingHtml}
               </td>
               <td>${fmt(o.created_at)}</td>
@@ -160,7 +173,7 @@
       const wData = await wRes.json();
       const wGrid = document.getElementById('wishlistGrid');
       if (!Array.isArray(wData) || wData.length === 0) {
-        wGrid.innerHTML = '<p class="wishlist-empty">찜한 상품이 없습니다.</p>';
+        wGrid.innerHTML = '<div class="empty-state"><div class="empty-state-icon">♥</div><p class="empty-state-title">찜한 상품이 없습니다</p><p class="empty-state-desc">마음에 드는 상품의 하트를 눌러보세요</p><a href="/shop" class="empty-state-btn">컬렉션 보기</a></div>';
       } else {
         function fmtPrice(p) { return Number(p).toLocaleString('ko-KR') + '원'; }
         wGrid.innerHTML = wData.map(p => `

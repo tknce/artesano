@@ -6,7 +6,43 @@
      3) 스크롤 리빌 애니메이션 (IntersectionObserver)
      4) 히어로 페이드업 — data-delay 적용
      5) 스탯 카운트업 — 숫자가 0에서 목표값까지 증가
+     6) 토스트 알림 시스템
    ============================================================ */
+
+/* ==========================================================
+   토스트 알림 시스템 (전역)
+   ========================================================== */
+const Toast = (() => {
+  let container;
+  function getContainer() {
+    if (!container) {
+      container = document.createElement('div');
+      container.className = 'toast-container';
+      container.setAttribute('aria-live', 'polite');
+      container.setAttribute('role', 'status');
+      document.body.appendChild(container);
+    }
+    return container;
+  }
+  function show(message, type = 'info', duration = 2500) {
+    const el = document.createElement('div');
+    el.className = `toast toast-${type}`;
+    el.textContent = message;
+    getContainer().appendChild(el);
+    setTimeout(() => {
+      el.classList.add('toast-out');
+      el.addEventListener('animationend', () => el.remove());
+    }, duration);
+  }
+  return {
+    success: (msg) => show(msg, 'success'),
+    error: (msg) => show(msg, 'error'),
+    info: (msg) => show(msg, 'info'),
+  };
+})();
+
+/* 페이지 페이드인 (visibility:hidden 대체) */
+document.body.classList.add('page-fade-in');
 
 document.addEventListener('DOMContentLoaded', () => {
 
@@ -148,6 +184,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         showStatus('문의가 정상 접수되었습니다. 곧 연락드리겠습니다.', 'success');
+        Toast.success('문의가 접수되었습니다');
         inquiryForm.reset();
       } catch (err) {
         console.error('[INQUIRY] 전송 실패:', err.message);
@@ -241,10 +278,10 @@ document.addEventListener('DOMContentLoaded', () => {
       const href = `product.html?id=${p.id}`;
 
       return `
-        <article class="product-card" data-category="${p.category}">
+        <article class="product-card" data-category="${p.category}" role="article" aria-label="${p.name}">
           <a href="${href}" class="product-link">
             <div class="product-image">
-              <img src="${resolveImageUrl(p.image_url)}" alt="${p.name}" loading="lazy" />
+              <img src="${resolveImageUrl(p.image_url)}" alt="${p.name} — ${categoryLabel} 가죽 핸드백" loading="lazy" />
               ${badgeHTML}
               ${heartHTML}
             </div>
@@ -337,8 +374,9 @@ document.addEventListener('DOMContentLoaded', () => {
         if (wishlisted) wishlistIds.delete(id);
         else            wishlistIds.add(id);
         btn.classList.toggle('wishlisted', wishlistIds.has(id));
+        Toast.success(wishlisted ? '찜 목록에서 제거했습니다' : '찜 목록에 추가했습니다');
       } catch (_) {
-        /* 실패 시 상태 유지 */
+        Toast.error('처리에 실패했습니다');
       } finally {
         btn.disabled = false;
       }

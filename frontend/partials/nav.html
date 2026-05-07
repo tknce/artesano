@@ -1,12 +1,13 @@
-<header class="navbar" id="navbar">
+<a href="#main-content" class="skip-nav">본문으로 건너뛰기</a>
+<header class="navbar" id="navbar" role="banner">
   <div class="nav-inner">
-    <a href="/" class="logo">CROCINI</a>
-    <nav class="nav-menu" id="navMenu">
+    <a href="/" class="logo" aria-label="CROCINI 홈으로">CROCINI</a>
+    <nav class="nav-menu" id="navMenu" role="navigation" aria-label="메인 메뉴">
       <a href="/shop" data-nav="shop">SHOP</a>
       <a href="/story" data-nav="story">ABOUT</a>
       <a href="/contact" data-nav="contact">CONTACT</a>
     </nav>
-    <button class="hamburger" id="hamburger" aria-label="메뉴 열기">
+    <button class="hamburger" id="hamburger" aria-label="메뉴 열기" aria-expanded="false" aria-controls="navMenu">
       <span></span><span></span><span></span>
     </button>
   </div>
@@ -24,7 +25,11 @@
   if (link) link.classList.add('active');
 
   // 햄버거 토글
-  hamburger.addEventListener('click', () => navMenu.classList.toggle('open'));
+  hamburger.addEventListener('click', () => {
+    const open = navMenu.classList.toggle('open');
+    hamburger.setAttribute('aria-expanded', open);
+    hamburger.setAttribute('aria-label', open ? '메뉴 닫기' : '메뉴 열기');
+  });
   navMenu.querySelectorAll('a').forEach(a =>
     a.addEventListener('click', () => navMenu.classList.remove('open'))
   );
