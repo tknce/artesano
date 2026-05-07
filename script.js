@@ -262,7 +262,11 @@ document.addEventListener('DOMContentLoaded', () => {
       }
       if (currentSearch) {
         const q = currentSearch.toLowerCase();
-        list = list.filter(p => p.name.toLowerCase().includes(q));
+        list = list.filter(p => {
+          const haystack = [p.name, p.option_desc, p.description]
+            .filter(Boolean).join(' ').toLowerCase();
+          return haystack.includes(q);
+        });
       }
       // 정렬: 가격 NULL(주문제작)은 항상 뒤로 보냄
       if (currentSort === 'price-asc') {
