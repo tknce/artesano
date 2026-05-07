@@ -1,6 +1,7 @@
 const express = require('express');
 const router  = express.Router();
 const { requireUser } = require('../middleware/auth');
+const upload = require('../middleware/upload');
 const reviewService = require('../services/review.service');
 
 const asyncHandler = fn => (req, res, next) => Promise.resolve(fn(req, res, next)).catch(next);
@@ -12,11 +13,12 @@ router.get('/', asyncHandler(async (req, res) => {
   res.json(await reviewService.listAll());
 }));
 
-router.post('/', requireUser, asyncHandler(async (req, res) => {
+router.post('/', requireUser, upload.array('images', 3), asyncHandler(async (req, res) => {
   const { productId, rating, comment } = req.body || {};
   const pid = parseInt(productId, 10);
   if (isNaN(pid)) return res.status(400).json({ error: '상품 ID가 필요합니다.' });
-  const result = await reviewService.create(req.session.userId, pid, parseInt(rating, 10), comment);
+  const images = (req.files || []).map(f => ({ url: f.path, publicId: f.filename }));
+  const result = await reviewService.create(req.session.userId, pid, parseInt(rating, 10), comment, images);
   if (result.error) return res.status(result.status).json({ error: result.error });
   res.status(201).json({ ok: true });
 }));

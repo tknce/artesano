@@ -951,6 +951,11 @@
                     ${[1,2,3,4,5].map(n => `<button type="button" data-v="${n}">★</button>`).join('')}
                   </div>
                   <textarea class="rv-textarea" id="rvComment" placeholder="후기를 작성해주세요. (선택)" rows="3" maxlength="1000"></textarea>
+                  <div class="rv-image-upload">
+                    <label class="rv-image-label" for="rvImages">📷 사진 첨부 (최대 3장)</label>
+                    <input type="file" id="rvImages" accept="image/*" multiple style="display:none" />
+                    <div class="rv-image-preview" id="rvImagePreview"></div>
+                  </div>
                   <button type="button" class="rv-submit" id="rvSubmit">후기 등록</button>
                   <p class="rv-status" id="rvStatus" hidden></p>
                 </div>`;
@@ -972,13 +977,18 @@
                 const btn = document.getElementById('rvSubmit');
                 btn.disabled = true;
                 try {
-                  const res = await fetch('/reviews', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ productId: p.id, rating: selectedRating, comment: document.getElementById('rvComment').value }),
-                  });
+                  const fd = new FormData();
+                  fd.append('productId', p.id);
+                  fd.append('rating', selectedRating);
+                  fd.append('comment', document.getElementById('rvComment').value);
+                  const fileInput = document.getElementById('rvImages');
+                  if (fileInput?.files) {
+                    Array.from(fileInput.files).slice(0, 3).forEach(f => fd.append('images', f));
+                  }
+                  const res = await fetch('/reviews', { method: 'POST', body: fd });
                   const data = await res.json().catch(() => ({}));
                   if (!res.ok) throw new Error(data.error || '오류가 발생했습니다.');
+                  Toast.success('후기가 등록되었습니다');
                   writeArea.innerHTML = '';
                   await fetchAndRender();
                 } catch (err) {
@@ -986,6 +996,17 @@
                   if (st) { st.textContent = err.message; st.className = 'rv-status error'; st.hidden = false; }
                   btn.disabled = false;
                 }
+              });
+
+              // 이미지 프리뷰
+              const rvImagesInput = document.getElementById('rvImages');
+              const rvLabel = document.querySelector('.rv-image-label');
+              rvLabel.addEventListener('click', () => rvImagesInput.click());
+              rvImagesInput.addEventListener('change', () => {
+                const preview = document.getElementById('rvImagePreview');
+                preview.innerHTML = Array.from(rvImagesInput.files).slice(0, 3).map(f =>
+                  `<img src="${URL.createObjectURL(f)}" alt="미리보기" />`
+                ).join('');
               });
             } else {
               writeArea.innerHTML = '';
@@ -1007,6 +1028,7 @@
                       <span class="rv-date">${fmtDate(r.created_at)}</span>
                       ${isMine ? `<button class="rv-del" data-id="${r.id}">삭제</button>` : ''}
                     </div>
+                    ${r.images?.length ? `<div class="rv-images">${r.images.map(url => `<img src="${url}" alt="리뷰 사진" loading="lazy" />`).join('')}</div>` : ''}
                     ${r.comment ? `<p class="rv-text">${r.comment.replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>')}</p>` : ''}
                   </div>`;
               }).join('');

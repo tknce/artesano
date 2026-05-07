@@ -248,6 +248,18 @@ async function migrate() {
     )
   `);
 
+  // review_images 테이블
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS review_images (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      review_id INT NOT NULL,
+      image_url VARCHAR(500) NOT NULL,
+      cloudinary_id VARCHAR(255),
+      sort_order INT DEFAULT 0,
+      FOREIGN KEY (review_id) REFERENCES reviews(id) ON DELETE CASCADE
+    )
+  `);
+
   console.log('✓ DB 마이그레이션 완료');
 }
 

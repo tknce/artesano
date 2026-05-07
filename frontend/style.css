@@ -4121,3 +4121,47 @@ textarea:focus-visible {
   align-items: center;
   justify-content: center;
 }
+
+/* 리뷰 사진 */
+.rv-image-upload {
+  margin: 12px 0;
+}
+.rv-image-label {
+  display: inline-block;
+  padding: 8px 16px;
+  border: 1px dashed rgba(0,0,0,0.2);
+  border-radius: 4px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+.rv-image-label:hover {
+  border-color: var(--color-gold);
+}
+.rv-image-preview {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+.rv-image-preview img {
+  width: 60px;
+  height: 60px;
+  object-fit: cover;
+  border-radius: 4px;
+}
+.rv-images {
+  display: flex;
+  gap: 8px;
+  margin: 8px 0;
+}
+.rv-images img {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+.rv-images img:hover {
+  opacity: 0.8;
+}
