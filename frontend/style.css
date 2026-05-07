@@ -3350,11 +3350,16 @@ body.shop-page {
 }
 .checkout-product {
   display: flex;
+  flex-wrap: wrap;
   gap: 14px;
   align-items: flex-start;
   padding-bottom: 18px;
   margin-bottom: 18px;
   border-bottom: 1px solid #f0f0f0;
+}
+.checkout-product:has(> div:nth-child(2)) {
+  flex-direction: column;
+  gap: 0;
 }
 .checkout-product img {
   width: 80px;
