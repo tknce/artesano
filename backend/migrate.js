@@ -78,6 +78,35 @@ async function migrate() {
     await pool.query('ALTER TABLE products MODIFY COLUMN category VARCHAR(50) NOT NULL');
   }
 
+  // 구매 확인 테이블 (관리자가 수동 등록)
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS purchases (
+      id         INT AUTO_INCREMENT PRIMARY KEY,
+      user_id    INT NOT NULL,
+      product_id INT NOT NULL,
+      note       VARCHAR(255) NULL,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      UNIQUE KEY uq_purchase (user_id, product_id),
+      FOREIGN KEY (user_id)    REFERENCES users(id)    ON DELETE CASCADE,
+      FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+  `);
+
+  // 후기 테이블
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS reviews (
+      id         INT AUTO_INCREMENT PRIMARY KEY,
+      product_id INT NOT NULL,
+      user_id    INT NOT NULL,
+      rating     TINYINT NOT NULL,
+      comment    TEXT,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      UNIQUE KEY uq_review (product_id, user_id),
+      FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE,
+      FOREIGN KEY (user_id)    REFERENCES users(id)    ON DELETE CASCADE
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+  `);
+
   // 위시리스트 테이블
   await pool.query(`
     CREATE TABLE IF NOT EXISTS wishlists (

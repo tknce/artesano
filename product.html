@@ -476,6 +476,7 @@
       <button class="detail-tab active" data-tab="desc">상품 설명</button>
       <button class="detail-tab" data-tab="material">소재 정보</button>
       <button class="detail-tab" data-tab="care">케어 가이드</button>
+      <button class="detail-tab" data-tab="reviews" id="tabBtnReviews">후기</button>
     </div>
     <div class="detail-tab-body">
       <div class="detail-tab-panel active" id="tabDesc">
@@ -500,6 +501,11 @@
           <p>· 비나 물에 젖었을 경우 직사광선을 피해 자연 건조하세요.</p>
           <p>· 장기 보관 시 전용 보관 백에 넣어 통풍이 잘 되는 곳에 보관하세요.</p>
         </div>
+      </div>
+      <div class="detail-tab-panel" id="tabReviews" hidden>
+        <div id="reviewWriteArea"></div>
+        <div id="reviewList"></div>
+        <p class="tab-empty" id="reviewEmpty" hidden>아직 작성된 후기가 없습니다.</p>
       </div>
     </div>
   </section>
@@ -758,6 +764,129 @@
 
         if (essaySection) essaySection.hidden = false;
         tabsSection.hidden = false;
+
+        // 후기 탭 — 클릭 시 lazy 로드
+        let reviewsLoaded = false;
+        document.getElementById('tabBtnReviews').addEventListener('click', async () => {
+          if (reviewsLoaded) return;
+          reviewsLoaded = true;
+
+          const writeArea = document.getElementById('reviewWriteArea');
+          const listEl    = document.getElementById('reviewList');
+          const emptyEl   = document.getElementById('reviewEmpty');
+
+          function stars(n) {
+            return '<span class="rv-star-on">' + '★'.repeat(n) + '</span>' +
+                   '<span class="rv-star-off">' + '★'.repeat(5 - n) + '</span>';
+          }
+          function fmtDate(s) {
+            return new Date(s).toLocaleDateString('ko-KR', { year:'numeric', month:'2-digit', day:'2-digit' });
+          }
+
+          // 로그인 + 구매 여부 확인
+          let me = null;
+          let purchased = false;
+          try {
+            const r = await fetch('/api/auth/me');
+            if (r.ok) {
+              me = await r.json();
+              const pr = await fetch(`/purchases/check?productId=${p.id}`);
+              if (pr.ok) { const pd = await pr.json(); purchased = pd.purchased; }
+            }
+          } catch(_) {}
+
+          // 후기 목록 fetch
+          async function fetchAndRender() {
+            let reviews = [];
+            try { const r = await fetch(`/reviews?productId=${p.id}`); if (r.ok) reviews = await r.json(); } catch(_) {}
+
+            // 작성 영역
+            const alreadyWrote = me && reviews.some(r => r.user_id === me.id);
+            if (!me) {
+              writeArea.innerHTML = `<p class="rv-login-prompt"><a href="/login">로그인</a> 후 후기를 작성할 수 있습니다.</p>`;
+            } else if (!purchased) {
+              writeArea.innerHTML = `<p class="rv-login-prompt">구매 후 후기를 작성하실 수 있습니다.</p>`;
+            } else if (!alreadyWrote) {
+              writeArea.innerHTML = `
+                <div class="rv-write">
+                  <div class="rv-star-pick" id="rvStarPick">
+                    ${[1,2,3,4,5].map(n => `<button type="button" data-v="${n}">★</button>`).join('')}
+                  </div>
+                  <textarea class="rv-textarea" id="rvComment" placeholder="후기를 작성해주세요. (선택)" rows="3" maxlength="1000"></textarea>
+                  <button type="button" class="rv-submit" id="rvSubmit">후기 등록</button>
+                  <p class="rv-status" id="rvStatus" hidden></p>
+                </div>`;
+
+              let selectedRating = 0;
+              const pickBtns = document.querySelectorAll('#rvStarPick button');
+              pickBtns.forEach(btn => {
+                btn.addEventListener('mouseenter', () => pickBtns.forEach(b => b.classList.toggle('hover', Number(b.dataset.v) <= Number(btn.dataset.v))));
+                btn.addEventListener('mouseleave', () => pickBtns.forEach(b => b.classList.remove('hover')));
+                btn.addEventListener('click', () => {
+                  selectedRating = Number(btn.dataset.v);
+                  pickBtns.forEach(b => b.classList.toggle('active', Number(b.dataset.v) <= selectedRating));
+                });
+              });
+
+              document.getElementById('rvSubmit').addEventListener('click', async () => {
+                const statusEl = document.getElementById('rvStatus');
+                if (!selectedRating) { statusEl.textContent = '별점을 선택해주세요.'; statusEl.className = 'rv-status error'; statusEl.hidden = false; return; }
+                const btn = document.getElementById('rvSubmit');
+                btn.disabled = true;
+                try {
+                  const res = await fetch('/reviews', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ productId: p.id, rating: selectedRating, comment: document.getElementById('rvComment').value }),
+                  });
+                  const data = await res.json().catch(() => ({}));
+                  if (!res.ok) throw new Error(data.error || '오류가 발생했습니다.');
+                  writeArea.innerHTML = '';
+                  await fetchAndRender();
+                } catch (err) {
+                  const st = document.getElementById('rvStatus');
+                  if (st) { st.textContent = err.message; st.className = 'rv-status error'; st.hidden = false; }
+                  btn.disabled = false;
+                }
+              });
+            } else {
+              writeArea.innerHTML = '';
+            }
+
+            // 목록 렌더
+            if (reviews.length === 0) {
+              listEl.innerHTML = '';
+              emptyEl.hidden = false;
+            } else {
+              emptyEl.hidden = true;
+              listEl.innerHTML = reviews.map(r => {
+                const isMine = me && r.user_id === me.id;
+                return `
+                  <div class="rv-item" id="rv-${r.id}">
+                    <div class="rv-header">
+                      <span class="rv-stars">${stars(r.rating)}</span>
+                      <span class="rv-author">${r.user_name.charAt(0)}${'*'.repeat(Math.max(0, r.user_name.length - 1))}</span>
+                      <span class="rv-date">${fmtDate(r.created_at)}</span>
+                      ${isMine ? `<button class="rv-del" data-id="${r.id}">삭제</button>` : ''}
+                    </div>
+                    ${r.comment ? `<p class="rv-text">${r.comment.replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>')}</p>` : ''}
+                  </div>`;
+              }).join('');
+
+              listEl.querySelectorAll('.rv-del').forEach(btn => {
+                btn.addEventListener('click', async () => {
+                  if (!confirm('후기를 삭제하시겠습니까?')) return;
+                  btn.disabled = true;
+                  const res = await fetch(`/reviews/${btn.dataset.id}`, { method: 'DELETE' });
+                  if (res.ok) { reviewsLoaded = false; await fetchAndRender(); }
+                  else btn.disabled = false;
+                });
+              });
+            }
+          }
+
+          await fetchAndRender();
+        });
 
         // 연관 상품
         const relRes  = await fetch(`/products?category=${p.category}`);

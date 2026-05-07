@@ -23,6 +23,8 @@ const inquiriesRouter    = require('./routes/inquiries');
 const customOrdersRouter = require('./routes/custom-orders');
 const categoriesRouter   = require('./routes/categories');
 const wishlistRouter     = require('./routes/wishlist');
+const reviewsRouter      = require('./routes/reviews');
+const purchasesRouter    = require('./routes/purchases');
 const authRouter         = require('./routes/auth');
 const userRouter         = require('./routes/user');
 const migrate            = require('./migrate');
@@ -268,6 +270,8 @@ app.use('/categories', (req, res, next) => {
 app.use('/api/auth', authRouter);
 app.use('/api/user', userRouter);
 app.use('/api/wishlist', wishlistRouter);
+app.use('/reviews', reviewsRouter);
+app.use('/purchases', purchasesRouter);
 
 // -----------------------------------------------
 // 404 — 매칭되지 않은 경로 (API는 JSON, 그 외는 HTML)
@@ -277,7 +281,9 @@ app.use((req, res, next) => {
       req.path.startsWith('/products') ||
       req.path.startsWith('/inquiries') ||
       req.path.startsWith('/custom-orders') ||
-      req.path.startsWith('/categories')) {
+      req.path.startsWith('/categories') ||
+      req.path.startsWith('/reviews') ||
+      req.path.startsWith('/purchases')) {
     return res.status(404).json({ error: '요청하신 리소스를 찾을 수 없습니다.' });
   }
   res.status(404).sendFile(path.join(FRONTEND_DIR, '404.html'));

@@ -2572,6 +2572,123 @@ body.shop-page {
 }
 
 /* ============================================================
+   후기 (Reviews)
+   ============================================================ */
+.rv-login-prompt {
+  font-size: 13px;
+  color: var(--color-muted);
+  margin-bottom: 32px;
+}
+.rv-login-prompt a { color: var(--color-gold); text-decoration: none; }
+
+.rv-write {
+  padding-bottom: 36px;
+  margin-bottom: 36px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.rv-star-pick {
+  display: flex;
+  gap: 2px;
+  margin-bottom: 14px;
+}
+.rv-star-pick button {
+  background: none;
+  border: none;
+  font-size: 26px;
+  color: #ddd;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+  transition: color 0.12s;
+}
+.rv-star-pick button.hover,
+.rv-star-pick button.active { color: var(--color-gold); }
+
+.rv-textarea {
+  width: 100%;
+  border: 1px solid #e8e8e8;
+  padding: 12px 14px;
+  font-family: var(--font-sans);
+  font-size: 13px;
+  line-height: 1.7;
+  resize: vertical;
+  outline: none;
+  transition: border-color 0.2s;
+  background: none;
+}
+.rv-textarea:focus { border-color: var(--color-black); }
+
+.rv-submit {
+  margin-top: 10px;
+  padding: 11px 28px;
+  background: var(--color-black);
+  color: var(--color-cream);
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  border: none;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.rv-submit:hover { background: var(--color-brown); }
+.rv-submit:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.rv-status { font-size: 12px; margin-top: 8px; }
+.rv-status.error { color: #c0392b; }
+.rv-status.success { color: #27ae60; }
+
+.rv-item {
+  padding: 22px 0;
+  border-bottom: 1px solid #f5f5f5;
+}
+.rv-item:first-child { padding-top: 0; }
+
+.rv-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.rv-stars { font-size: 14px; letter-spacing: 1px; }
+.rv-star-on { color: var(--color-gold); }
+.rv-star-off { color: #e0e0e0; }
+
+.rv-author {
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  color: var(--color-black);
+}
+.rv-date {
+  font-size: 11px;
+  color: var(--color-muted);
+  margin-left: auto;
+}
+.rv-del {
+  background: none;
+  border: none;
+  font-size: 11px;
+  color: #ccc;
+  cursor: pointer;
+  padding: 0;
+  transition: color 0.2s;
+}
+.rv-del:hover { color: #c0392b; }
+
+.rv-text {
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 300;
+  line-height: 1.85;
+  color: #555;
+}
+
+/* ============================================================
    인덱스 리디자인 — 새 섹션들
    ============================================================ */
 

@@ -24,6 +24,7 @@
         <a href="#products" class="active">상품 관리</a>
         <a href="#categories">카테고리</a>
         <a href="#custom-orders">주문제작</a>
+        <a href="#purchases">구매 확인</a>
         <a href="#inquiries">문의 관리</a>
         <a href="index.html" target="_blank">사이트 보기 ↗</a>
         <button type="button" id="btnLogout" class="btn-logout">로그아웃</button>
@@ -128,6 +129,44 @@
           </thead>
           <tbody id="customOrderTableBody">
             <tr><td colspan="9" class="admin-loading">불러오는 중...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         구매 확인 관리
+         ============================================================ -->
+    <section class="admin-section" id="purchases">
+      <div class="admin-section-header">
+        <h2>구매 확인 관리</h2>
+        <button type="button" class="btn-secondary" id="btnRefreshPurchases">새로고침</button>
+      </div>
+
+      <form class="admin-toolbar" id="purchaseAddForm">
+        <input type="email" id="purchaseEmail" placeholder="회원 이메일" required style="min-width:220px;" />
+        <select id="purchaseProductId" required>
+          <option value="">상품 선택</option>
+        </select>
+        <input type="text" id="purchaseNote" placeholder="메모 (선택)" maxlength="255" style="min-width:160px;" />
+        <button type="submit" class="btn-primary">+ 등록</button>
+        <span class="form-status" id="purchaseFormStatus" hidden></span>
+      </form>
+
+      <div class="admin-table-wrap">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th style="width:60px;">ID</th>
+              <th>이메일</th>
+              <th>상품</th>
+              <th>메모</th>
+              <th style="width:150px;">등록일</th>
+              <th style="width:80px;">관리</th>
+            </tr>
+          </thead>
+          <tbody id="purchaseTableBody">
+            <tr><td colspan="6" class="admin-loading">불러오는 중...</td></tr>
           </tbody>
         </table>
       </div>

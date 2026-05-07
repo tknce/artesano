@@ -222,7 +222,8 @@ async function loadProducts() {
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     allProducts = await res.json();
     renderProducts();
-    renderCategoryTable(); // 상품 수 카운트 갱신
+    renderCategoryTable();   // 상품 수 카운트 갱신
+    syncPurchaseProductSelect(); // 구매 확인 폼 상품 목록 갱신
   } catch (err) {
     console.error('상품 로딩 실패:', err);
     productTableBody.innerHTML = `<tr><td colspan="7" class="admin-loading">불러오기 실패: ${escapeHtml(err.message)}</td></tr>`;
@@ -723,6 +724,89 @@ async function deleteCustomOrder(id) {
 
 
 /* ============================================================
+   구매 확인 관리
+   ============================================================ */
+const purchaseTableBody  = document.getElementById('purchaseTableBody');
+const purchaseAddForm    = document.getElementById('purchaseAddForm');
+const purchaseFormStatus = document.getElementById('purchaseFormStatus');
+const purchaseProductSel = document.getElementById('purchaseProductId');
+
+function syncPurchaseProductSelect() {
+  const prev = purchaseProductSel.value;
+  purchaseProductSel.innerHTML =
+    '<option value="">상품 선택</option>' +
+    allProducts.map(p => `<option value="${p.id}">${escapeHtml(p.name)}</option>`).join('');
+  if (prev) purchaseProductSel.value = prev;
+}
+
+async function loadPurchases() {
+  purchaseTableBody.innerHTML = '<tr><td colspan="6" class="admin-loading">불러오는 중...</td></tr>';
+  try {
+    const res = await fetch('/purchases');
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const list = await res.json();
+    if (list.length === 0) {
+      purchaseTableBody.innerHTML = '<tr><td colspan="6" class="admin-empty">구매 확인 내역이 없습니다.</td></tr>';
+      return;
+    }
+    purchaseTableBody.innerHTML = list.map(r => `
+      <tr>
+        <td>${r.id}</td>
+        <td>${escapeHtml(r.user_email)}<br /><span style="font-size:11px;color:#888">${escapeHtml(r.user_name)}</span></td>
+        <td>#${r.product_id} ${escapeHtml(r.product_name)}</td>
+        <td>${escapeHtml(r.note || '—')}</td>
+        <td style="font-size:12px;color:#666;">${formatDate(r.created_at)}</td>
+        <td>
+          <button type="button" class="btn-danger" data-action="delete-purchase" data-id="${r.id}">삭제</button>
+        </td>
+      </tr>
+    `).join('');
+  } catch (err) {
+    purchaseTableBody.innerHTML = `<tr><td colspan="6" class="admin-loading">불러오기 실패: ${escapeHtml(err.message)}</td></tr>`;
+  }
+}
+
+purchaseAddForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  purchaseFormStatus.hidden = true;
+  try {
+    const res = await fetch('/purchases', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        email:     document.getElementById('purchaseEmail').value.trim(),
+        productId: purchaseProductSel.value,
+        note:      document.getElementById('purchaseNote').value.trim(),
+      }),
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(data.error || `서버 오류 (${res.status})`);
+    purchaseAddForm.reset();
+    await loadPurchases();
+  } catch (err) {
+    purchaseFormStatus.textContent = err.message;
+    purchaseFormStatus.className = 'form-status error';
+    purchaseFormStatus.hidden = false;
+  }
+});
+
+purchaseTableBody.addEventListener('click', async (e) => {
+  const btn = e.target.closest('button[data-action="delete-purchase"]');
+  if (!btn) return;
+  if (!confirm('구매 확인 내역을 삭제하시겠습니까?')) return;
+  try {
+    const res = await fetch(`/purchases/${btn.dataset.id}`, { method: 'DELETE' });
+    if (!res.ok) throw new Error();
+    await loadPurchases();
+  } catch {
+    alert('삭제 실패');
+  }
+});
+
+document.getElementById('btnRefreshPurchases').addEventListener('click', loadPurchases);
+
+
+/* ============================================================
    로그아웃
    ============================================================ */
 document.getElementById('btnLogout').addEventListener('click', async () => {
@@ -744,6 +828,7 @@ document.getElementById('btnLogout').addEventListener('click', async () => {
   document.body.style.visibility = 'visible';
   await loadCategories(); // 상품 폼 select가 비어있으면 안되므로 먼저
   loadProducts();
+  loadPurchases();
   loadInquiries();
   loadCustomOrders();
 })();
