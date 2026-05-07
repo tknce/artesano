@@ -185,10 +185,21 @@
             <span>이름 <em>*</em></span>
             <input type="text" name="name" id="fName" maxlength="255" required />
           </label>
-          <label class="form-field">
-            <span>카테고리 <em>*</em></span>
+          <div class="form-field">
+            <span style="display:flex;align-items:center;gap:8px;">
+              카테고리 <em>*</em>
+              <button type="button" class="btn-ghost" id="btnCatNew" style="font-size:12px;padding:2px 8px;margin-left:auto;">+ 추가</button>
+              <button type="button" class="btn-ghost" id="btnCatDel" style="font-size:12px;padding:2px 8px;color:var(--danger);" title="">− 삭제</button>
+            </span>
             <select name="category" id="fCategory" required></select>
-          </label>
+            <div id="catNewInline" hidden style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap;">
+              <input type="text" id="catNewSlug" placeholder="slug (영문/숫자/하이픈)" maxlength="50" style="flex:1;min-width:140px;" />
+              <input type="text" id="catNewName" placeholder="표시 이름" maxlength="100" style="flex:1;min-width:140px;" />
+              <button type="button" class="btn-secondary" id="btnCatNewSubmit" style="padding:6px 12px;">추가</button>
+              <button type="button" class="btn-ghost" id="btnCatNewCancel" style="padding:6px 12px;">취소</button>
+            </div>
+            <p class="form-status" id="catInlineStatus" hidden></p>
+          </div>
         </div>
 
         <label class="form-field">

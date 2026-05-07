@@ -60,13 +60,39 @@ function syncCategoryDropdowns() {
   filterCategory.innerHTML =
     '<option value="">전체 카테고리</option>' +
     allCategories.map(c => `<option value="${c.slug}">${escapeHtml(c.name)}</option>`).join('');
-  // 2) 상품 폼 카테고리 select
+  // 2) 상품 폼 카테고리 select (선택값 보존)
   const fCat = document.getElementById('fCategory');
   if (fCat) {
+    const prev = fCat.value;
     fCat.innerHTML = allCategories.map(c =>
       `<option value="${c.slug}">${escapeHtml(c.name)}</option>`
     ).join('');
+    if (prev && allCategories.some(c => c.slug === prev)) fCat.value = prev;
   }
+  updateCatDelButton();
+}
+
+// 모달의 "삭제" 버튼 disabled 상태 — 보호되었거나 사용 중이면 막음
+function updateCatDelButton() {
+  const btn  = document.getElementById('btnCatDel');
+  const fCat = document.getElementById('fCategory');
+  if (!btn || !fCat) return;
+  const slug = fCat.value;
+  const cat  = allCategories.find(c => c.slug === slug);
+  if (!cat) { btn.disabled = true; btn.title = ''; return; }
+  if (PROTECTED_SLUGS.has(slug)) {
+    btn.disabled = true;
+    btn.title = '주문제작 기능에 사용 중이라 삭제할 수 없습니다.';
+    return;
+  }
+  const usage = allProducts.filter(p => p.category === slug).length;
+  if (usage > 0) {
+    btn.disabled = true;
+    btn.title = `이 카테고리에 상품이 ${usage}개 있어 삭제할 수 없습니다.`;
+    return;
+  }
+  btn.disabled = false;
+  btn.title = '';
 }
 
 function renderCategoryTable() {
@@ -267,6 +293,77 @@ const detailImagesField = document.getElementById('detailImagesField');
 const detailImgList     = document.getElementById('detailImgList');
 const fDetailImage      = document.getElementById('fDetailImage');
 
+// 모달 카테고리 미니 컨트롤
+const btnCatNew         = document.getElementById('btnCatNew');
+const btnCatDel         = document.getElementById('btnCatDel');
+const catNewInline      = document.getElementById('catNewInline');
+const catNewSlug        = document.getElementById('catNewSlug');
+const catNewName        = document.getElementById('catNewName');
+const btnCatNewSubmit   = document.getElementById('btnCatNewSubmit');
+const btnCatNewCancel   = document.getElementById('btnCatNewCancel');
+const catInlineStatus   = document.getElementById('catInlineStatus');
+
+fCategory.addEventListener('change', updateCatDelButton);
+
+btnCatNew.addEventListener('click', () => {
+  catNewInline.hidden = false;
+  catInlineStatus.hidden = true;
+  catNewSlug.focus();
+});
+
+btnCatNewCancel.addEventListener('click', () => {
+  catNewInline.hidden = true;
+  catNewSlug.value = '';
+  catNewName.value = '';
+  catInlineStatus.hidden = true;
+});
+
+btnCatNewSubmit.addEventListener('click', async () => {
+  catInlineStatus.hidden = true;
+  const slug = catNewSlug.value.trim().toLowerCase();
+  const name = catNewName.value.trim();
+  if (!slug || !name) {
+    catInlineStatus.textContent = 'slug와 표시 이름을 모두 입력하세요.';
+    catInlineStatus.className = 'form-status error';
+    catInlineStatus.hidden = false;
+    return;
+  }
+  try {
+    const res = await fetch('/categories', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ slug, name, sort_order: 999 }),
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
+    await loadCategories();
+    fCategory.value = slug;
+    updateCatDelButton();
+    catNewSlug.value = '';
+    catNewName.value = '';
+    catNewInline.hidden = true;
+  } catch (err) {
+    catInlineStatus.textContent = err.message;
+    catInlineStatus.className = 'form-status error';
+    catInlineStatus.hidden = false;
+  }
+});
+
+btnCatDel.addEventListener('click', async () => {
+  const slug = fCategory.value;
+  const cat  = allCategories.find(c => c.slug === slug);
+  if (!cat) return;
+  if (!confirm(`카테고리 '${cat.name}' (slug: ${cat.slug}) 을(를) 삭제하시겠습니까?`)) return;
+  try {
+    const res  = await fetch(`/categories/${cat.id}`, { method: 'DELETE' });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
+    await loadCategories();
+  } catch (err) {
+    alert('삭제 실패: ' + err.message);
+  }
+});
+
 // 상세 이미지 목록 렌더
 function renderDetailImages(images) {
   detailImgList.innerHTML = images.map(img => `
@@ -313,6 +410,12 @@ function openProductModal(id) {
   fImagePreview.removeAttribute('src');
   formStatus.hidden = true;
 
+  // 카테고리 인라인 추가 폼은 항상 닫힌 상태로 시작
+  catNewInline.hidden = true;
+  catInlineStatus.hidden = true;
+  catNewSlug.value = '';
+  catNewName.value = '';
+
   detailImgList.innerHTML = '';
   detailImagesField.hidden = true;
 
@@ -323,6 +426,7 @@ function openProductModal(id) {
     fId.value             = p.id;
     fName.value           = p.name;
     fCategory.value       = p.category;
+    updateCatDelButton();
     fOptionDesc.value     = p.option_desc || '';
     fDescription.value    = p.description || '';
     fPrice.value          = p.price ?? '';
@@ -342,6 +446,7 @@ function openProductModal(id) {
   } else {
     modalTitle.textContent = '새 상품 등록';
     fId.value = '';
+    updateCatDelButton();
   }
 
   modal.hidden = false;
