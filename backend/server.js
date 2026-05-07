@@ -26,6 +26,7 @@ const wishlistRouter     = require('./routes/wishlist');
 const reviewsRouter      = require('./routes/reviews');
 const purchasesRouter    = require('./routes/purchases');
 const ordersRouter       = require('./routes/orders');
+const contentRouter      = require('./routes/content');
 const authRouter         = require('./routes/auth');
 const userRouter         = require('./routes/user');
 const migrate            = require('./migrate');
@@ -293,6 +294,7 @@ app.use('/api/wishlist', wishlistRouter);
 app.use('/reviews', reviewsRouter);
 app.use('/purchases', purchasesRouter);
 app.use('/api/orders', ordersRouter);
+app.use('/api/content', contentRouter);
 
 // -----------------------------------------------
 // 404 — 매칭되지 않은 경로 (API는 JSON, 그 외는 HTML)

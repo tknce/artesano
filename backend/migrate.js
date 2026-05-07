@@ -38,6 +38,14 @@ async function migrate() {
     await pool.query('ALTER TABLE products ADD COLUMN description TEXT NULL');
   }
 
+  const [mCols] = await pool.query(`
+    SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'products' AND COLUMN_NAME = 'material_info'
+  `);
+  if (mCols.length === 0) {
+    await pool.query('ALTER TABLE products ADD COLUMN material_info TEXT NULL');
+  }
+
   await pool.query(`
     CREATE TABLE IF NOT EXISTS product_detail_images (
       id          INT AUTO_INCREMENT PRIMARY KEY,
@@ -173,6 +181,28 @@ async function migrate() {
       FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
   `);
+
+  // 사이트 공통 콘텐츠 (소재정보 / 케어가이드 / 교환환불)
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS site_content (
+      content_key VARCHAR(50) NOT NULL PRIMARY KEY,
+      content     TEXT,
+      updated_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+  `);
+
+  // 초기 시드 (이미 있으면 건드리지 않음)
+  const SEEDS = {
+    material_info: '소재\n자연스러운 결을 가진 레더\n\n구조\n안정적인 형태를 위한 구조 설계\n\n마감\n절제된 하드웨어와 정제된 엣지',
+    care_guide:    '· 직사광선 및 고온 다습한 환경을 피해 보관하세요.\n· 사용 후 부드러운 천으로 표면을 가볍게 닦아주세요.\n· 가죽 전용 크림으로 주기적으로 유분을 보충해주세요.\n· 비나 물에 젖었을 경우 직사광선을 피해 자연 건조하세요.\n· 장기 보관 시 전용 보관 백에 넣어 통풍이 잘 되는 곳에 보관하세요.',
+    refund_policy: '· 상품 수령 후 7일 이내 교환 및 환불이 가능합니다.\n· 단순 변심에 의한 교환·환불은 왕복 배송비를 고객님께서 부담하셔야 합니다.\n· 사용 흔적이 있거나 훼손된 경우 교환·환불이 불가합니다.\n· 주문제작 상품은 환불이 불가합니다.\n· 자세한 문의는 아래 연락처로 부탁드립니다.',
+  };
+  for (const [key, content] of Object.entries(SEEDS)) {
+    await pool.query(
+      'INSERT IGNORE INTO site_content (content_key, content) VALUES (?, ?)',
+      [key, content]
+    );
+  }
 
   console.log('✓ DB 마이그레이션 완료');
 }

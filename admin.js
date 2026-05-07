@@ -338,6 +338,7 @@ const fName           = document.getElementById('fName');
 const fCategory       = document.getElementById('fCategory');
 const fOptionDesc     = document.getElementById('fOptionDesc');
 const fDescription    = document.getElementById('fDescription');
+const fMaterialInfo   = document.getElementById('fMaterialInfo');
 const fPrice          = document.getElementById('fPrice');
 const fOriginalPrice  = document.getElementById('fOriginalPrice');
 const fBadge          = document.getElementById('fBadge');
@@ -446,22 +447,24 @@ detailImgList.addEventListener('click', async (e) => {
   btn.closest('.detail-img-item').remove();
 });
 
-// 상세 이미지 추가
+// 상세 이미지 추가 (여러 장 동시 업로드)
 fDetailImage.addEventListener('change', async () => {
-  const file = fDetailImage.files[0];
-  if (!file) return;
+  const files = Array.from(fDetailImage.files);
+  if (files.length === 0) return;
   const productId = fId.value;
   if (!productId) return;
-  const fd = new FormData();
-  fd.append('image', file);
-  const res = await fetch(`/products/${productId}/detail-images`, { method: 'POST', body: fd });
-  if (res.ok) {
-    const img = await res.json();
-    const item = document.createElement('div');
-    item.className = 'detail-img-item';
-    item.dataset.imgId = img.id;
-    item.innerHTML = `<img src="${img.image_url}" alt="" /><button type="button" class="detail-img-del" data-img-id="${img.id}">×</button>`;
-    detailImgList.appendChild(item);
+  for (const file of files) {
+    const fd = new FormData();
+    fd.append('image', file);
+    const res = await fetch(`/products/${productId}/detail-images`, { method: 'POST', body: fd });
+    if (res.ok) {
+      const img = await res.json();
+      const item = document.createElement('div');
+      item.className = 'detail-img-item';
+      item.dataset.imgId = img.id;
+      item.innerHTML = `<img src="${img.image_url}" alt="" /><button type="button" class="detail-img-del" data-img-id="${img.id}">×</button>`;
+      detailImgList.appendChild(item);
+    }
   }
   fDetailImage.value = '';
 });
@@ -490,6 +493,7 @@ function openProductModal(id) {
     updateCatDelButton();
     fOptionDesc.value     = p.option_desc || '';
     fDescription.value    = p.description || '';
+    fMaterialInfo.value   = p.material_info || '';
     fPrice.value          = p.price ?? '';
     fOriginalPrice.value  = p.original_price ?? '';
     fBadge.value          = p.badge || '';
@@ -556,6 +560,7 @@ productForm.addEventListener('submit', async (e) => {
     fd.append('category',        fCategory.value);
     fd.append('option_desc',     fOptionDesc.value.trim());
     fd.append('description',     fDescription.value.trim());
+    fd.append('material_info',   fMaterialInfo.value.trim());
     fd.append('price',           fPrice.value);
     fd.append('original_price',  fOriginalPrice.value);
     fd.append('badge',           fBadge.value.trim());
@@ -1084,6 +1089,60 @@ reviewTableBody.addEventListener('click', async (e) => {
 
 
 /* ============================================================
+   사이트 콘텐츠 (소재정보 / 케어가이드 / 교환환불)
+   ============================================================ */
+const CONTENT_FIELD_MAP = {
+  material_info: 'contentMaterial',
+  care_guide:    'contentCare',
+  refund_policy: 'contentRefund',
+};
+
+async function loadSiteContent() {
+  try {
+    const res = await fetch('/api/content');
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    Object.entries(CONTENT_FIELD_MAP).forEach(([key, elId]) => {
+      const el = document.getElementById(elId);
+      if (el) el.value = data[key] || '';
+    });
+  } catch (err) {
+    console.error('사이트 콘텐츠 로드 실패:', err);
+  }
+}
+
+document.querySelectorAll('button[data-content-key]').forEach(btn => {
+  btn.addEventListener('click', async () => {
+    const key   = btn.dataset.contentKey;
+    const elId  = CONTENT_FIELD_MAP[key];
+    const value = document.getElementById(elId).value;
+    const msg   = document.querySelector(`[data-content-status="${key}"]`);
+    msg.hidden = true;
+    btn.disabled = true;
+    try {
+      const res = await fetch(`/api/content/${key}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ content: value }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
+      msg.textContent = '저장되었습니다.';
+      msg.className = 'form-status success';
+      msg.hidden = false;
+      setTimeout(() => { msg.hidden = true; }, 2000);
+    } catch (err) {
+      msg.textContent = err.message;
+      msg.className = 'form-status error';
+      msg.hidden = false;
+    } finally {
+      btn.disabled = false;
+    }
+  });
+});
+
+
+/* ============================================================
    로그아웃
    ============================================================ */
 document.getElementById('btnLogout').addEventListener('click', async () => {
@@ -1110,4 +1169,5 @@ document.getElementById('btnLogout').addEventListener('click', async () => {
   loadReviews();
   loadInquiries();
   loadCustomOrders();
+  loadSiteContent();
 })();

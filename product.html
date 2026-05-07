@@ -96,6 +96,79 @@
       z-index: 10;
     }
 
+    /* 캐러셀 좌우 버튼 + 인디케이터 */
+    .carousel-btn {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 44px;
+      height: 44px;
+      border: none;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.85);
+      color: var(--color-black);
+      font-size: 28px;
+      line-height: 1;
+      cursor: pointer;
+      z-index: 5;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s, transform 0.15s;
+      backdrop-filter: blur(4px);
+    }
+    .carousel-btn:hover {
+      background: rgba(255,255,255,0.98);
+      transform: translateY(-50%) scale(1.05);
+    }
+    .carousel-prev { left: 12px; padding-right: 4px; }
+    .carousel-next { right: 12px; padding-left: 4px; }
+    .carousel-indicator {
+      position: absolute;
+      bottom: 16px;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 6px 14px;
+      background: rgba(0,0,0,0.55);
+      color: #fff;
+      font-family: var(--font-sans);
+      font-size: 12px;
+      letter-spacing: 0.06em;
+      border-radius: 14px;
+      pointer-events: none;
+      backdrop-filter: blur(4px);
+    }
+
+    /* 썸네일 */
+    .carousel-thumbs {
+      display: flex;
+      gap: 8px;
+      margin-top: 12px;
+      overflow-x: auto;
+      padding-bottom: 4px;
+    }
+    .carousel-thumb {
+      width: 68px;
+      height: 86px;
+      flex-shrink: 0;
+      cursor: pointer;
+      opacity: 0.45;
+      transition: opacity 0.2s, border-color 0.2s;
+      border: 1.5px solid transparent;
+      background: var(--color-beige);
+    }
+    .carousel-thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .carousel-thumb:hover { opacity: 0.8; }
+    .carousel-thumb.active {
+      opacity: 1;
+      border-color: var(--color-gold);
+    }
+
     .detail-badge {
       position: absolute;
       top: 20px;
@@ -442,8 +515,14 @@
       </div>
 
       <div class="detail-grid" id="detailContent" hidden>
-        <div class="detail-image" id="detailImageWrap">
-          <img id="detailImage" src="" alt="" />
+        <div class="detail-gallery">
+          <div class="detail-image" id="detailImageWrap">
+            <img id="detailImage" src="" alt="" />
+            <button type="button" class="carousel-btn carousel-prev" id="carouselPrev" aria-label="이전 이미지" hidden>‹</button>
+            <button type="button" class="carousel-btn carousel-next" id="carouselNext" aria-label="다음 이미지" hidden>›</button>
+            <div class="carousel-indicator" id="carouselIndicator" hidden></div>
+          </div>
+          <div class="carousel-thumbs" id="carouselThumbs" hidden></div>
         </div>
         <div class="detail-info">
           <p class="detail-category" id="detailCategory"></p>
@@ -464,6 +543,7 @@
       <button class="detail-tab active" data-tab="desc">상품 설명</button>
       <button class="detail-tab" data-tab="material">소재 정보</button>
       <button class="detail-tab" data-tab="care">케어 가이드</button>
+      <button class="detail-tab" data-tab="refund">교환·환불</button>
       <button class="detail-tab" data-tab="reviews" id="tabBtnReviews">후기</button>
     </div>
     <div class="detail-tab-body">
@@ -472,23 +552,13 @@
         <div class="detail-desc-images" id="tabDescImages"></div>
       </div>
       <div class="detail-tab-panel" id="tabMaterial" hidden>
-        <div class="tab-desc-content">
-          <p class="material-key">소재</p>
-          <p>자연스러운 결을 가진 레더</p>
-          <p class="material-key">구조</p>
-          <p>안정적인 형태를 위한 구조 설계</p>
-          <p class="material-key">마감</p>
-          <p>절제된 하드웨어와 정제된 엣지</p>
-        </div>
+        <div class="tab-desc-content" id="tabMaterialBody"></div>
       </div>
       <div class="detail-tab-panel" id="tabCare" hidden>
-        <div class="tab-desc-content">
-          <p>· 직사광선 및 고온 다습한 환경을 피해 보관하세요.</p>
-          <p>· 사용 후 부드러운 천으로 표면을 가볍게 닦아주세요.</p>
-          <p>· 가죽 전용 크림으로 주기적으로 유분을 보충해주세요.</p>
-          <p>· 비나 물에 젖었을 경우 직사광선을 피해 자연 건조하세요.</p>
-          <p>· 장기 보관 시 전용 보관 백에 넣어 통풍이 잘 되는 곳에 보관하세요.</p>
-        </div>
+        <div class="tab-desc-content" id="tabCareBody"></div>
+      </div>
+      <div class="detail-tab-panel" id="tabRefund" hidden>
+        <div class="tab-desc-content" id="tabRefundBody"></div>
       </div>
       <div class="detail-tab-panel" id="tabReviews" hidden>
         <div id="reviewWriteArea"></div>
@@ -523,6 +593,11 @@
       const ZOOM = 1.4;
 
       wrap.addEventListener('mousemove', e => {
+        // 캐러셀 버튼/인디케이터/썸네일 위에서는 돋보기 숨김
+        if (e.target.closest('.carousel-btn, .carousel-indicator')) {
+          lens.style.display = 'none';
+          return;
+        }
         const rect = wrap.getBoundingClientRect();
         const x = e.clientX - rect.left;
         const y = e.clientY - rect.top;
@@ -737,7 +812,7 @@
         const tabDescEmpty   = document.getElementById('tabDescEmpty');
         const tabDescImages  = document.getElementById('tabDescImages');
 
-        // 상세 이미지 로드
+        // 상세 이미지 로드 → 캐러셀 + 상세설명 탭에 동시 적용
         fetch(`/products/${id}/detail-images`)
           .then(r => r.json())
           .then(imgs => {
@@ -747,9 +822,77 @@
                 `<img src="${img.image_url}" alt="상세 이미지" loading="lazy" />`
               ).join('');
             }
-          }).catch(() => {});
+            initCarousel([p.image_url, ...imgs.map(i => i.image_url)].filter(Boolean));
+          }).catch(() => initCarousel([p.image_url].filter(Boolean)));
+
+        function initCarousel(urls) {
+          if (urls.length <= 1) return;  // 1장이면 캐러셀 불필요
+          let idx = 0;
+          const imgEl    = document.getElementById('detailImage');
+          const prevBtn  = document.getElementById('carouselPrev');
+          const nextBtn  = document.getElementById('carouselNext');
+          const indEl    = document.getElementById('carouselIndicator');
+          const thumbsEl = document.getElementById('carouselThumbs');
+
+          // 썸네일 렌더
+          thumbsEl.innerHTML = urls.map((url, i) =>
+            `<div class="carousel-thumb${i === 0 ? ' active' : ''}" data-idx="${i}"><img src="${url}" alt="" /></div>`
+          ).join('');
+
+          function render() {
+            imgEl.src = urls[idx];
+            indEl.textContent = `${idx + 1} / ${urls.length}`;
+            thumbsEl.querySelectorAll('.carousel-thumb').forEach((el, i) => {
+              el.classList.toggle('active', i === idx);
+            });
+            // 활성 썸네일이 보이도록 스크롤
+            const active = thumbsEl.querySelector('.carousel-thumb.active');
+            if (active) active.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+          }
+
+          prevBtn.hidden  = false;
+          nextBtn.hidden  = false;
+          indEl.hidden    = false;
+          thumbsEl.hidden = false;
+          render();
+
+          prevBtn.addEventListener('click', e => {
+            e.stopPropagation();
+            idx = (idx - 1 + urls.length) % urls.length;
+            render();
+          });
+          nextBtn.addEventListener('click', e => {
+            e.stopPropagation();
+            idx = (idx + 1) % urls.length;
+            render();
+          });
+          thumbsEl.addEventListener('click', e => {
+            const t = e.target.closest('.carousel-thumb');
+            if (!t) return;
+            idx = parseInt(t.dataset.idx, 10);
+            render();
+          });
+          // 키보드 좌우 화살표 지원
+          document.addEventListener('keydown', e => {
+            if (document.querySelector('.lightbox.open')) return;
+            if (e.key === 'ArrowLeft')  prevBtn.click();
+            if (e.key === 'ArrowRight') nextBtn.click();
+          });
+        }
 
         tabsSection.hidden = false;
+
+        // 사이트 공통 콘텐츠 (케어가이드 / 교환환불) + 소재정보(상품별 우선)
+        fetch('/api/content').then(r => r.json()).then(c => {
+          const setText = (id, txt) => {
+            const el = document.getElementById(id);
+            if (el) el.textContent = txt || '';
+          };
+          // 소재 정보: 상품별 입력값이 있으면 우선, 없으면 공통
+          setText('tabMaterialBody', p.material_info?.trim() || c.material_info);
+          setText('tabCareBody',     c.care_guide);
+          setText('tabRefundBody',   c.refund_policy);
+        }).catch(() => {});
 
         // 후기 탭 — 클릭 시 lazy 로드
         let reviewsLoaded = false;

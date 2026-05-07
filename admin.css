@@ -233,6 +233,40 @@ a { color: inherit; text-decoration: none; }
 .status-pill.delivered   { background: #d4edda; color: #155724; }
 .status-pill.failed      { background: #f8d7da; color: #721c24; }
 
+/* 사이트 콘텐츠 편집 */
+.admin-content-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 24px;
+}
+.content-block {
+  background: #fff;
+  border: 1px solid #e8e8e8;
+  padding: 20px;
+}
+.content-block label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  margin-bottom: 10px;
+  color: #555;
+}
+.content-block textarea {
+  width: 100%;
+  padding: 12px;
+  font-family: inherit;
+  font-size: 13px;
+  line-height: 1.7;
+  border: 1px solid #ddd;
+  resize: vertical;
+  outline: none;
+  margin-bottom: 10px;
+  white-space: pre-wrap;
+}
+.content-block textarea:focus { border-color: #1a1a1a; }
+.content-block button { margin-right: 8px; }
+
 .inquiry-message {
   max-width: 400px;
   white-space: pre-wrap;
