@@ -50,6 +50,12 @@
 - [x] 이미지 줌/스와이프 (라이트박스, 터치 스와이프, 키보드)
 - [x] 쿠폰 시스템 (coupons 테이블, validate/apply, checkout 적용)
 - [x] 다중 필터 (가격대 체크박스, 복수 선택 OR 조건)
+- [x] 관리자 쿠폰 UI (admin.html 생성/목록)
+- [x] 네이버 간편 로그인 (OAuth + DB naver_id)
+- [x] 디자인 리뉴얼 (가죽 브랜드 색감, 앤틱 브론즈)
+- [x] 모바일 접근성 (폰트, 터치 44px, 결제 스텝)
+- [x] 장바구니→결제 연동 (from=cart 모드)
+- [x] 이미지 배경/호버 통일 (흰색 배경, SSF 스타일)
 
 ## Key Decisions (이전 세션에서 결정됨)
 - 전체 서비스 레이어 도입 (Routes → Services → Lib 3계층)
