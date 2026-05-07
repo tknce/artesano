@@ -23,14 +23,15 @@
    1) 디자인 변수 + 리셋
    ============================================================ */
 :root {
-  /* 컬러 */
-  --color-black:  #1a1a1a;
-  --color-beige:  #F5F1EA;
-  --color-cream:  #FAF7F2;   /* 베이지보다 살짝 더 밝음 */
-  --color-brown:  #3E2723;
-  --color-gold:   #C9A961;
-  --color-white:  #FFFFFF;
-  --color-muted:  #888888;
+  /* 컬러 — 가죽 장인 브랜드 톤 */
+  --color-black:  #1C1410;       /* 다크 에스프레소 (순수 블랙 대신) */
+  --color-beige:  #EDE6DB;       /* 따뜻한 탄 베이지 */
+  --color-cream:  #F7F3ED;       /* 내추럴 아이보리 */
+  --color-brown:  #3E2723;       /* 다크 초콜릿 브라운 */
+  --color-gold:   #A67C52;       /* 앤틱 브론즈 골드 (깊은 톤) */
+  --color-white:  #FFFDF9;       /* 웜 화이트 */
+  --color-muted:  #7A6E63;       /* 웜 그레이 (가죽 톤) */
+  --color-accent: #8B5E3C;       /* 새들 브라운 (포인트) */
 
   /* 폰트 */
   --font-serif: 'Cormorant Garamond', 'Playfair Display', serif;
@@ -54,7 +55,7 @@ body {
   font-family: var(--font-sans);
   font-weight: 300;
   color: var(--color-black);
-  background-color: #ffffff;
+  background-color: var(--color-white);
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -3909,4 +3910,55 @@ textarea:focus-visible {
 .checkout-step-arrow {
   color: rgba(0,0,0,0.2);
   font-size: 12px;
+}
+
+/* ==========================================================
+   가죽 브랜드 텍스처 & 톤 강화
+   ========================================================== */
+
+/* 푸터 — 다크 브라운 배경 */
+.footer {
+  background-color: var(--color-brown) !important;
+  color: var(--color-cream) !important;
+}
+.footer a {
+  color: var(--color-gold) !important;
+}
+
+/* 섹션 구분 — 미세한 그라데이션 */
+.shop-header,
+.story-header {
+  background: linear-gradient(180deg, var(--color-cream) 0%, var(--color-beige) 100%);
+}
+
+/* 상품 카드 — 따뜻한 그림자 */
+.product-card {
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+.product-card:hover {
+  box-shadow: 0 8px 32px rgba(62, 39, 35, 0.12);
+}
+
+/* 골드 포인트 — 앤틱 브론즈 톤 */
+.product-badge.gold {
+  background: var(--color-gold);
+  color: var(--color-white);
+}
+
+/* 네비바 스크롤 시 — 따뜻한 톤 */
+.navbar.scrolled {
+  background-color: rgba(247, 243, 237, 0.96) !important;
+  box-shadow: 0 1px 0 rgba(62, 39, 35, 0.08);
+}
+
+/* CTA 버튼 — 다크 브라운 */
+.auth-btn,
+.empty-state-btn {
+  border-color: var(--color-brown);
+  color: var(--color-brown);
+}
+.auth-btn:hover,
+.empty-state-btn:hover {
+  background: var(--color-brown);
+  color: var(--color-cream);
 }
