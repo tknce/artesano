@@ -30,6 +30,7 @@ const ordersRouter       = require('./routes/orders');
 const contentRouter      = require('./routes/content');
 const authRouter         = require('./routes/auth');
 const userRouter         = require('./routes/user');
+const cartRouter         = require('./routes/cart');
 const migrate            = require('./migrate');
 const { sendBackup }     = require('./lib/backup');
 
@@ -255,6 +256,7 @@ const PAGES = {
   '/login':        'login.html',
   '/register':     'register.html',
   '/mypage':           'mypage.html',
+  '/cart':             'cart.html',
   '/checkout':         'checkout.html',
   '/payment-success':  'payment-success.html',
   '/payment-fail':     'payment-fail.html',
@@ -292,6 +294,7 @@ app.use('/categories', (req, res, next) => {
 app.use('/api/auth', authRouter);
 app.use('/api/user', userRouter);
 app.use('/api/wishlist', wishlistRouter);
+app.use('/api/cart', cartRouter);
 app.use('/reviews', reviewsRouter);
 app.use('/purchases', purchasesRouter);
 app.use('/api/orders', ordersRouter);

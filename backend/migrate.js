@@ -234,6 +234,20 @@ async function migrate() {
     await pool.query(`ALTER TABLE users MODIFY COLUMN login_type ENUM('email','kakao','naver') NOT NULL DEFAULT 'email'`);
   }
 
+  // cart_items 테이블
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS cart_items (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      user_id INT NOT NULL,
+      product_id INT NOT NULL,
+      quantity INT NOT NULL DEFAULT 1,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      UNIQUE KEY unique_cart_item (user_id, product_id),
+      FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+      FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE
+    )
+  `);
+
   console.log('✓ DB 마이그레이션 완료');
 }
 

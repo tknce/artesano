@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>장바구니 — CROCINI 아르테사노</title>
+  <meta name="robots" content="noindex" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body class="shop-page">
+
+  <!--#NAV#-->
+
+  <main class="cart-wrap">
+    <div class="container">
+      <p class="section-eyebrow">SHOPPING BAG</p>
+      <h1 class="cart-title">장바구니</h1>
+
+      <div id="cartContent">
+        <p class="cart-loading">불러오는 중...</p>
+      </div>
+    </div>
+  </main>
+
+  <!--#FOOTER#-->
+
+  <script>
+    function fmt(price) { return Number(price).toLocaleString('ko-KR') + '원'; }
+    function escHtml(s) { return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;'); }
+
+    async function loadCart() {
+      const meRes = await fetch('/api/auth/me');
+      if (!meRes.ok) { location.replace('/login'); return; }
+
+      const res = await fetch('/api/cart');
+      const items = await res.json();
+      const wrap = document.getElementById('cartContent');
+
+      if (!items.length) {
+        wrap.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-state-icon">🛒</div>
+            <p class="empty-state-title">장바구니가 비어있습니다</p>
+            <p class="empty-state-desc">마음에 드는 상품을 담아보세요</p>
+            <a href="/shop" class="empty-state-btn">쇼핑하러 가기</a>
+          </div>`;
+        return;
+      }
+
+      const total = items.reduce((sum, i) => sum + (i.price || 0) * i.quantity, 0);
+
+      wrap.innerHTML = `
+        <div class="cart-items">
+          ${items.map(i => `
+            <div class="cart-item" data-product-id="${i.product_id}">
+              <a href="/product?id=${i.product_id}" class="cart-item-img">
+                <img src="${escHtml(i.image_url)}" alt="${escHtml(i.name)}" />
+              </a>
+              <div class="cart-item-info">
+                <p class="cart-item-name">${escHtml(i.name)}</p>
+                <p class="cart-item-option">${escHtml(i.option_desc || '')}</p>
+                <p class="cart-item-price">${i.price ? fmt(i.price) : '주문제작 문의'}</p>
+              </div>
+              <div class="cart-item-qty">
+                <button class="qty-btn" data-action="minus">−</button>
+                <span class="qty-value">${i.quantity}</span>
+                <button class="qty-btn" data-action="plus">+</button>
+              </div>
+              <button class="cart-item-remove" aria-label="삭제">✕</button>
+            </div>
+          `).join('')}
+        </div>
+        <div class="cart-summary">
+          <div class="cart-total">
+            <span>총 금액</span>
+            <strong>${fmt(total)}</strong>
+          </div>
+          <a href="/checkout" class="cart-checkout-btn">결제하기</a>
+        </div>`;
+
+      // 수량 변경
+      wrap.addEventListener('click', async (e) => {
+        const item = e.target.closest('.cart-item');
+        if (!item) return;
+        const productId = parseInt(item.dataset.productId, 10);
+
+        if (e.target.closest('.cart-item-remove')) {
+          await fetch(`/api/cart/${productId}`, { method: 'DELETE' });
+          loadCart();
+          return;
+        }
+
+        const action = e.target.closest('.qty-btn')?.dataset.action;
+        if (!action) return;
+        const qtyEl = item.querySelector('.qty-value');
+        let qty = parseInt(qtyEl.textContent, 10);
+        qty = action === 'plus' ? qty + 1 : qty - 1;
+        if (qty < 1) {
+          await fetch(`/api/cart/${productId}`, { method: 'DELETE' });
+        } else {
+          await fetch(`/api/cart/${productId}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ quantity: qty }),
+          });
+        }
+        loadCart();
+      });
+    }
+
+    loadCart();
+  </script>
+</body>
+</html>

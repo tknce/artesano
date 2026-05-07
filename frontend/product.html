@@ -754,13 +754,33 @@
           const href = code ? `/custom-order?model=${code}` : '/custom-order';
           ctaEl.innerHTML = `
             <a href="${href}" class="btn-detail-primary">구매하기</a>
-            <a href="/shop" class="btn-detail-secondary">계속하기</a>`;
+            <button class="btn-detail-secondary btn-add-cart" data-id="${p.id}">장바구니 담기</button>`;
         } else if (p.price === null) {
           ctaEl.innerHTML = `<a href="/contact" class="btn-detail-primary">구매하기</a>`;
         } else {
           ctaEl.innerHTML = `
             <a href="/checkout?id=${p.id}" class="btn-detail-primary">구매하기</a>
-            <a href="/shop" class="btn-detail-secondary">계속하기</a>`;
+            <button class="btn-detail-secondary btn-add-cart" data-id="${p.id}">장바구니 담기</button>`;
+        }
+
+        // 장바구니 담기 버튼 이벤트
+        const cartBtn = ctaEl.querySelector('.btn-add-cart');
+        if (cartBtn) {
+          cartBtn.addEventListener('click', async () => {
+            const res = await fetch('/api/cart', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ productId: p.id }),
+            });
+            if (res.status === 401) { location.href = '/login'; return; }
+            if (res.ok) {
+              Toast.success('장바구니에 담았습니다');
+              const badge = document.getElementById('cartBadge');
+              if (badge) { badge.textContent = parseInt(badge.textContent || '0') + 1; badge.hidden = false; }
+            } else {
+              Toast.error('장바구니 추가에 실패했습니다');
+            }
+          });
         }
 
         // 찜하기 버튼
