@@ -1527,7 +1527,7 @@ body.shop-page {
   transition: transform 0.3s ease;
 }
 .product-card:hover {
-  transform: translateY(-4px);
+  transform: translateY(-2px);
 }
 
 .product-link {
@@ -1542,7 +1542,7 @@ body.shop-page {
 .product-image {
   position: relative;
   overflow: hidden;
-  aspect-ratio: 3 / 4;
+  aspect-ratio: 1 / 1;
   background-color: var(--color-beige);
   margin-bottom: 18px;
   border-radius: 4px;
@@ -1553,11 +1553,11 @@ body.shop-page {
   height: 100%;
   object-fit: cover;
   object-position: center;
-  transition: transform 0.6s cubic-bezier(0.25, 0.1, 0.25, 1);
+  transition: transform 0.5s cubic-bezier(0.25, 0.1, 0.25, 1);
 }
 
 .product-link:hover .product-image img {
-  transform: scale(1.06);
+  transform: scale(1.04);
 }
 
 .product-image::after {
@@ -1569,7 +1569,7 @@ body.shop-page {
   border-radius: 4px;
 }
 .product-link:hover .product-image::after {
-  background-color: rgba(0, 0, 0, 0.04);
+  background-color: rgba(0, 0, 0, 0.03);
 }
 
 /* 카드 정보 */
@@ -3941,10 +3941,7 @@ textarea:focus-visible {
   background: linear-gradient(180deg, var(--color-cream) 0%, var(--color-beige) 100%);
 }
 
-/* 상품 카드 — 따뜻한 그림자 */
-.product-card:hover {
-  box-shadow: 0 8px 32px rgba(62, 39, 35, 0.10);
-}
+/* 상품 카드 호버 */
 
 /* 골드 포인트 — 앤틱 브론즈 톤 */
 .product-badge.gold {
