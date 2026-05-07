@@ -28,6 +28,7 @@
         <a href="#custom-orders">주문제작</a>
         <a href="#site-content">사이트 콘텐츠</a>
         <a href="#purchases">구매 확인</a>
+        <a href="#coupons">쿠폰 관리</a>
         <a href="#reviews">후기 관리</a>
         <a href="#inquiries">문의 관리</a>
         <a href="index.html" target="_blank">사이트 보기 ↗</a>
@@ -251,6 +252,73 @@
           <button type="button" class="btn-primary" data-content-key="refund_policy">저장</button>
           <span class="form-status" data-content-status="refund_policy" hidden></span>
         </div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         쿠폰 관리
+         ============================================================ -->
+    <section class="admin-section" id="coupons">
+      <div class="admin-section-header">
+        <h2>쿠폰 관리</h2>
+      </div>
+
+      <div class="coupon-create-form">
+        <h3>새 쿠폰 생성</h3>
+        <div class="coupon-form-grid">
+          <div class="form-field">
+            <label>쿠폰 코드</label>
+            <input type="text" id="cpCode" placeholder="예: WELCOME10" style="text-transform:uppercase" />
+          </div>
+          <div class="form-field">
+            <label>할인 유형</label>
+            <select id="cpType">
+              <option value="percent">퍼센트 (%)</option>
+              <option value="fixed">정액 (원)</option>
+            </select>
+          </div>
+          <div class="form-field">
+            <label>할인 값</label>
+            <input type="number" id="cpValue" placeholder="10 또는 50000" />
+          </div>
+          <div class="form-field">
+            <label>최소 주문 금액</label>
+            <input type="number" id="cpMinOrder" placeholder="0" value="0" />
+          </div>
+          <div class="form-field">
+            <label>최대 할인 금액 (선택)</label>
+            <input type="number" id="cpMaxDiscount" placeholder="비워두면 무제한" />
+          </div>
+          <div class="form-field">
+            <label>만료일 (선택)</label>
+            <input type="date" id="cpExpires" />
+          </div>
+          <div class="form-field">
+            <label>최대 사용 횟수 (선택)</label>
+            <input type="number" id="cpMaxUses" placeholder="비워두면 무제한" />
+          </div>
+        </div>
+        <button type="button" class="btn-primary" id="cpCreateBtn">쿠폰 생성</button>
+        <p class="form-status" id="cpStatus" hidden></p>
+      </div>
+
+      <div class="admin-table-wrap">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>코드</th>
+              <th>유형</th>
+              <th>할인</th>
+              <th>최소 금액</th>
+              <th>사용/최대</th>
+              <th>만료일</th>
+              <th>상태</th>
+            </tr>
+          </thead>
+          <tbody id="couponsTbody">
+            <tr><td colspan="7">불러오는 중...</td></tr>
+          </tbody>
+        </table>
       </div>
     </section>
 

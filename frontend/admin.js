@@ -1212,4 +1212,57 @@ document.getElementById('btnLogout').addEventListener('click', async () => {
   loadInquiries();
   loadCustomOrders();
   loadSiteContent();
+  loadCoupons();
 })();
+
+/* ============================================================
+   쿠폰 관리
+   ============================================================ */
+async function loadCoupons() {
+  const tbody = document.getElementById('couponsTbody');
+  try {
+    const res = await fetch('/api/coupons');
+    if (!res.ok) { tbody.innerHTML = '<tr><td colspan="7">로딩 실패</td></tr>'; return; }
+    const coupons = await res.json();
+    if (coupons.length === 0) { tbody.innerHTML = '<tr><td colspan="7">등록된 쿠폰이 없습니다.</td></tr>'; return; }
+    const fmt = n => Number(n).toLocaleString('ko-KR');
+    tbody.innerHTML = coupons.map(c => {
+      const val = c.discount_type === 'percent' ? `${c.discount_value}%` : `${fmt(c.discount_value)}원`;
+      const expires = c.expires_at ? new Date(c.expires_at).toLocaleDateString('ko-KR') : '없음';
+      const uses = `${c.used_count}${c.max_uses ? '/' + c.max_uses : ''}`;
+      const active = c.is_active ? '<span style="color:#2d7a4f">활성</span>' : '<span style="color:#c0392b">비활성</span>';
+      return `<tr><td><code>${c.code}</code></td><td>${c.discount_type}</td><td>${val}</td><td>${fmt(c.min_order_amount)}원</td><td>${uses}</td><td>${expires}</td><td>${active}</td></tr>`;
+    }).join('');
+  } catch { tbody.innerHTML = '<tr><td colspan="7">오류 발생</td></tr>'; }
+}
+
+document.getElementById('cpCreateBtn').addEventListener('click', async () => {
+  const statusEl = document.getElementById('cpStatus');
+  const code = document.getElementById('cpCode').value.trim().toUpperCase();
+  const discount_type = document.getElementById('cpType').value;
+  const discount_value = parseInt(document.getElementById('cpValue').value, 10);
+  if (!code || !discount_value) { statusEl.textContent = '코드와 할인 값을 입력해주세요'; statusEl.className = 'form-status error'; statusEl.hidden = false; return; }
+
+  const body = {
+    code, discount_type, discount_value,
+    min_order_amount: parseInt(document.getElementById('cpMinOrder').value, 10) || 0,
+    max_discount: parseInt(document.getElementById('cpMaxDiscount').value, 10) || null,
+    expires_at: document.getElementById('cpExpires').value || null,
+    max_uses: parseInt(document.getElementById('cpMaxUses').value, 10) || null,
+  };
+
+  const res = await fetch('/api/coupons', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+  const data = await res.json();
+  if (res.ok) {
+    statusEl.textContent = `쿠폰 "${code}" 생성 완료`;
+    statusEl.className = 'form-status success';
+    statusEl.hidden = false;
+    document.getElementById('cpCode').value = '';
+    document.getElementById('cpValue').value = '';
+    loadCoupons();
+  } else {
+    statusEl.textContent = data.error || '생성 실패';
+    statusEl.className = 'form-status error';
+    statusEl.hidden = false;
+  }
+});
