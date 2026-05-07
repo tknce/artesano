@@ -37,7 +37,6 @@ const categoryAddForm    = document.getElementById('categoryAddForm');
 const categoryFormStatus = document.getElementById('categoryFormStatus');
 const catSlug            = document.getElementById('catSlug');
 const catName            = document.getElementById('catName');
-const catSortOrder       = document.getElementById('catSortOrder');
 
 let allCategories = [];
 const PROTECTED_SLUGS = new Set(['python']);
@@ -97,24 +96,27 @@ function updateCatDelButton() {
 
 function renderCategoryTable() {
   if (allCategories.length === 0) {
-    categoryTableBody.innerHTML = '<tr><td colspan="6" class="admin-empty">카테고리가 없습니다.</td></tr>';
+    categoryTableBody.innerHTML = '<tr><td colspan="5" class="admin-empty">카테고리가 없습니다.</td></tr>';
     return;
   }
-  categoryTableBody.innerHTML = allCategories.map(c => {
+  categoryTableBody.innerHTML = allCategories.map((c, idx) => {
     const usage = allProducts.filter(p => p.category === c.slug).length;
     const protectedNote = PROTECTED_SLUGS.has(c.slug)
       ? '<span style="color:#888;font-size:11px;margin-left:6px">(주문제작 의존)</span>'
       : '';
+    const isFirst = idx === 0;
+    const isLast  = idx === allCategories.length - 1;
     return `
       <tr data-id="${c.id}">
         <td>${c.id}</td>
         <td><code>${escapeHtml(c.slug)}</code>${protectedNote}</td>
         <td>${escapeHtml(c.name)}</td>
-        <td>${c.sort_order}</td>
         <td>${usage}</td>
         <td>
           <div class="row-actions">
-            <button type="button" class="btn-edit"   data-action="cat-edit"   data-id="${c.id}">수정</button>
+            <button type="button" class="btn-edit"   data-action="cat-up"     data-id="${c.id}" ${isFirst ? 'disabled' : ''}>▲</button>
+            <button type="button" class="btn-edit"   data-action="cat-down"   data-id="${c.id}" ${isLast  ? 'disabled' : ''}>▼</button>
+            <button type="button" class="btn-edit"   data-action="cat-edit"   data-id="${c.id}">이름</button>
             <button type="button" class="btn-danger" data-action="cat-delete" data-id="${c.id}">삭제</button>
           </div>
         </td>
@@ -127,18 +129,19 @@ categoryAddForm.addEventListener('submit', async (e) => {
   categoryFormStatus.hidden = true;
   const slug = catSlug.value.trim().toLowerCase();
   const name = catName.value.trim();
-  const sort_order = parseInt(catSortOrder.value, 10);
+  const sort_order = allCategories.length > 0
+    ? Math.max(...allCategories.map(c => c.sort_order)) + 1
+    : 1;
   try {
     const res = await fetch('/categories', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ slug, name, sort_order: Number.isInteger(sort_order) ? sort_order : 999 }),
+      body: JSON.stringify({ slug, name, sort_order }),
     });
     const data = await res.json().catch(() => ({}));
     if (!res.ok) throw new Error(data.error || `서버 오류 (${res.status})`);
     catSlug.value = '';
     catName.value = '';
-    catSortOrder.value = '999';
     await loadCategories();
   } catch (err) {
     categoryFormStatus.textContent = err.message;
@@ -154,16 +157,33 @@ categoryTableBody.addEventListener('click', async (e) => {
   const cat = allCategories.find(c => c.id === id);
   if (!cat) return;
 
+  if (btn.dataset.action === 'cat-up' || btn.dataset.action === 'cat-down') {
+    const idx = allCategories.findIndex(c => c.id === id);
+    const isUp = btn.dataset.action === 'cat-up';
+    const otherIdx = isUp ? idx - 1 : idx + 1;
+    if (otherIdx < 0 || otherIdx >= allCategories.length) return;
+    const curr  = allCategories[idx];
+    const other = allCategories[otherIdx];
+    try {
+      await Promise.all([
+        fetch(`/categories/${curr.id}`,  { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ sort_order: other.sort_order }) }),
+        fetch(`/categories/${other.id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ sort_order: curr.sort_order  }) }),
+      ]);
+      await loadCategories();
+    } catch (err) {
+      alert('순서 변경 실패: ' + err.message);
+    }
+    return;
+  }
+
   if (btn.dataset.action === 'cat-edit') {
     const newName = prompt(`카테고리 표시 이름:`, cat.name);
-    if (newName === null) return;
-    const newOrder = prompt(`정렬 순서 (숫자):`, String(cat.sort_order));
-    if (newOrder === null) return;
+    if (newName === null || !newName.trim()) return;
     try {
       const res = await fetch(`/categories/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: newName.trim(), sort_order: parseInt(newOrder, 10) }),
+        body: JSON.stringify({ name: newName.trim() }),
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
@@ -329,10 +349,13 @@ btnCatNewSubmit.addEventListener('click', async () => {
     return;
   }
   try {
+    const nextOrder = allCategories.length > 0
+      ? Math.max(...allCategories.map(c => c.sort_order)) + 1
+      : 1;
     const res = await fetch('/categories', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ slug, name, sort_order: 999 }),
+      body: JSON.stringify({ slug, name, sort_order: nextOrder }),
     });
     const data = await res.json().catch(() => ({}));
     if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
