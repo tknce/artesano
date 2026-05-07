@@ -31,6 +31,7 @@ const contentRouter      = require('./routes/content');
 const authRouter         = require('./routes/auth');
 const userRouter         = require('./routes/user');
 const cartRouter         = require('./routes/cart');
+const couponsRouter      = require('./routes/coupons');
 const migrate            = require('./migrate');
 const { sendBackup }     = require('./lib/backup');
 
@@ -295,6 +296,7 @@ app.use('/api/auth', authRouter);
 app.use('/api/user', userRouter);
 app.use('/api/wishlist', wishlistRouter);
 app.use('/api/cart', cartRouter);
+app.use('/api/coupons', couponsRouter);
 app.use('/reviews', reviewsRouter);
 app.use('/purchases', purchasesRouter);
 app.use('/api/orders', ordersRouter);

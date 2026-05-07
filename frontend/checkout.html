@@ -89,6 +89,21 @@
             <span>배송비</span>
             <span>무료</span>
           </div>
+
+          <!-- 쿠폰 -->
+          <div class="checkout-coupon">
+            <div class="coupon-input-row">
+              <input type="text" id="couponCode" placeholder="쿠폰 코드 입력" maxlength="30" />
+              <button type="button" id="couponApplyBtn">적용</button>
+            </div>
+            <p class="coupon-result" id="couponResult" hidden></p>
+          </div>
+
+          <div class="checkout-amount-row discount" id="discountRow" hidden>
+            <span>쿠폰 할인</span>
+            <span id="amountDiscount">—</span>
+          </div>
+
           <div class="checkout-amount-row total">
             <span>총 결제 금액</span>
             <span id="amountTotal">—</span>
@@ -154,6 +169,31 @@
       `;
       document.getElementById('amountProduct').textContent = fmt(product.price);
       document.getElementById('amountTotal').textContent   = fmt(product.price);
+
+      let appliedDiscount = 0;
+      let appliedCouponCode = null;
+
+      // 쿠폰 적용
+      document.getElementById('couponApplyBtn').addEventListener('click', async () => {
+        const code = document.getElementById('couponCode').value.trim();
+        const resultEl = document.getElementById('couponResult');
+        if (!code) { resultEl.textContent = '코드를 입력해주세요'; resultEl.className = 'coupon-result error'; resultEl.hidden = false; return; }
+        const res = await fetch('/api/coupons/validate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ code, orderAmount: product.price }),
+        });
+        const data = await res.json();
+        if (!res.ok) { resultEl.textContent = data.error; resultEl.className = 'coupon-result error'; resultEl.hidden = false; return; }
+        appliedDiscount = data.discount;
+        appliedCouponCode = code;
+        resultEl.textContent = `${fmt(data.discount)} 할인 적용됨`;
+        resultEl.className = 'coupon-result success';
+        resultEl.hidden = false;
+        document.getElementById('discountRow').hidden = false;
+        document.getElementById('amountDiscount').textContent = `-${fmt(data.discount)}`;
+        document.getElementById('amountTotal').textContent = fmt(product.price - appliedDiscount);
+      });
 
       document.body.style.visibility = '';
 

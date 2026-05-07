@@ -260,6 +260,23 @@ async function migrate() {
     )
   `);
 
+  // coupons 테이블
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS coupons (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      code VARCHAR(50) NOT NULL UNIQUE,
+      discount_type ENUM('percent','fixed') NOT NULL,
+      discount_value INT NOT NULL,
+      min_order_amount INT DEFAULT 0,
+      max_discount INT DEFAULT NULL,
+      expires_at DATETIME DEFAULT NULL,
+      max_uses INT DEFAULT NULL,
+      used_count INT DEFAULT 0,
+      is_active BOOLEAN DEFAULT TRUE,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )
+  `);
+
   console.log('✓ DB 마이그레이션 완료');
 }
 
