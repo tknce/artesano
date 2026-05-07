@@ -214,6 +214,16 @@ async function migrate() {
     );
   }
 
+  // 카카오 로그인 지원 컬럼
+  const [kakaoCol] = await pool.query(`
+    SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'users' AND COLUMN_NAME = 'kakao_id'
+  `);
+  if (kakaoCol.length === 0) {
+    await pool.query('ALTER TABLE users ADD COLUMN kakao_id VARCHAR(100) NULL UNIQUE');
+    await pool.query(`ALTER TABLE users ADD COLUMN login_type ENUM('email','kakao') NOT NULL DEFAULT 'email'`);
+  }
+
   console.log('✓ DB 마이그레이션 완료');
 }
 

@@ -397,4 +397,23 @@ document.addEventListener('DOMContentLoaded', () => {
     loadWishlistState(); // 위시리스트 상태를 상품 로딩과 병행
   }
 
+  /* ==========================================================
+     이미지 Lazy Loading — loading="lazy" 미지원 브라우저 대응
+     data-src 속성이 있는 img를 뷰포트 진입 시 로드
+     ========================================================== */
+  const lazyImages = document.querySelectorAll('img[data-src]');
+  if (lazyImages.length > 0) {
+    const lazyObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const img = entry.target;
+          img.src = img.dataset.src;
+          img.removeAttribute('data-src');
+          lazyObserver.unobserve(img);
+        }
+      });
+    }, { rootMargin: '200px' });
+    lazyImages.forEach(img => lazyObserver.observe(img));
+  }
+
 });

@@ -8,6 +8,9 @@ backend/.env
 
 # Node 패키지 (npm install 시 자동 복원)
 node_modules/
+
+# Vite 빌드 결과물
+dist/
 backend/node_modules/
 
 # 업로드된 이미지 (배포 시 클라우드로 이전 예정)
