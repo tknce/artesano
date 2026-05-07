@@ -111,27 +111,48 @@
 
       // 주문 내역
       function fmtPriceFull(p) { return Number(p).toLocaleString('ko-KR') + '원'; }
-      const STATUS_LABEL = { paid: '결제완료', pending: '결제대기', failed: '실패', cancelled: '취소' };
+      const STATUS_LABEL = {
+        pending: '결제대기', paid: '결제완료', preparing: '배송준비',
+        shipping: '배송중', delivered: '배송완료',
+        failed: '실패', cancelled: '취소',
+      };
+      const CARRIERS_TRACK = {
+        cj:     { name: 'CJ대한통운', url: t => `https://www.cjlogistics.com/ko/tool/parcel/tracking?gnbInvcNo=${t}` },
+        hanjin: { name: '한진택배',   url: t => `https://www.hanjin.com/kor/CMS/DeliveryMgr/WaybillResult.do?mCode=MN038&schLang=KR&wblnumText2=${t}` },
+        lotte:  { name: '롯데택배',   url: t => `https://www.lotteglogis.com/home/reservation/tracking/linkView?InvNo=${t}` },
+        epost:  { name: '우체국택배', url: t => `https://service.epost.go.kr/trace.RetrieveDomRigiTraceList.comm?sid1=${t}` },
+        logen:  { name: '로젠택배',   url: t => `https://www.ilogen.com/web/personal/trace/${t}` },
+      };
       const opRes  = await fetch('/api/orders/mine');
       const opData = await opRes.json();
       const opTbody = document.getElementById('ordersPaidTbody');
       if (!Array.isArray(opData) || opData.length === 0) {
         opTbody.innerHTML = '<tr class="empty-row"><td colspan="5">주문 내역이 없습니다.</td></tr>';
       } else {
-        opTbody.innerHTML = opData.map(o => `
-          <tr>
-            <td><code style="font-size:11px;color:#888">${escHtml(o.order_id)}</code></td>
-            <td>
-              <div style="display:flex;gap:10px;align-items:center;">
-                ${o.product_image_url ? `<img src="${escHtml(o.product_image_url)}" class="mypage-order-img" alt="" />` : ''}
-                <span>${escHtml(o.product_name)}</span>
-              </div>
-            </td>
-            <td>${fmtPriceFull(o.amount)}</td>
-            <td><span class="order-status ${o.status}">${STATUS_LABEL[o.status] || o.status}</span></td>
-            <td>${fmt(o.created_at)}</td>
-          </tr>
-        `).join('');
+        opTbody.innerHTML = opData.map(o => {
+          let trackingHtml = '';
+          if (o.tracking_number && o.shipping_carrier && CARRIERS_TRACK[o.shipping_carrier]) {
+            const carrier = CARRIERS_TRACK[o.shipping_carrier];
+            trackingHtml = `<br /><a href="${carrier.url(o.tracking_number)}" target="_blank" rel="noopener" style="font-size:11px;color:var(--color-gold);">${carrier.name} ${escHtml(o.tracking_number)} ↗</a>`;
+          }
+          return `
+            <tr>
+              <td><code style="font-size:11px;color:#888">${escHtml(o.order_id)}</code></td>
+              <td>
+                <div style="display:flex;gap:10px;align-items:center;">
+                  ${o.product_image_url ? `<img src="${escHtml(o.product_image_url)}" class="mypage-order-img" alt="" />` : ''}
+                  <span>${escHtml(o.product_name)}</span>
+                </div>
+              </td>
+              <td>${fmtPriceFull(o.amount)}</td>
+              <td>
+                <span class="order-status ${o.status}">${STATUS_LABEL[o.status] || o.status}</span>
+                ${trackingHtml}
+              </td>
+              <td>${fmt(o.created_at)}</td>
+            </tr>
+          `;
+        }).join('');
       }
 
       // 찜 목록

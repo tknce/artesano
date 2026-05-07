@@ -88,7 +88,9 @@ async function migrate() {
       product_name      VARCHAR(255) NOT NULL,
       product_image_url TEXT         NULL,
       amount            INT          NOT NULL,
-      status            ENUM('pending','paid','failed','cancelled') NOT NULL DEFAULT 'pending',
+      status            ENUM('pending','paid','preparing','shipping','delivered','failed','cancelled') NOT NULL DEFAULT 'pending',
+      tracking_number   VARCHAR(100) NULL,
+      shipping_carrier  VARCHAR(20)  NULL,
       payment_key       VARCHAR(255) NULL,
       customer_name     VARCHAR(100) NOT NULL,
       customer_phone    VARCHAR(50)  NOT NULL,
@@ -103,6 +105,33 @@ async function migrate() {
       FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE SET NULL
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
   `);
+
+  // 기존 orders 테이블에 새 status / tracking_number 컬럼 추가
+  const [oStatusInfo] = await pool.query(`
+    SELECT COLUMN_TYPE FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'orders' AND COLUMN_NAME = 'status'
+  `);
+  if (oStatusInfo.length > 0 && !oStatusInfo[0].COLUMN_TYPE.includes('preparing')) {
+    await pool.query(`
+      ALTER TABLE orders MODIFY COLUMN status
+      ENUM('pending','paid','preparing','shipping','delivered','failed','cancelled')
+      NOT NULL DEFAULT 'pending'
+    `);
+  }
+  const [tCols] = await pool.query(`
+    SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'orders' AND COLUMN_NAME = 'tracking_number'
+  `);
+  if (tCols.length === 0) {
+    await pool.query('ALTER TABLE orders ADD COLUMN tracking_number VARCHAR(100) NULL');
+  }
+  const [scCols] = await pool.query(`
+    SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'orders' AND COLUMN_NAME = 'shipping_carrier'
+  `);
+  if (scCols.length === 0) {
+    await pool.query('ALTER TABLE orders ADD COLUMN shipping_carrier VARCHAR(20) NULL');
+  }
 
   // 구매 확인 테이블 (관리자가 수동 등록 + 결제 완료 시 자동 등록)
   await pool.query(`

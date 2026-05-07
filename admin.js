@@ -844,6 +844,192 @@ document.getElementById('btnRefreshPurchases').addEventListener('click', loadPur
 
 
 /* ============================================================
+   주문 관리 (결제 주문)
+   ============================================================ */
+const orderTableBody     = document.getElementById('orderTableBody');
+const orderCount         = document.getElementById('orderCount');
+const filterOrderStatus  = document.getElementById('filterOrderStatus');
+const orderModal         = document.getElementById('orderModal');
+const orderModalBody     = document.getElementById('orderModalBody');
+const orderModalId       = document.getElementById('orderModalId');
+
+const STATUS_LABEL_KR = {
+  pending: '결제대기', paid: '결제완료', preparing: '배송준비',
+  shipping: '배송중', delivered: '배송완료',
+  failed: '실패', cancelled: '취소',
+};
+
+const CARRIERS = {
+  cj:     'CJ대한통운',
+  hanjin: '한진택배',
+  lotte:  '롯데택배',
+  epost:  '우체국택배',
+  logen:  '로젠택배',
+};
+
+let allOrders = [];
+
+async function loadOrders() {
+  orderTableBody.innerHTML = '<tr><td colspan="8" class="admin-loading">불러오는 중...</td></tr>';
+  try {
+    const res = await fetch('/api/orders');
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    allOrders = await res.json();
+    renderOrders();
+  } catch (err) {
+    orderTableBody.innerHTML = `<tr><td colspan="8" class="admin-loading">불러오기 실패: ${escapeHtml(err.message)}</td></tr>`;
+  }
+}
+
+function renderOrders() {
+  const filter = filterOrderStatus.value;
+  const list = filter ? allOrders.filter(o => o.status === filter) : allOrders;
+  orderCount.textContent = `${list.length} 건`;
+
+  if (list.length === 0) {
+    orderTableBody.innerHTML = '<tr><td colspan="8" class="admin-empty">주문이 없습니다.</td></tr>';
+    return;
+  }
+
+  orderTableBody.innerHTML = list.map(o => {
+    const dateStr = o.paid_at ? formatDate(o.paid_at) : `<span style="color:#aaa">${formatDate(o.created_at)}</span>`;
+    return `
+      <tr data-id="${o.id}">
+        <td>${o.id}</td>
+        <td><span class="status-pill ${o.status}">${STATUS_LABEL_KR[o.status] || o.status}</span></td>
+        <td><code style="font-size:11px;color:#666">${escapeHtml(o.order_id)}</code></td>
+        <td>${escapeHtml(o.customer_name)}<br /><span style="font-size:11px;color:#888">${escapeHtml(o.customer_phone || '')}</span></td>
+        <td>${escapeHtml(o.product_name)}</td>
+        <td>${formatPrice(o.amount)}</td>
+        <td style="font-size:12px;">${dateStr}</td>
+        <td>
+          <button type="button" class="btn-edit" data-action="order-detail" data-id="${o.id}">상세</button>
+        </td>
+      </tr>`;
+  }).join('');
+}
+
+filterOrderStatus.addEventListener('change', renderOrders);
+document.getElementById('btnRefreshOrders').addEventListener('click', loadOrders);
+
+orderTableBody.addEventListener('click', (e) => {
+  const btn = e.target.closest('button[data-action="order-detail"]');
+  if (!btn) return;
+  openOrderModal(parseInt(btn.dataset.id, 10));
+});
+
+function openOrderModal(id) {
+  const o = allOrders.find(x => x.id === id);
+  if (!o) return;
+
+  orderModalId.textContent = `#${o.id}`;
+  const addr = [o.shipping_postal, o.shipping_address1, o.shipping_address2].filter(Boolean).join(' ');
+
+  orderModalBody.innerHTML = `
+    <div style="display:grid;grid-template-columns:auto 1fr;gap:8px 16px;font-size:13px;line-height:1.7;">
+      <div style="color:#888">주문번호</div><div><code>${escapeHtml(o.order_id)}</code></div>
+      <div style="color:#888">상태</div><div><span class="status-pill ${o.status}">${STATUS_LABEL_KR[o.status]}</span></div>
+      <div style="color:#888">상품</div><div>${escapeHtml(o.product_name)}</div>
+      <div style="color:#888">금액</div><div>${formatPrice(o.amount)}</div>
+      <div style="color:#888">결제일</div><div>${o.paid_at ? formatDate(o.paid_at) : '—'}</div>
+      <div style="color:#888">결제키</div><div style="font-size:11px;word-break:break-all;">${escapeHtml(o.payment_key || '—')}</div>
+      <div style="color:#888;border-top:1px solid #eee;padding-top:12px;">고객</div><div style="border-top:1px solid #eee;padding-top:12px;">${escapeHtml(o.customer_name)}</div>
+      <div style="color:#888">연락처</div><div>${escapeHtml(o.customer_phone)}</div>
+      <div style="color:#888">이메일</div><div>${escapeHtml(o.customer_email || '—')} ${o.user_email ? `<span style="color:#aaa">(가입: ${escapeHtml(o.user_email)})</span>` : ''}</div>
+      <div style="color:#888">배송지</div><div>${escapeHtml(addr || '—')}</div>
+      <div style="color:#888">요청사항</div><div>${escapeHtml(o.shipping_request || '—')}</div>
+    </div>
+
+    <div style="margin-top:24px;padding-top:20px;border-top:1px solid #eee;">
+      <p style="font-size:12px;color:#888;margin-bottom:10px;">상태 변경 / 배송 정보</p>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">
+        <select id="omStatus" style="padding:8px 10px;font-size:13px;">
+          ${Object.entries(STATUS_LABEL_KR).map(([k,v]) =>
+            `<option value="${k}" ${o.status === k ? 'selected' : ''}>${v}</option>`).join('')}
+        </select>
+        <select id="omCarrier" style="padding:8px 10px;font-size:13px;">
+          <option value="">택배사 선택</option>
+          ${Object.entries(CARRIERS).map(([k,v]) =>
+            `<option value="${k}" ${o.shipping_carrier === k ? 'selected' : ''}>${v}</option>`).join('')}
+        </select>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <input type="text" id="omTracking" placeholder="송장번호" maxlength="100"
+               value="${escapeHtml(o.tracking_number || '')}" style="flex:1;padding:8px 10px;font-size:13px;" />
+        <button type="button" class="btn-primary" id="omSaveBtn">저장</button>
+      </div>
+      <p class="form-status" id="omStatusMsg" hidden style="margin-top:8px;"></p>
+    </div>
+
+    ${o.status === 'paid' || o.status === 'preparing' || o.status === 'shipping' ? `
+      <div style="margin-top:20px;padding-top:20px;border-top:1px solid #eee;">
+        <p style="font-size:12px;color:#888;margin-bottom:10px;">결제 취소 / 환불</p>
+        <button type="button" class="btn-danger" id="omCancelBtn">결제 취소 + 환불 처리</button>
+        <p style="font-size:11px;color:#aaa;margin-top:8px;">토스페이먼츠 환불 + 후기 권한 회수가 함께 처리됩니다.</p>
+      </div>
+    ` : ''}
+  `;
+
+  document.getElementById('omSaveBtn').addEventListener('click', async () => {
+    const status   = document.getElementById('omStatus').value;
+    const tracking = document.getElementById('omTracking').value.trim();
+    const carrier  = document.getElementById('omCarrier').value;
+    const msg      = document.getElementById('omStatusMsg');
+    msg.hidden = true;
+    try {
+      const res = await fetch(`/api/orders/${id}/status`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status, tracking_number: tracking, shipping_carrier: carrier }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error || '저장 실패');
+      msg.textContent = '저장되었습니다.';
+      msg.className = 'form-status success';
+      msg.hidden = false;
+      await loadOrders();
+    } catch (err) {
+      msg.textContent = err.message;
+      msg.className = 'form-status error';
+      msg.hidden = false;
+    }
+  });
+
+  const cancelBtn = document.getElementById('omCancelBtn');
+  if (cancelBtn) {
+    cancelBtn.addEventListener('click', async () => {
+      const reason = prompt('취소 사유를 입력해주세요 (선택):', '');
+      if (reason === null) return;
+      if (!confirm('정말 결제를 취소하고 환불 처리하시겠습니까?\n토스에서 실제 환불이 진행됩니다.')) return;
+      cancelBtn.disabled = true;
+      try {
+        const res = await fetch(`/api/orders/${id}/cancel`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ reason }),
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(data.error || '취소 실패');
+        alert('결제가 취소되었습니다.');
+        closeOrderModal();
+        await loadOrders();
+      } catch (err) {
+        alert('취소 실패: ' + err.message);
+        cancelBtn.disabled = false;
+      }
+    });
+  }
+
+  orderModal.hidden = false;
+}
+
+function closeOrderModal() { orderModal.hidden = true; }
+
+document.getElementById('orderModalClose').addEventListener('click', closeOrderModal);
+orderModal.addEventListener('click', (e) => { if (e.target === orderModal) closeOrderModal(); });
+
+
+/* ============================================================
    후기 관리
    ============================================================ */
 const reviewTableBody    = document.getElementById('reviewTableBody');
@@ -919,6 +1105,7 @@ document.getElementById('btnLogout').addEventListener('click', async () => {
   document.body.style.visibility = 'visible';
   await loadCategories(); // 상품 폼 select가 비어있으면 안되므로 먼저
   loadProducts();
+  loadOrders();
   loadPurchases();
   loadReviews();
   loadInquiries();

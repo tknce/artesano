@@ -131,7 +131,8 @@ router.post('/confirm', requireUser, asyncHandler(async (req, res) => {
 router.get('/mine', requireUser, asyncHandler(async (req, res) => {
   const [rows] = await pool.query(`
     SELECT id, order_id, product_id, product_name, product_image_url,
-           amount, status, created_at, paid_at
+           amount, status, tracking_number, shipping_carrier,
+           created_at, paid_at
     FROM orders
     WHERE user_id = ?
     ORDER BY created_at DESC
@@ -148,6 +149,58 @@ router.get('/', requireAdmin, asyncHandler(async (req, res) => {
     ORDER BY o.created_at DESC
   `);
   res.json(rows);
+}));
+
+// PUT /api/orders/:id/status — 상태/송장번호/택배사 변경 (관리자)
+router.put('/:id/status', requireAdmin, asyncHandler(async (req, res) => {
+  const id = parseInt(req.params.id, 10);
+  const { status, tracking_number, shipping_carrier } = req.body || {};
+  const VALID = ['pending','paid','preparing','shipping','delivered','failed','cancelled'];
+  if (!VALID.includes(status)) return res.status(400).json({ error: '잘못된 상태입니다.' });
+
+  await pool.query(
+    'UPDATE orders SET status = ?, tracking_number = ?, shipping_carrier = ? WHERE id = ?',
+    [status, tracking_number?.trim() || null, shipping_carrier?.trim() || null, id]
+  );
+  res.json({ ok: true });
+}));
+
+// POST /api/orders/:id/cancel — 결제 취소 + 환불 (관리자)
+router.post('/:id/cancel', requireAdmin, asyncHandler(async (req, res) => {
+  const id = parseInt(req.params.id, 10);
+  const { reason } = req.body || {};
+
+  const [orders] = await pool.query('SELECT * FROM orders WHERE id = ?', [id]);
+  if (orders.length === 0) return res.status(404).json({ error: '주문을 찾을 수 없습니다.' });
+
+  const order = orders[0];
+  if (order.status === 'cancelled') return res.json({ ok: true, alreadyCancelled: true });
+  if (!order.payment_key)           return res.status(400).json({ error: '결제 정보가 없는 주문입니다.' });
+
+  const auth = Buffer.from(TOSS_SECRET_KEY + ':').toString('base64');
+  let tossRes, tossData;
+  try {
+    tossRes = await fetch(`${TOSS_API_BASE}/payments/${order.payment_key}/cancel`, {
+      method: 'POST',
+      headers: { 'Authorization': `Basic ${auth}`, 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ cancelReason: reason?.trim() || '관리자 취소' }),
+    });
+    tossData = await tossRes.json();
+  } catch (err) {
+    return res.status(502).json({ error: '결제 서버 통신 실패' });
+  }
+  if (!tossRes.ok) return res.status(400).json({ error: tossData.message || '취소 실패' });
+
+  // 상태 갱신 + purchases에서 제거 (후기 권한 회수)
+  await pool.query('UPDATE orders SET status = ? WHERE id = ?', ['cancelled', id]);
+  if (order.user_id && order.product_id) {
+    await pool.query(
+      'DELETE FROM purchases WHERE user_id = ? AND product_id = ?',
+      [order.user_id, order.product_id]
+    );
+  }
+
+  res.json({ ok: true });
 }));
 
 // DELETE /api/orders/:id — 주문 삭제 (관리자)

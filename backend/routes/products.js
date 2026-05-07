@@ -10,10 +10,15 @@ function withOptimized(row) {
   return row && row.image_url ? { ...row, image_url: optimize(row.image_url) } : row;
 }
 
-const ALLOWED_CATEGORIES = ['crocodile', 'ostrich', 'python'];
-
 const asyncHandler = fn => (req, res, next) =>
   Promise.resolve(fn(req, res, next)).catch(next);
+
+// categories 테이블에 slug 존재 여부 확인
+async function categoryExists(slug) {
+  if (!slug || typeof slug !== 'string') return false;
+  const [rows] = await pool.query('SELECT id FROM categories WHERE slug = ?', [slug.trim()]);
+  return rows.length > 0;
+}
 
 function parseId(str) {
   const id = parseInt(str, 10);
@@ -59,10 +64,10 @@ function parseProductBody(body) {
     out.name = body.name.trim();
   }
 
-  if (!ALLOWED_CATEGORIES.includes(body.category)) {
-    errors.push('category는 crocodile / ostrich / python 중 하나여야 합니다.');
+  if (!body.category?.trim()) {
+    errors.push('category는 필수입니다.');
   } else {
-    out.category = body.category;
+    out.category = body.category.trim();
   }
 
   out.option_desc    = body.option_desc   ? String(body.option_desc).trim()   : null;
@@ -78,8 +83,8 @@ function parseProductBody(body) {
 // GET /products — 전체 목록 (?category= 필터)
 router.get('/', asyncHandler(async (req, res) => {
   const { category } = req.query;
-  if (category && !ALLOWED_CATEGORIES.includes(category)) {
-    return res.status(400).json({ error: 'category는 crocodile / ostrich / python 중 하나여야 합니다.' });
+  if (category && !(await categoryExists(category))) {
+    return res.status(400).json({ error: '존재하지 않는 카테고리입니다.' });
   }
   const [sql, params] = category
     ? ['SELECT * FROM products WHERE category = ? ORDER BY id ASC', [category]]
@@ -107,6 +112,9 @@ router.post('/', upload.single('image'), asyncHandler(async (req, res) => {
   if (!imageUrl) errors.push('이미지 파일 또는 image_url 중 하나는 필수입니다.');
 
   if (errors.length > 0) return res.status(400).json({ error: errors.join(' ') });
+  if (!(await categoryExists(data.category))) {
+    return res.status(400).json({ error: '존재하지 않는 카테고리입니다.' });
+  }
 
   const [result] = await pool.query(
     'INSERT INTO products (name, category, option_desc, description, price, original_price, image_url, is_custom_order, badge) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
@@ -127,6 +135,9 @@ router.put('/:id', upload.single('image'), asyncHandler(async (req, res) => {
   const old = existing[0];
   const { errors, data } = parseProductBody(req.body);
   if (errors.length > 0) return res.status(400).json({ error: errors.join(' ') });
+  if (!(await categoryExists(data.category))) {
+    return res.status(400).json({ error: '존재하지 않는 카테고리입니다.' });
+  }
 
   let imageUrl        = old.image_url;
   let oldUrlToDelete  = null;

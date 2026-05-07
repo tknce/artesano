@@ -24,6 +24,7 @@
       <nav class="admin-nav">
         <a href="#products" class="active">상품 관리</a>
         <a href="#categories">카테고리</a>
+        <a href="#orders">주문 관리</a>
         <a href="#custom-orders">주문제작</a>
         <a href="#purchases">구매 확인</a>
         <a href="#reviews">후기 관리</a>
@@ -101,6 +102,50 @@
           </thead>
           <tbody id="categoryTableBody">
             <tr><td colspan="6" class="admin-loading">불러오는 중...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         주문 관리 (결제 주문)
+         ============================================================ -->
+    <section class="admin-section" id="orders">
+      <div class="admin-section-header">
+        <h2>주문 관리</h2>
+        <button type="button" class="btn-secondary" id="btnRefreshOrders">새로고침</button>
+      </div>
+
+      <div class="admin-toolbar">
+        <select id="filterOrderStatus">
+          <option value="">전체 상태</option>
+          <option value="paid">결제완료</option>
+          <option value="preparing">배송준비</option>
+          <option value="shipping">배송중</option>
+          <option value="delivered">배송완료</option>
+          <option value="cancelled">취소</option>
+          <option value="pending">결제대기</option>
+          <option value="failed">실패</option>
+        </select>
+        <span class="admin-count" id="orderCount">0 건</span>
+      </div>
+
+      <div class="admin-table-wrap">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th style="width:60px;">ID</th>
+              <th style="width:100px;">상태</th>
+              <th>주문번호</th>
+              <th style="width:130px;">고객</th>
+              <th>상품</th>
+              <th style="width:120px;">금액</th>
+              <th style="width:140px;">결제일</th>
+              <th style="width:100px;">관리</th>
+            </tr>
+          </thead>
+          <tbody id="orderTableBody">
+            <tr><td colspan="8" class="admin-loading">불러오는 중...</td></tr>
           </tbody>
         </table>
       </div>
@@ -337,6 +382,17 @@
           </div>
         </div>
       </form>
+    </div>
+  </div>
+
+  <!-- 주문 상세 모달 -->
+  <div class="modal-overlay" id="orderModal" hidden>
+    <div class="modal" style="max-width:640px;">
+      <div class="modal-header">
+        <h3>주문 상세 <span id="orderModalId" style="font-size:13px;color:#888;font-weight:400;"></span></h3>
+        <button type="button" class="modal-close" id="orderModalClose">×</button>
+      </div>
+      <div class="modal-body" id="orderModalBody"></div>
     </div>
   </div>
 

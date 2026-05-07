@@ -226,6 +226,12 @@ a { color: inherit; text-decoration: none; }
 .status-pill.completed   { background: #d4edda; color: #155724; }
 .status-pill.cancelled   { background: #e2e3e5; color: #383d41; }
 .status-pill.closed      { background: #d4edda; color: #155724; }
+.status-pill.pending     { background: #fff3cd; color: #856404; }
+.status-pill.paid        { background: #cce5ff; color: #004085; }
+.status-pill.preparing   { background: #fde2cc; color: #7c4317; }
+.status-pill.shipping    { background: #d1ecf1; color: #0c5460; }
+.status-pill.delivered   { background: #d4edda; color: #155724; }
+.status-pill.failed      { background: #f8d7da; color: #721c24; }
 
 .inquiry-message {
   max-width: 400px;
