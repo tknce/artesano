@@ -25,6 +25,7 @@
         <a href="#categories">카테고리</a>
         <a href="#custom-orders">주문제작</a>
         <a href="#purchases">구매 확인</a>
+        <a href="#reviews">후기 관리</a>
         <a href="#inquiries">문의 관리</a>
         <a href="index.html" target="_blank">사이트 보기 ↗</a>
         <button type="button" id="btnLogout" class="btn-logout">로그아웃</button>
@@ -167,6 +168,34 @@
           </thead>
           <tbody id="purchaseTableBody">
             <tr><td colspan="6" class="admin-loading">불러오는 중...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         후기 관리
+         ============================================================ -->
+    <section class="admin-section" id="reviews">
+      <div class="admin-section-header">
+        <h2>후기 관리</h2>
+        <button type="button" class="btn-secondary" id="btnRefreshReviews">새로고침</button>
+      </div>
+      <div class="admin-table-wrap">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th style="width:60px;">ID</th>
+              <th style="width:60px;">별점</th>
+              <th>상품</th>
+              <th style="width:130px;">작성자</th>
+              <th>내용</th>
+              <th style="width:150px;">작성일</th>
+              <th style="width:80px;">관리</th>
+            </tr>
+          </thead>
+          <tbody id="reviewTableBody">
+            <tr><td colspan="7" class="admin-loading">불러오는 중...</td></tr>
           </tbody>
         </table>
       </div>

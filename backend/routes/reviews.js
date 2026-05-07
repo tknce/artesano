@@ -10,19 +10,35 @@ function requireUser(req, res, next) {
   res.status(401).json({ error: '로그인이 필요합니다.' });
 }
 
-// GET /reviews?productId=X
+// GET /reviews?productId=X  — 상품별 공개 목록
+// GET /reviews               — 전체 목록 (관리자)
 router.get('/', asyncHandler(async (req, res) => {
   const productId = parseInt(req.query.productId, 10);
-  if (isNaN(productId)) return res.status(400).json({ error: '잘못된 상품 ID' });
+
+  if (!isNaN(productId)) {
+    const [rows] = await pool.query(`
+      SELECT r.id, r.rating, r.comment, r.created_at, r.user_id,
+             u.name AS user_name
+      FROM reviews r
+      JOIN users u ON u.id = r.user_id
+      WHERE r.product_id = ?
+      ORDER BY r.created_at DESC
+    `, [productId]);
+    return res.json(rows);
+  }
+
+  // 관리자 전용 — 전체 목록
+  if (!req.session?.isAdmin) return res.status(401).json({ error: '관리자 권한이 필요합니다.' });
 
   const [rows] = await pool.query(`
-    SELECT r.id, r.rating, r.comment, r.created_at, r.user_id,
-           u.name AS user_name
+    SELECT r.id, r.rating, r.comment, r.created_at,
+           u.name AS user_name, u.email AS user_email,
+           p.id AS product_id, p.name AS product_name
     FROM reviews r
-    JOIN users u ON u.id = r.user_id
-    WHERE r.product_id = ?
+    JOIN users    u ON u.id = r.user_id
+    JOIN products p ON p.id = r.product_id
     ORDER BY r.created_at DESC
-  `, [productId]);
+  `);
   res.json(rows);
 }));
 

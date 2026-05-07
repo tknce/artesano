@@ -807,6 +807,60 @@ document.getElementById('btnRefreshPurchases').addEventListener('click', loadPur
 
 
 /* ============================================================
+   후기 관리
+   ============================================================ */
+const reviewTableBody    = document.getElementById('reviewTableBody');
+const btnRefreshReviews  = document.getElementById('btnRefreshReviews');
+
+async function loadReviews() {
+  reviewTableBody.innerHTML = '<tr><td colspan="7" class="admin-loading">불러오는 중...</td></tr>';
+  try {
+    const res = await fetch('/reviews');
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const list = await res.json();
+
+    if (list.length === 0) {
+      reviewTableBody.innerHTML = '<tr><td colspan="7" class="admin-empty">작성된 후기가 없습니다.</td></tr>';
+      return;
+    }
+
+    reviewTableBody.innerHTML = list.map(r => {
+      const stars = '★'.repeat(r.rating) + '☆'.repeat(5 - r.rating);
+      return `
+        <tr>
+          <td>${r.id}</td>
+          <td style="color:var(--accent);letter-spacing:1px;">${stars}</td>
+          <td>#${r.product_id} ${escapeHtml(r.product_name)}</td>
+          <td>${escapeHtml(r.user_name)}<br /><span style="font-size:11px;color:#888">${escapeHtml(r.user_email)}</span></td>
+          <td class="inquiry-message">${escapeHtml(r.comment || '—')}</td>
+          <td style="font-size:12px;color:#666;">${formatDate(r.created_at)}</td>
+          <td>
+            <button type="button" class="btn-danger" data-action="delete-review" data-id="${r.id}">삭제</button>
+          </td>
+        </tr>`;
+    }).join('');
+  } catch (err) {
+    reviewTableBody.innerHTML = `<tr><td colspan="7" class="admin-loading">불러오기 실패: ${escapeHtml(err.message)}</td></tr>`;
+  }
+}
+
+btnRefreshReviews.addEventListener('click', loadReviews);
+
+reviewTableBody.addEventListener('click', async (e) => {
+  const btn = e.target.closest('button[data-action="delete-review"]');
+  if (!btn) return;
+  if (!confirm('후기를 삭제하시겠습니까?')) return;
+  try {
+    const res = await fetch(`/reviews/${btn.dataset.id}`, { method: 'DELETE' });
+    if (!res.ok) throw new Error();
+    await loadReviews();
+  } catch {
+    alert('삭제 실패');
+  }
+});
+
+
+/* ============================================================
    로그아웃
    ============================================================ */
 document.getElementById('btnLogout').addEventListener('click', async () => {
@@ -829,6 +883,7 @@ document.getElementById('btnLogout').addEventListener('click', async () => {
   await loadCategories(); // 상품 폼 select가 비어있으면 안되므로 먼저
   loadProducts();
   loadPurchases();
+  loadReviews();
   loadInquiries();
   loadCustomOrders();
 })();
