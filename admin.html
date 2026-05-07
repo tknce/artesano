@@ -83,7 +83,8 @@
       <form class="admin-toolbar" id="categoryAddForm">
         <input type="text" name="slug" id="catSlug" placeholder="slug (영문 소문자/숫자/하이픈)" maxlength="50" required pattern="[a-z0-9-]{2,50}" />
         <input type="text" name="name" id="catName" placeholder="표시 이름 (예: ALLIGATOR)" maxlength="100" required />
-        <button type="submit" class="btn-primary">+ 추가</button>
+        <button type="submit" class="btn-primary" id="catSubmitBtn">+ 추가</button>
+        <button type="button" class="btn-ghost" id="catCancelEdit" hidden>취소</button>
         <span class="form-status" id="categoryFormStatus" hidden></span>
       </form>
 

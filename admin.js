@@ -40,6 +40,30 @@ const catName            = document.getElementById('catName');
 
 let allCategories = [];
 const PROTECTED_SLUGS = new Set(['python']);
+let editingCatId = null;
+
+function enterCatEditMode(cat) {
+  editingCatId = cat.id;
+  catSlug.hidden = true;
+  catSlug.required = false;
+  catName.value = cat.name;
+  document.getElementById('catSubmitBtn').textContent = '수정';
+  document.getElementById('catCancelEdit').hidden = false;
+  categoryFormStatus.hidden = true;
+  catName.focus();
+  categoryAddForm.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+function exitCatEditMode() {
+  editingCatId = null;
+  catSlug.hidden = false;
+  catSlug.required = true;
+  catSlug.value = '';
+  catName.value = '';
+  document.getElementById('catSubmitBtn').textContent = '+ 추가';
+  document.getElementById('catCancelEdit').hidden = true;
+  categoryFormStatus.hidden = true;
+}
 
 async function loadCategories() {
   try {
@@ -124,9 +148,34 @@ function renderCategoryTable() {
   }).join('');
 }
 
+document.getElementById('catCancelEdit').addEventListener('click', exitCatEditMode);
+
 categoryAddForm.addEventListener('submit', async (e) => {
   e.preventDefault();
   categoryFormStatus.hidden = true;
+
+  // 수정 모드
+  if (editingCatId) {
+    const name = catName.value.trim();
+    try {
+      const res = await fetch(`/categories/${editingCatId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error || `서버 오류 (${res.status})`);
+      exitCatEditMode();
+      await loadCategories();
+    } catch (err) {
+      categoryFormStatus.textContent = err.message;
+      categoryFormStatus.className = 'form-status error';
+      categoryFormStatus.hidden = false;
+    }
+    return;
+  }
+
+  // 추가 모드
   const slug = catSlug.value.trim().toLowerCase();
   const name = catName.value.trim();
   const sort_order = allCategories.length > 0
@@ -177,20 +226,8 @@ categoryTableBody.addEventListener('click', async (e) => {
   }
 
   if (btn.dataset.action === 'cat-edit') {
-    const newName = prompt(`카테고리 표시 이름:`, cat.name);
-    if (newName === null || !newName.trim()) return;
-    try {
-      const res = await fetch(`/categories/${id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: newName.trim() }),
-      });
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
-      await loadCategories();
-    } catch (err) {
-      alert('수정 실패: ' + err.message);
-    }
+    enterCatEditMode(cat);
+    return;
   }
 
   if (btn.dataset.action === 'cat-delete') {

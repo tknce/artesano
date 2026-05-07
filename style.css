@@ -1,3 +1,5 @@
+@import url('https://cdn.jsdelivr.net/npm/pretendard@1.3.9/dist/web/static/pretendard.css');
+
 /* ============================================================
    CROCINI — 럭셔리 가죽 브랜드 스타일시트
    섹션 순서:
@@ -32,7 +34,7 @@
 
   /* 폰트 */
   --font-serif: 'Cormorant Garamond', 'Playfair Display', serif;
-  --font-sans:  'Inter', 'Helvetica Neue', Arial, sans-serif;
+  --font-sans:  'Pretendard', 'Inter', 'Helvetica Neue', Arial, sans-serif;
 
   /* 여백 */
   --section-padding: 160px 0;
