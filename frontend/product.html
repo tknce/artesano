@@ -887,6 +887,63 @@
             if (e.key === 'ArrowLeft')  { idx = (idx - 1 + urls.length) % urls.length; render(); }
             if (e.key === 'ArrowRight') { idx = (idx + 1) % urls.length; render(); }
           });
+
+          // 모바일 스와이프
+          let touchStartX = 0;
+          const imgWrap = document.getElementById('detailImageWrap');
+          imgWrap.addEventListener('touchstart', e => { touchStartX = e.touches[0].clientX; }, { passive: true });
+          imgWrap.addEventListener('touchend', e => {
+            const diff = e.changedTouches[0].clientX - touchStartX;
+            if (Math.abs(diff) > 50) {
+              idx = diff > 0 ? (idx - 1 + urls.length) % urls.length : (idx + 1) % urls.length;
+              render();
+            }
+          });
+
+          // 이미지 클릭 → 라이트박스 (풀스크린 줌)
+          imgEl.style.cursor = 'zoom-in';
+          imgEl.addEventListener('click', () => openLightbox(urls, idx));
+        }
+
+        // 라이트박스 (풀스크린 이미지 뷰어)
+        function openLightbox(urls, startIdx) {
+          let lbIdx = startIdx;
+          const lb = document.createElement('div');
+          lb.className = 'lightbox open';
+          lb.innerHTML = `
+            <button class="lb-close" aria-label="닫기">✕</button>
+            <button class="lb-prev" aria-label="이전">‹</button>
+            <button class="lb-next" aria-label="다음">›</button>
+            <div class="lb-img-wrap"><img src="${urls[lbIdx]}" alt="확대 이미지" /></div>
+            <p class="lb-counter">${lbIdx + 1} / ${urls.length}</p>
+          `;
+          document.body.appendChild(lb);
+          document.body.style.overflow = 'hidden';
+
+          const lbImg = lb.querySelector('img');
+          const lbCounter = lb.querySelector('.lb-counter');
+          const update = () => { lbImg.src = urls[lbIdx]; lbCounter.textContent = `${lbIdx + 1} / ${urls.length}`; };
+
+          lb.querySelector('.lb-close').addEventListener('click', closeLb);
+          lb.querySelector('.lb-prev').addEventListener('click', () => { lbIdx = (lbIdx - 1 + urls.length) % urls.length; update(); });
+          lb.querySelector('.lb-next').addEventListener('click', () => { lbIdx = (lbIdx + 1) % urls.length; update(); });
+          lb.addEventListener('click', e => { if (e.target === lb) closeLb(); });
+          document.addEventListener('keydown', lbKey);
+
+          // 스와이프
+          let lbTouchX = 0;
+          lb.addEventListener('touchstart', e => { lbTouchX = e.touches[0].clientX; }, { passive: true });
+          lb.addEventListener('touchend', e => {
+            const diff = e.changedTouches[0].clientX - lbTouchX;
+            if (Math.abs(diff) > 50) { lbIdx = diff > 0 ? (lbIdx - 1 + urls.length) % urls.length : (lbIdx + 1) % urls.length; update(); }
+          });
+
+          function lbKey(e) {
+            if (e.key === 'Escape') closeLb();
+            if (e.key === 'ArrowLeft') { lbIdx = (lbIdx - 1 + urls.length) % urls.length; update(); }
+            if (e.key === 'ArrowRight') { lbIdx = (lbIdx + 1) % urls.length; update(); }
+          }
+          function closeLb() { lb.remove(); document.body.style.overflow = ''; document.removeEventListener('keydown', lbKey); }
         }
 
         tabsSection.hidden = false;
