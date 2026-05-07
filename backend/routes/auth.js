@@ -60,4 +60,23 @@ router.get('/kakao/callback', asyncHandler(async (req, res) => {
   res.redirect('/');
 }));
 
+// --- 네이버 간편 로그인 ---
+
+router.get('/naver', (req, res) => {
+  res.redirect(authService.getNaverAuthUrl());
+});
+
+router.get('/naver/callback', asyncHandler(async (req, res) => {
+  const { code, state } = req.query;
+  if (!code) return res.redirect('/login?error=naver_failed');
+  const result = await authService.naverCallback(code, state);
+  if (result.error) return res.redirect('/login?error=naver_failed');
+  const { user } = result;
+  req.session.userId = user.id;
+  req.session.userName = user.name;
+  req.session.userEmail = user.email;
+  req.session.userPhone = user.phone ?? null;
+  res.redirect('/');
+}));
+
 module.exports = router;

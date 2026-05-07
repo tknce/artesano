@@ -221,7 +221,17 @@ async function migrate() {
   `);
   if (kakaoCol.length === 0) {
     await pool.query('ALTER TABLE users ADD COLUMN kakao_id VARCHAR(100) NULL UNIQUE');
-    await pool.query(`ALTER TABLE users ADD COLUMN login_type ENUM('email','kakao') NOT NULL DEFAULT 'email'`);
+    await pool.query(`ALTER TABLE users ADD COLUMN login_type ENUM('email','kakao','naver') NOT NULL DEFAULT 'email'`);
+  }
+
+  // naver_id 컬럼 추가
+  const [naverCol] = await pool.query(`
+    SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'users' AND COLUMN_NAME = 'naver_id'
+  `);
+  if (naverCol.length === 0) {
+    await pool.query('ALTER TABLE users ADD COLUMN naver_id VARCHAR(100) NULL UNIQUE');
+    await pool.query(`ALTER TABLE users MODIFY COLUMN login_type ENUM('email','kakao','naver') NOT NULL DEFAULT 'email'`);
   }
 
   console.log('✓ DB 마이그레이션 완료');

@@ -3754,3 +3754,27 @@ textarea:focus-visible {
   font-size: 12px;
   color: rgba(0,0,0,0.4);
 }
+
+/* 네이버 로그인 버튼 */
+.naver-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 14px;
+  background: #03C75A;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background 0.2s;
+  margin-top: 10px;
+}
+.naver-btn:hover {
+  background: #02b351;
+}

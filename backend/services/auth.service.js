@@ -97,4 +97,62 @@ async function kakaoCallback(code) {
   return { ok: true, user: newUser[0], isNew: true };
 }
 
-module.exports = { register, login, getMe, getKakaoAuthUrl, kakaoCallback };
+// --- 네이버 간편 로그인 ---
+
+const NAVER_CLIENT_ID = process.env.NAVER_CLIENT_ID;
+const NAVER_CLIENT_SECRET = process.env.NAVER_CLIENT_SECRET;
+const NAVER_REDIRECT_URI = process.env.NAVER_REDIRECT_URI;
+
+function getNaverAuthUrl() {
+  const state = Math.random().toString(36).substring(2);
+  return `https://nid.naver.com/oauth2.0/authorize?response_type=code&client_id=${NAVER_CLIENT_ID}&redirect_uri=${encodeURIComponent(NAVER_REDIRECT_URI)}&state=${state}`;
+}
+
+async function naverCallback(code, state) {
+  // 1) 인가 코드로 토큰 발급
+  const tokenRes = await fetch('https://nid.naver.com/oauth2.0/token', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: new URLSearchParams({ grant_type: 'authorization_code', client_id: NAVER_CLIENT_ID, client_secret: NAVER_CLIENT_SECRET, code, state }),
+  });
+  const tokenData = await tokenRes.json();
+  if (!tokenData.access_token) return { error: '네이버 인증 실패', status: 401 };
+
+  // 2) 사용자 정보 조회
+  const userRes = await fetch('https://openapi.naver.com/v1/nid/me', {
+    headers: { 'Authorization': `Bearer ${tokenData.access_token}` },
+  });
+  const userData = await userRes.json();
+  if (userData.resultcode !== '00') return { error: '네이버 사용자 정보 조회 실패', status: 401 };
+
+  const naverId = userData.response.id;
+  const naverEmail = userData.response.email || null;
+  const naverName = userData.response.name || userData.response.nickname || '네이버 사용자';
+  const naverPhone = userData.response.mobile?.replace(/-/g, '-') || null;
+
+  // 3) 기존 회원 확인 (naver_id로)
+  const [existing] = await pool.query('SELECT * FROM users WHERE naver_id = ?', [naverId]);
+  if (existing.length > 0) {
+    return { ok: true, user: existing[0] };
+  }
+
+  // 4) 이메일로 기존 회원 연동 시도
+  if (naverEmail) {
+    const [emailUser] = await pool.query('SELECT * FROM users WHERE email = ?', [naverEmail]);
+    if (emailUser.length > 0) {
+      await pool.query('UPDATE users SET naver_id = ?, login_type = ? WHERE id = ?', [naverId, 'naver', emailUser[0].id]);
+      return { ok: true, user: { ...emailUser[0], naver_id: naverId } };
+    }
+  }
+
+  // 5) 신규 회원 자동 가입
+  const email = naverEmail || `naver_${naverId}@crocini.co.kr`;
+  const [result] = await pool.query(
+    'INSERT INTO users (email, password_hash, name, phone, naver_id, login_type) VALUES (?, ?, ?, ?, ?, ?)',
+    [email, '', naverName, naverPhone, naverId, 'naver']
+  );
+  const [newUser] = await pool.query('SELECT * FROM users WHERE id = ?', [result.insertId]);
+  return { ok: true, user: newUser[0], isNew: true };
+}
+
+module.exports = { register, login, getMe, getKakaoAuthUrl, kakaoCallback, getNaverAuthUrl, naverCallback };
