@@ -128,11 +128,12 @@
     (async () => {
       const params = new URLSearchParams(location.search);
       const productId = params.get('id');
-      if (!productId) { location.replace('/shop'); return; }
+      const fromCart = params.get('from') === 'cart';
+      if (!productId && !fromCart) { location.replace('/shop'); return; }
 
       // 로그인 체크
       const meRes = await fetch('/api/auth/me');
-      if (!meRes.ok) { location.replace('/login?next=/checkout?id=' + productId); return; }
+      if (!meRes.ok) { location.replace('/login?next=' + encodeURIComponent(location.pathname + location.search)); return; }
       const me = await meRes.json();
 
       // 자동 입력
@@ -140,18 +141,38 @@
       document.getElementById('cPhone').value = me.phone || '';
       document.getElementById('cEmail').value = me.email || '';
 
-      // 상품 정보 fetch
-      let product;
-      try {
-        const r = await fetch(`/products/${productId}`);
-        if (!r.ok) throw new Error();
-        product = await r.json();
-      } catch (_) {
-        location.replace('/shop');
-        return;
-      }
+      // 상품 정보
+      let product, cartItems = [], totalPrice = 0;
 
-      if (product.price === null) {
+      if (fromCart) {
+        // 장바구니 모드
+        const cartRes = await fetch('/api/cart');
+        cartItems = await cartRes.json();
+        if (!cartItems.length) { location.replace('/cart'); return; }
+        totalPrice = cartItems.reduce((sum, i) => sum + (i.price || 0) * i.quantity, 0);
+        const fmt = n => Number(n).toLocaleString('ko-KR') + '원';
+        document.getElementById('checkoutProduct').innerHTML = cartItems.map(i =>
+          `<div style="display:flex;gap:12px;align-items:center;margin-bottom:12px;">
+            <img src="${i.image_url || ''}" alt="${i.name}" style="width:60px;height:60px;object-fit:cover;" />
+            <div><p class="checkout-product-name">${i.name}</p><p style="font-size:13px;color:#888">${i.option_desc || ''} × ${i.quantity}</p></div>
+            <span style="margin-left:auto;font-weight:500">${fmt(i.price * i.quantity)}</span>
+          </div>`
+        ).join('');
+        document.getElementById('amountProduct').textContent = fmt(totalPrice);
+        document.getElementById('amountTotal').textContent = fmt(totalPrice);
+        product = { price: totalPrice, name: cartItems.map(i => i.name).join(', ') };
+      } else {
+        // 단일 상품 모드
+        try {
+          const r = await fetch(`/products/${productId}`);
+          if (!r.ok) throw new Error();
+          product = await r.json();
+        } catch (_) {
+          location.replace('/shop');
+          return;
+        }
+
+        if (product.price === null) {
         // 주문제작은 결제 불가
         location.replace(`/product?id=${productId}`);
         return;
@@ -169,6 +190,8 @@
       `;
       document.getElementById('amountProduct').textContent = fmt(product.price);
       document.getElementById('amountTotal').textContent   = fmt(product.price);
+      totalPrice = product.price;
+      } // end single product mode
 
       let appliedDiscount = 0;
       let appliedCouponCode = null;
@@ -181,7 +204,7 @@
         const res = await fetch('/api/coupons/validate', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ code, orderAmount: product.price }),
+          body: JSON.stringify({ code, orderAmount: totalPrice }),
         });
         const data = await res.json();
         if (!res.ok) { resultEl.textContent = data.error; resultEl.className = 'coupon-result error'; resultEl.hidden = false; return; }
@@ -192,7 +215,7 @@
         resultEl.hidden = false;
         document.getElementById('discountRow').hidden = false;
         document.getElementById('amountDiscount').textContent = `-${fmt(data.discount)}`;
-        document.getElementById('amountTotal').textContent = fmt(product.price - appliedDiscount);
+        document.getElementById('amountTotal').textContent = fmt(totalPrice - appliedDiscount);
       });
 
       document.body.style.visibility = '';
