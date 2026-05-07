@@ -230,6 +230,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentFilter = 'all';
     let currentSearch = '';
     let currentSort   = 'latest';
+    let currentPriceRanges = [];
 
     // 위시리스트 상태
     let isLoggedIn  = false;
@@ -314,6 +315,17 @@ document.addEventListener('DOMContentLoaded', () => {
           return haystack.includes(q);
         });
       }
+      // 가격대 필터
+      if (currentPriceRanges.length > 0) {
+        list = list.filter(p => {
+          if (p.price === null) return false;
+          return currentPriceRanges.some(range => {
+            const [min, max] = range.split('-').map(Number);
+            if (!max && max !== 0) return p.price >= min; // "3000000-" 형태
+            return p.price >= min && p.price < max;
+          });
+        });
+      }
       // 정렬: 가격 NULL(주문제작)은 항상 뒤로 보냄
       if (currentSort === 'price-asc') {
         list = [...list].sort((a, b) => (a.price ?? Infinity) - (b.price ?? Infinity));
@@ -347,6 +359,15 @@ document.addEventListener('DOMContentLoaded', () => {
     if (shopSort) {
       shopSort.addEventListener('change', () => {
         currentSort = shopSort.value;
+        applyFilters();
+      });
+    }
+
+    // 가격대 필터
+    const priceFilter = document.getElementById('priceFilter');
+    if (priceFilter) {
+      priceFilter.addEventListener('change', () => {
+        currentPriceRanges = Array.from(priceFilter.querySelectorAll('input:checked')).map(cb => cb.value);
         applyFilters();
       });
     }

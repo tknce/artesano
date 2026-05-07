@@ -4253,3 +4253,37 @@ textarea:focus-visible {
 .coupon-result.success { color: #2d7a4f; }
 .coupon-result.error { color: #c0392b; }
 .checkout-amount-row.discount span { color: #2d7a4f; }
+
+/* 가격대 필터 */
+.price-filter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.price-check {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+  cursor: pointer;
+  padding: 6px 12px;
+  border: 1px solid rgba(0,0,0,0.12);
+  border-radius: 20px;
+  transition: border-color 0.2s, background 0.2s;
+}
+.price-check:has(input:checked) {
+  border-color: var(--color-gold);
+  background: rgba(166, 124, 82, 0.08);
+}
+.price-check input {
+  display: none;
+}
+@media (max-width: 768px) {
+  .price-filter {
+    gap: 6px;
+  }
+  .price-check {
+    font-size: 12px;
+    padding: 5px 10px;
+  }
+}
