@@ -260,6 +260,11 @@ document.addEventListener('DOMContentLoaded', () => {
       const heartClass = wishlistIds.has(p.id) ? ' wishlisted' : '';
       const heartHTML  = `<button class="wishlist-btn${heartClass}" data-id="${p.id}" aria-label="찜하기">♥</button>`;
 
+      /* 장바구니 버튼 (가격이 있는 상품만) */
+      const cartBtnHTML = p.price !== null
+        ? `<button class="cart-btn" data-id="${p.id}" aria-label="장바구니 담기">🛒</button>`
+        : '';
+
       /* 가격 HTML: python처럼 price가 null이면 "주문제작 문의" 표시 */
       let priceHTML;
       if (p.price === null) {
@@ -285,6 +290,7 @@ document.addEventListener('DOMContentLoaded', () => {
               <img src="${resolveImageUrl(p.image_url)}" alt="${p.name} — ${categoryLabel} 가죽 핸드백" loading="lazy" />
               ${badgeHTML}
               ${heartHTML}
+              ${cartBtnHTML}
             </div>
             <div class="product-info">
               <span class="product-category">${categoryLabel}</span>
@@ -398,6 +404,34 @@ document.addEventListener('DOMContentLoaded', () => {
         Toast.success(wishlisted ? '찜 목록에서 제거했습니다' : '찜 목록에 추가했습니다');
       } catch (_) {
         Toast.error('처리에 실패했습니다');
+      } finally {
+        btn.disabled = false;
+      }
+    });
+
+    /* --------------------------------------------------
+       장바구니 버튼 클릭 — event delegation
+    -------------------------------------------------- */
+    productGrid.addEventListener('click', async (e) => {
+      const btn = e.target.closest('.cart-btn');
+      if (!btn) return;
+      e.preventDefault();
+      e.stopPropagation();
+
+      if (!isLoggedIn) { location.href = '/login'; return; }
+
+      const id = parseInt(btn.dataset.id, 10);
+      try {
+        btn.disabled = true;
+        const res = await fetch('/api/cart', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ productId: id, quantity: 1 }),
+        });
+        if (!res.ok) throw new Error();
+        Toast.success('장바구니에 담았습니다');
+      } catch (_) {
+        Toast.error('장바구니 추가에 실패했습니다');
       } finally {
         btn.disabled = false;
       }
