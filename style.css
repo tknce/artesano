@@ -3256,3 +3256,260 @@ body.shop-page {
     padding-bottom: 100px;
   }
 }
+
+/* ============================================================
+   체크아웃 / 결제
+   ============================================================ */
+.checkout-wrap {
+  padding: 140px 0 100px;
+  min-height: 80vh;
+  background: var(--color-cream);
+}
+.checkout-title {
+  font-family: var(--font-serif);
+  font-size: clamp(2rem, 4vw, 3rem);
+  font-weight: 300;
+  margin: 8px 0 56px;
+}
+.checkout-grid {
+  display: grid;
+  grid-template-columns: 1fr 420px;
+  gap: 60px;
+  align-items: start;
+}
+.checkout-section-title {
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+  margin-bottom: 24px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--color-black);
+}
+.checkout-field {
+  margin-bottom: 18px;
+}
+.checkout-field label {
+  display: block;
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--color-black);
+  margin-bottom: 6px;
+}
+.checkout-field label em {
+  color: var(--color-gold);
+  font-style: normal;
+}
+.checkout-field input,
+.checkout-field textarea {
+  width: 100%;
+  padding: 12px 14px;
+  font-family: var(--font-sans);
+  font-size: 14px;
+  border: 1px solid #ddd;
+  background: #fff;
+  outline: none;
+  transition: border-color 0.2s;
+  resize: vertical;
+}
+.checkout-field input:focus,
+.checkout-field textarea:focus { border-color: var(--color-black); }
+.checkout-field input[readonly] { background: #f8f8f8; cursor: default; }
+
+.postal-row {
+  display: flex;
+  gap: 8px;
+}
+.postal-row input { flex: 1; }
+.postal-btn {
+  padding: 0 18px;
+  border: 1px solid var(--color-black);
+  background: var(--color-black);
+  color: var(--color-cream);
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.2s;
+}
+.postal-btn:hover { background: var(--color-brown); }
+
+.checkout-summary {
+  position: sticky;
+  top: 100px;
+  padding: 28px;
+  background: #fff;
+  border: 1px solid #eee;
+}
+.checkout-product {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  padding-bottom: 18px;
+  margin-bottom: 18px;
+  border-bottom: 1px solid #f0f0f0;
+}
+.checkout-product img {
+  width: 80px;
+  height: 100px;
+  object-fit: cover;
+  background: var(--color-beige);
+}
+.checkout-product-cat {
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  color: var(--color-gold);
+  margin-bottom: 4px;
+}
+.checkout-product-name {
+  font-family: var(--font-serif);
+  font-size: 1rem;
+  margin-bottom: 4px;
+}
+.checkout-product-opt {
+  font-size: 12px;
+  color: var(--color-muted);
+}
+.checkout-amount-row {
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--font-sans);
+  font-size: 13px;
+  margin-bottom: 8px;
+  color: #555;
+}
+.checkout-amount-row.total {
+  font-weight: 500;
+  font-size: 15px;
+  color: var(--color-black);
+  padding-top: 12px;
+  margin-top: 12px;
+  margin-bottom: 24px;
+  border-top: 1px solid #eee;
+}
+.checkout-pay-btn {
+  width: 100%;
+  padding: 16px;
+  background: var(--color-black);
+  color: var(--color-cream);
+  border: none;
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.2s;
+  margin-top: 16px;
+}
+.checkout-pay-btn:hover:not(:disabled) { background: var(--color-brown); }
+.checkout-pay-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.checkout-error {
+  font-size: 12px;
+  color: #c0392b;
+  margin-top: 10px;
+  text-align: center;
+}
+
+/* 결제 결과 페이지 */
+.payment-result {
+  padding: 160px 0 120px;
+  min-height: 80vh;
+  background: var(--color-cream);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.payment-card {
+  max-width: 480px;
+  margin: 0 auto;
+  text-align: center;
+  padding: 60px 40px;
+  background: #fff;
+  border: 1px solid #eee;
+}
+.payment-icon {
+  font-family: var(--font-serif);
+  font-size: 64px;
+  line-height: 1;
+  color: #c0392b;
+  margin-bottom: 24px;
+}
+.payment-icon.success { color: var(--color-gold); }
+.payment-card h1 {
+  font-family: var(--font-serif);
+  font-size: 1.6rem;
+  font-weight: 400;
+  margin-bottom: 16px;
+}
+.payment-msg {
+  font-size: 14px;
+  color: #555;
+  line-height: 1.7;
+  margin-bottom: 8px;
+}
+.payment-msg code {
+  font-family: monospace;
+  font-size: 12px;
+  color: var(--color-muted);
+}
+.payment-actions {
+  margin-top: 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.payment-link {
+  display: block;
+  padding: 14px 28px;
+  border: 1px solid var(--color-black);
+  color: var(--color-black);
+  text-decoration: none;
+  font-family: var(--font-sans);
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  transition: background 0.2s, color 0.2s;
+}
+.payment-link.primary {
+  background: var(--color-black);
+  color: var(--color-cream);
+}
+.payment-link:hover {
+  background: var(--color-black);
+  color: var(--color-cream);
+}
+.payment-link.primary:hover { background: var(--color-brown); }
+
+/* 마이페이지 주문 내역 */
+.order-table-wrap { overflow-x: auto; }
+.mypage-order-img {
+  width: 50px;
+  height: 64px;
+  object-fit: cover;
+  background: var(--color-beige);
+}
+.order-status {
+  display: inline-block;
+  padding: 3px 10px;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  border-radius: 2px;
+}
+.order-status.paid      { background: #e8f4ec; color: #1e7a3c; }
+.order-status.pending   { background: #fff8e0; color: #a78400; }
+.order-status.failed,
+.order-status.cancelled { background: #fbe9e7; color: #8b2e22; }
+
+@media (max-width: 900px) {
+  .checkout-grid { grid-template-columns: 1fr; gap: 40px; }
+  .checkout-summary { position: static; }
+}

@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>결제 실패 — CROCINI</title>
+  <meta name="robots" content="noindex" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body class="shop-page">
+
+  <!--#NAV#-->
+
+  <main class="payment-result">
+    <div class="container">
+      <div class="payment-card">
+        <p class="payment-icon">!</p>
+        <h1>결제가 취소되었습니다.</h1>
+        <p class="payment-msg" id="failMsg"></p>
+        <div class="payment-actions">
+          <a href="/shop" class="payment-link primary">SHOP으로 돌아가기</a>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!--#FOOTER#-->
+
+  <script>
+    const params = new URLSearchParams(location.search);
+    const code    = params.get('code');
+    const message = params.get('message');
+    if (message) document.getElementById('failMsg').textContent = decodeURIComponent(message);
+    else if (code) document.getElementById('failMsg').textContent = `오류 코드: ${code}`;
+  </script>
+</body>
+</html>

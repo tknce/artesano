@@ -25,6 +25,7 @@ const categoriesRouter   = require('./routes/categories');
 const wishlistRouter     = require('./routes/wishlist');
 const reviewsRouter      = require('./routes/reviews');
 const purchasesRouter    = require('./routes/purchases');
+const ordersRouter       = require('./routes/orders');
 const authRouter         = require('./routes/auth');
 const userRouter         = require('./routes/user');
 const migrate            = require('./migrate');
@@ -43,12 +44,25 @@ app.use(helmet({
   contentSecurityPolicy: {
     directives: {
       defaultSrc: ["'self'"],
-      scriptSrc:  ["'self'", "'unsafe-inline'"],
-      styleSrc:   ["'self'", 'https://fonts.googleapis.com', "'unsafe-inline'"],
-      fontSrc:    ["'self'", 'https://fonts.gstatic.com'],
+      scriptSrc:  ["'self'", "'unsafe-inline'", 'https://js.tosspayments.com', 'https://cdn.jsdelivr.net', 'https://t1.daumcdn.net'],
+      styleSrc:   ["'self'", 'https://fonts.googleapis.com', 'https://cdn.jsdelivr.net', "'unsafe-inline'"],
+      fontSrc:    ["'self'", 'https://fonts.gstatic.com', 'https://cdn.jsdelivr.net', 'data:'],
       imgSrc:     ["'self'", 'data:', 'blob:', 'https:', 'http:'],
-      connectSrc: ["'self'"],
-      frameSrc:   ["'none'"],
+      connectSrc: [
+        "'self'",
+        'https://*.tosspayments.com',
+        'https://api.tosspayments.com',
+        'https://event.tosspayments.com',
+        'https://log.tosspayments.com',
+        'https://payment-widget.tosspayments.com',
+      ],
+      frameSrc:   [
+        'https://*.tosspayments.com',
+        'https://toss.im',
+        'https://*.toss.im',
+        'https://postcode.map.daum.net',
+        'https://postcode.map.kakao.com',
+      ],
       objectSrc:  ["'none'"],
       baseUri:    ["'self'"],
       formAction: ["'self'"],
@@ -218,6 +232,9 @@ app.get('/admin-login.html',  redirectTo('/admin-login'));
 app.get('/login.html',        redirectTo('/login'));
 app.get('/register.html',     redirectTo('/register'));
 app.get('/mypage.html',       redirectTo('/mypage'));
+app.get('/checkout.html',         redirectTo('/checkout'));
+app.get('/payment-success.html',  redirectTo('/payment-success'));
+app.get('/payment-fail.html',     redirectTo('/payment-fail'));
 
 // 사라진 카테고리 페이지 — /shop으로 301 (외부 색인 보존)
 ['/crocodile', '/ostrich', '/python', '/crocodile.html', '/ostrich.html', '/python.html']
@@ -235,7 +252,10 @@ const PAGES = {
   '/admin-login':  'admin-login.html',
   '/login':        'login.html',
   '/register':     'register.html',
-  '/mypage':       'mypage.html',
+  '/mypage':           'mypage.html',
+  '/checkout':         'checkout.html',
+  '/payment-success':  'payment-success.html',
+  '/payment-fail':     'payment-fail.html',
 };
 Object.entries(PAGES).forEach(([url, file]) => {
   app.get(url, renderPage(file));
@@ -272,6 +292,7 @@ app.use('/api/user', userRouter);
 app.use('/api/wishlist', wishlistRouter);
 app.use('/reviews', reviewsRouter);
 app.use('/purchases', purchasesRouter);
+app.use('/api/orders', ordersRouter);
 
 // -----------------------------------------------
 // 404 — 매칭되지 않은 경로 (API는 JSON, 그 외는 HTML)
@@ -283,7 +304,8 @@ app.use((req, res, next) => {
       req.path.startsWith('/custom-orders') ||
       req.path.startsWith('/categories') ||
       req.path.startsWith('/reviews') ||
-      req.path.startsWith('/purchases')) {
+      req.path.startsWith('/purchases') ||
+      req.path.startsWith('/api/orders')) {
     return res.status(404).json({ error: '요청하신 리소스를 찾을 수 없습니다.' });
   }
   res.status(404).sendFile(path.join(FRONTEND_DIR, '404.html'));

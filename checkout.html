@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>결제 — CROCINI 아르테사노</title>
+  <meta name="robots" content="noindex" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://js.tosspayments.com/v2/standard"></script>
+  <script src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+</head>
+<body class="shop-page" style="visibility:hidden">
+
+  <!--#NAV#-->
+
+  <main class="checkout-wrap">
+    <div class="container">
+      <p class="section-eyebrow">CHECKOUT</p>
+      <h1 class="checkout-title">결제하기</h1>
+
+      <div class="checkout-grid">
+
+        <!-- 좌측: 주문 정보 입력 -->
+        <section class="checkout-form-section">
+          <h2 class="checkout-section-title">주문자 / 배송 정보</h2>
+
+          <form id="checkoutForm" novalidate>
+            <div class="checkout-field">
+              <label>이름 <em>*</em></label>
+              <input type="text" name="customerName" id="cName" required maxlength="100" />
+            </div>
+            <div class="checkout-field">
+              <label>연락처 <em>*</em></label>
+              <input type="tel" name="customerPhone" id="cPhone" required maxlength="50" placeholder="010-0000-0000" />
+            </div>
+            <div class="checkout-field">
+              <label>이메일</label>
+              <input type="email" name="customerEmail" id="cEmail" maxlength="255" />
+            </div>
+
+            <div class="checkout-field">
+              <label>우편번호 <em>*</em></label>
+              <div class="postal-row">
+                <input type="text" name="shippingPostal" id="cPostal" maxlength="20" placeholder="00000" readonly />
+                <button type="button" class="postal-btn" id="postalBtn">우편번호 찾기</button>
+              </div>
+            </div>
+            <div class="checkout-field">
+              <label>주소 <em>*</em></label>
+              <input type="text" name="shippingAddress1" id="cAddress1" required maxlength="255" readonly />
+            </div>
+            <div class="checkout-field">
+              <label>상세 주소</label>
+              <input type="text" name="shippingAddress2" id="cAddress2" maxlength="255" />
+            </div>
+            <div class="checkout-field">
+              <label>요청사항</label>
+              <textarea name="shippingRequest" id="cRequest" rows="3" maxlength="500" placeholder="배송 시 요청사항을 입력해주세요."></textarea>
+            </div>
+          </form>
+        </section>
+
+        <!-- 우측: 주문 요약 + 결제 -->
+        <aside class="checkout-summary">
+          <h2 class="checkout-section-title">주문 요약</h2>
+
+          <div class="checkout-product" id="checkoutProduct">
+            <div class="loading-spinner"></div>
+          </div>
+
+          <div class="checkout-amount-row">
+            <span>상품 금액</span>
+            <span id="amountProduct">—</span>
+          </div>
+          <div class="checkout-amount-row">
+            <span>배송비</span>
+            <span>무료</span>
+          </div>
+          <div class="checkout-amount-row total">
+            <span>총 결제 금액</span>
+            <span id="amountTotal">—</span>
+          </div>
+
+          <div id="payment-method"></div>
+          <div id="agreement"></div>
+
+          <button type="button" class="checkout-pay-btn" id="payBtn" disabled>결제하기</button>
+          <p class="checkout-error" id="checkoutError" hidden></p>
+        </aside>
+
+      </div>
+    </div>
+  </main>
+
+  <!--#FOOTER#-->
+
+  <script>
+    const TOSS_CLIENT_KEY = 'test_gck_docs_Ovk5rk1EwkEbP0W43n07xlzm';
+
+    (async () => {
+      const params = new URLSearchParams(location.search);
+      const productId = params.get('id');
+      if (!productId) { location.replace('/shop'); return; }
+
+      // 로그인 체크
+      const meRes = await fetch('/api/auth/me');
+      if (!meRes.ok) { location.replace('/login?next=/checkout?id=' + productId); return; }
+      const me = await meRes.json();
+
+      // 자동 입력
+      document.getElementById('cName').value  = me.name  || '';
+      document.getElementById('cPhone').value = me.phone || '';
+      document.getElementById('cEmail').value = me.email || '';
+
+      // 상품 정보 fetch
+      let product;
+      try {
+        const r = await fetch(`/products/${productId}`);
+        if (!r.ok) throw new Error();
+        product = await r.json();
+      } catch (_) {
+        location.replace('/shop');
+        return;
+      }
+
+      if (product.price === null) {
+        // 주문제작은 결제 불가
+        location.replace(`/product?id=${productId}`);
+        return;
+      }
+
+      const fmt = n => Number(n).toLocaleString('ko-KR') + '원';
+
+      document.getElementById('checkoutProduct').innerHTML = `
+        <img src="${product.image_url || ''}" alt="${product.name}" />
+        <div>
+          <p class="checkout-product-cat">${(product.category || '').toUpperCase()}</p>
+          <p class="checkout-product-name">${product.name}</p>
+          <p class="checkout-product-opt">${product.option_desc || ''}</p>
+        </div>
+      `;
+      document.getElementById('amountProduct').textContent = fmt(product.price);
+      document.getElementById('amountTotal').textContent   = fmt(product.price);
+
+      document.body.style.visibility = '';
+
+      // 다음 우편번호 찾기
+      document.getElementById('postalBtn').addEventListener('click', () => {
+        new daum.Postcode({
+          oncomplete: (data) => {
+            document.getElementById('cPostal').value   = data.zonecode;
+            document.getElementById('cAddress1').value = data.roadAddress || data.jibunAddress;
+            document.getElementById('cAddress2').focus();
+          },
+        }).open();
+      });
+
+      // 토스 결제위젯 v2 — 렌더링이 완료될 때까지 await
+      const customerKey = `user_${me.id}`;
+      const tossPayments = TossPayments(TOSS_CLIENT_KEY);
+      const widgets = tossPayments.widgets({ customerKey });
+
+      await widgets.setAmount({ currency: 'KRW', value: product.price });
+
+      await Promise.all([
+        widgets.renderPaymentMethods({ selector: '#payment-method', variantKey: 'DEFAULT' }),
+        widgets.renderAgreement({ selector: '#agreement', variantKey: 'AGREEMENT' }),
+      ]);
+
+      const payBtn = document.getElementById('payBtn');
+      payBtn.disabled = false;
+
+      payBtn.addEventListener('click', async () => {
+        const errEl = document.getElementById('checkoutError');
+        errEl.hidden = true;
+
+        // 폼 검증
+        const customerName     = document.getElementById('cName').value.trim();
+        const customerPhone    = document.getElementById('cPhone').value.trim();
+        const customerEmail    = document.getElementById('cEmail').value.trim();
+        const shippingPostal   = document.getElementById('cPostal').value.trim();
+        const shippingAddress1 = document.getElementById('cAddress1').value.trim();
+        const shippingAddress2 = document.getElementById('cAddress2').value.trim();
+        const shippingRequest  = document.getElementById('cRequest').value.trim();
+
+        if (!customerName || !customerPhone || !shippingAddress1) {
+          errEl.textContent = '이름, 연락처, 주소는 필수입니다.';
+          errEl.hidden = false;
+          return;
+        }
+
+        payBtn.disabled = true;
+        payBtn.textContent = '주문 생성 중...';
+
+        // 1) 서버에 pending 주문 생성
+        let order;
+        try {
+          const r = await fetch('/api/orders', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              productId,
+              customerName, customerPhone, customerEmail,
+              shippingPostal, shippingAddress1, shippingAddress2, shippingRequest,
+            }),
+          });
+          order = await r.json();
+          if (!r.ok) throw new Error(order.error || '주문 생성 실패');
+        } catch (err) {
+          errEl.textContent = err.message;
+          errEl.hidden = false;
+          payBtn.disabled = false;
+          payBtn.textContent = '결제하기';
+          return;
+        }
+
+        // 2) 토스 결제위젯 호출 (v2)
+        try {
+          await widgets.requestPayment({
+            orderId:      order.orderId,
+            orderName:    order.productName,
+            customerName,
+            customerEmail: customerEmail || undefined,
+            successUrl:   location.origin + '/payment-success',
+            failUrl:      location.origin + '/payment-fail',
+          });
+        } catch (err) {
+          errEl.textContent = err.message || '결제가 취소되었습니다.';
+          errEl.hidden = false;
+          payBtn.disabled = false;
+          payBtn.textContent = '결제하기';
+        }
+      });
+    })();
+  </script>
+</body>
+</html>

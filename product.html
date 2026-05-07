@@ -696,10 +696,10 @@
             <a href="${href}" class="btn-detail-primary">구매하기</a>
             <a href="/shop" class="btn-detail-secondary">계속하기</a>`;
         } else if (p.price === null) {
-          ctaEl.innerHTML = `<a href="/#contact" class="btn-detail-primary">구매하기</a>`;
+          ctaEl.innerHTML = `<a href="/contact" class="btn-detail-primary">구매하기</a>`;
         } else {
           ctaEl.innerHTML = `
-            <a href="/#contact" class="btn-detail-primary">구매하기</a>
+            <a href="/checkout?id=${p.id}" class="btn-detail-primary">구매하기</a>
             <a href="/shop" class="btn-detail-secondary">계속하기</a>`;
         }
 

@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>결제 완료 — CROCINI</title>
+  <meta name="robots" content="noindex" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body class="shop-page">
+
+  <!--#NAV#-->
+
+  <main class="payment-result">
+    <div class="container">
+      <div class="payment-card" id="resultCard">
+        <div class="loading-spinner"></div>
+        <p class="payment-msg">결제를 확정하는 중입니다...</p>
+      </div>
+    </div>
+  </main>
+
+  <!--#FOOTER#-->
+
+  <script>
+    (async () => {
+      const card = document.getElementById('resultCard');
+      const params = new URLSearchParams(location.search);
+      const orderId    = params.get('orderId');
+      const paymentKey = params.get('paymentKey');
+      const amount     = params.get('amount');
+
+      if (!orderId || !paymentKey || !amount) {
+        card.innerHTML = `
+          <p class="payment-icon">!</p>
+          <h1>잘못된 접근입니다.</h1>
+          <a href="/shop" class="payment-link">SHOP으로 돌아가기</a>`;
+        return;
+      }
+
+      try {
+        const r = await fetch('/api/orders/confirm', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ orderId, paymentKey, amount }),
+        });
+        const data = await r.json();
+        if (!r.ok) throw new Error(data.error || '결제 승인 실패');
+
+        card.innerHTML = `
+          <p class="payment-icon success">✓</p>
+          <h1>결제가 완료되었습니다.</h1>
+          <p class="payment-msg">주문번호 <code>${orderId}</code></p>
+          <p class="payment-msg">곧 입고 안내를 드리겠습니다.</p>
+          <div class="payment-actions">
+            <a href="/mypage" class="payment-link primary">주문 내역 보기</a>
+            <a href="/shop" class="payment-link">계속 쇼핑하기</a>
+          </div>`;
+      } catch (err) {
+        card.innerHTML = `
+          <p class="payment-icon">!</p>
+          <h1>결제 승인에 실패했습니다.</h1>
+          <p class="payment-msg">${err.message}</p>
+          <div class="payment-actions">
+            <a href="/shop" class="payment-link">SHOP으로 돌아가기</a>
+          </div>`;
+      }
+    })();
+  </script>
+</body>
+</html>

@@ -23,6 +23,27 @@
       <button class="mypage-logout-btn" id="logoutBtn" style="margin-top:20px;">로그아웃</button>
     </div>
 
+    <!-- 주문 내역 -->
+    <section class="mypage-section">
+      <p class="mypage-section-title">주문 내역</p>
+      <div class="order-table-wrap">
+        <table class="mypage-table" id="ordersPaidTable">
+          <thead>
+            <tr>
+              <th>주문번호</th>
+              <th>상품</th>
+              <th>금액</th>
+              <th>상태</th>
+              <th>주문일</th>
+            </tr>
+          </thead>
+          <tbody id="ordersPaidTbody">
+            <tr class="empty-row"><td colspan="5">불러오는 중...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
     <!-- 찜 목록 -->
     <section class="mypage-section">
       <p class="mypage-section-title">찜 목록</p>
@@ -87,6 +108,31 @@
 
       document.body.style.visibility = '';
       document.getElementById('greetingName').textContent = `안녕하세요, ${me.name}님.`;
+
+      // 주문 내역
+      function fmtPriceFull(p) { return Number(p).toLocaleString('ko-KR') + '원'; }
+      const STATUS_LABEL = { paid: '결제완료', pending: '결제대기', failed: '실패', cancelled: '취소' };
+      const opRes  = await fetch('/api/orders/mine');
+      const opData = await opRes.json();
+      const opTbody = document.getElementById('ordersPaidTbody');
+      if (!Array.isArray(opData) || opData.length === 0) {
+        opTbody.innerHTML = '<tr class="empty-row"><td colspan="5">주문 내역이 없습니다.</td></tr>';
+      } else {
+        opTbody.innerHTML = opData.map(o => `
+          <tr>
+            <td><code style="font-size:11px;color:#888">${escHtml(o.order_id)}</code></td>
+            <td>
+              <div style="display:flex;gap:10px;align-items:center;">
+                ${o.product_image_url ? `<img src="${escHtml(o.product_image_url)}" class="mypage-order-img" alt="" />` : ''}
+                <span>${escHtml(o.product_name)}</span>
+              </div>
+            </td>
+            <td>${fmtPriceFull(o.amount)}</td>
+            <td><span class="order-status ${o.status}">${STATUS_LABEL[o.status] || o.status}</span></td>
+            <td>${fmt(o.created_at)}</td>
+          </tr>
+        `).join('');
+      }
 
       // 찜 목록
       const wRes  = await fetch('/api/wishlist');

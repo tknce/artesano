@@ -78,7 +78,33 @@ async function migrate() {
     await pool.query('ALTER TABLE products MODIFY COLUMN category VARCHAR(50) NOT NULL');
   }
 
-  // 구매 확인 테이블 (관리자가 수동 등록)
+  // 주문 테이블
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS orders (
+      id                INT AUTO_INCREMENT PRIMARY KEY,
+      order_id          VARCHAR(64)  NOT NULL UNIQUE,
+      user_id           INT          NULL,
+      product_id        INT          NULL,
+      product_name      VARCHAR(255) NOT NULL,
+      product_image_url TEXT         NULL,
+      amount            INT          NOT NULL,
+      status            ENUM('pending','paid','failed','cancelled') NOT NULL DEFAULT 'pending',
+      payment_key       VARCHAR(255) NULL,
+      customer_name     VARCHAR(100) NOT NULL,
+      customer_phone    VARCHAR(50)  NOT NULL,
+      customer_email    VARCHAR(255) NULL,
+      shipping_postal   VARCHAR(20)  NULL,
+      shipping_address1 VARCHAR(255) NULL,
+      shipping_address2 VARCHAR(255) NULL,
+      shipping_request  VARCHAR(500) NULL,
+      created_at        TIMESTAMP    DEFAULT CURRENT_TIMESTAMP,
+      paid_at           TIMESTAMP    NULL,
+      FOREIGN KEY (user_id)    REFERENCES users(id)    ON DELETE SET NULL,
+      FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE SET NULL
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+  `);
+
+  // 구매 확인 테이블 (관리자가 수동 등록 + 결제 완료 시 자동 등록)
   await pool.query(`
     CREATE TABLE IF NOT EXISTS purchases (
       id         INT AUTO_INCREMENT PRIMARY KEY,
