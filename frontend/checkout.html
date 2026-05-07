@@ -152,10 +152,13 @@
         totalPrice = cartItems.reduce((sum, i) => sum + (i.price || 0) * i.quantity, 0);
         const fmt = n => Number(n).toLocaleString('ko-KR') + '원';
         document.getElementById('checkoutProduct').innerHTML = cartItems.map(i =>
-          `<div style="display:flex;gap:12px;align-items:center;margin-bottom:12px;">
-            <img src="${i.image_url || ''}" alt="${i.name}" style="width:60px;height:60px;object-fit:cover;" />
-            <div><p class="checkout-product-name">${i.name}</p><p style="font-size:13px;color:#888">${i.option_desc || ''} × ${i.quantity}</p></div>
-            <span style="margin-left:auto;font-weight:500">${fmt(i.price * i.quantity)}</span>
+          `<div style="display:flex;gap:12px;align-items:center;padding:10px 0;border-bottom:1px solid rgba(0,0,0,0.05);">
+            <img src="${i.image_url || ''}" alt="${i.name}" style="width:50px;height:50px;object-fit:contain;flex-shrink:0;" />
+            <div style="flex:1;min-width:0;">
+              <p class="checkout-product-name" style="font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${i.name}</p>
+              <p style="font-size:12px;color:#888">${i.option_desc || ''} × ${i.quantity}</p>
+            </div>
+            <span style="font-size:14px;font-weight:500;white-space:nowrap;">${fmt(i.price * i.quantity)}</span>
           </div>`
         ).join('');
         document.getElementById('amountProduct').textContent = fmt(totalPrice);
