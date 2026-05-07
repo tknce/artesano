@@ -123,6 +123,7 @@
         epost:  { name: '우체국택배', url: t => `https://service.epost.go.kr/trace.RetrieveDomRigiTraceList.comm?sid1=${t}` },
         logen:  { name: '로젠택배',   url: t => `https://www.ilogen.com/web/personal/trace/${t}` },
       };
+      try {
       const opRes  = await fetch('/api/orders/mine');
       const opData = await opRes.json();
       const opTbody = document.getElementById('ordersPaidTbody');
@@ -168,7 +169,10 @@
         }).join('');
       }
 
+      } catch (e) { document.getElementById('ordersPaidTbody').innerHTML = '<tr class="empty-row"><td colspan="5">주문 내역을 불러올 수 없습니다.</td></tr>'; }
+
       // 찜 목록
+      try {
       const wRes  = await fetch('/api/wishlist');
       const wData = await wRes.json();
       const wGrid = document.getElementById('wishlistGrid');
@@ -187,7 +191,10 @@
         `).join('');
       }
 
+      } catch (e) { document.getElementById('wishlistGrid').innerHTML = '<p class="wishlist-empty">찜 목록을 불러올 수 없습니다.</p>'; }
+
       // 문의 내역
+      try {
       const iRes  = await fetch('/api/user/inquiries');
       const iData = await iRes.json();
       const iTbody = document.getElementById('inquiriesTbody');
@@ -203,7 +210,10 @@
         `).join('');
       }
 
+      } catch (e) { document.getElementById('inquiriesTbody').innerHTML = '<tr class="empty-row"><td colspan="3">문의 내역을 불러올 수 없습니다.</td></tr>'; }
+
       // 커스텀 주문 내역
+      try {
       const oRes  = await fetch('/api/user/custom-orders');
       const oData = await oRes.json();
       const oTbody = document.getElementById('ordersTbody');
@@ -220,6 +230,7 @@
           </tr>
         `).join('');
       }
+      } catch (e) { document.getElementById('ordersTbody').innerHTML = '<tr class="empty-row"><td colspan="5">주문제작 내역을 불러올 수 없습니다.</td></tr>'; }
     }
 
     document.getElementById('logoutBtn').addEventListener('click', async () => {

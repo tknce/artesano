@@ -3398,7 +3398,7 @@ body.shop-page {
   width: 80px;
   height: 100px;
   object-fit: contain;
-  background: var(--color-beige);
+  background: #fff;
 }
 .checkout-product-cat {
   font-size: 10px;
@@ -3410,6 +3410,10 @@ body.shop-page {
   font-family: var(--font-serif);
   font-size: 1rem;
   margin-bottom: 4px;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 .checkout-product-opt {
   font-size: 12px;
@@ -4026,11 +4030,12 @@ textarea:focus-visible {
   height: 100px;
   flex-shrink: 0;
   overflow: hidden;
+  background: #fff;
 }
 .cart-item-img img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
 }
 .cart-item-info {
   flex: 1;
@@ -4039,6 +4044,10 @@ textarea:focus-visible {
   font-family: var(--font-serif);
   font-size: 18px;
   margin-bottom: 4px;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 .cart-item-option {
   font-size: 13px;

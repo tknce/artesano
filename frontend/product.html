@@ -819,7 +819,8 @@
             document.getElementById('wishHeart').textContent = detailWishlisted ? '♥' : '♡';
             document.getElementById('wishLabel').textContent = detailWishlisted ? '찜 해제' : '찜하기';
             wishBtn.style.color = detailWishlisted ? 'var(--color-gold)' : '';
-          } catch (_) {}
+            Toast.success(detailWishlisted ? '찜 목록에 추가했습니다' : '찜 목록에서 제거했습니다');
+          } catch (_) { Toast.error('처리에 실패했습니다'); }
           finally { wishBtn.disabled = false; }
         });
 

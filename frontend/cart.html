@@ -28,6 +28,7 @@
 
   <!--#FOOTER#-->
 
+  <script src="script.js"></script>
   <script>
     function fmt(price) { return Number(price).toLocaleString('ko-KR') + '원'; }
     function escHtml(s) { return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;'); }
@@ -36,9 +37,11 @@
       const meRes = await fetch('/api/auth/me');
       if (!meRes.ok) { location.replace('/login'); return; }
 
-      const res = await fetch('/api/cart');
-      const items = await res.json();
       const wrap = document.getElementById('cartContent');
+      try {
+        const res = await fetch('/api/cart');
+        if (!res.ok) throw new Error();
+        const items = await res.json();
 
       if (!items.length) {
         wrap.innerHTML = `
@@ -90,6 +93,7 @@
 
         if (e.target.closest('.cart-item-remove')) {
           await fetch(`/api/cart/${productId}`, { method: 'DELETE' });
+          Toast.success('상품을 삭제했습니다');
           loadCart();
           return;
         }
@@ -110,6 +114,15 @@
         }
         loadCart();
       });
+      } catch (err) {
+        wrap.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-state-icon">⚠️</div>
+            <p class="empty-state-title">장바구니를 불러올 수 없습니다</p>
+            <p class="empty-state-desc">잠시 후 다시 시도해주세요</p>
+            <button class="empty-state-btn" onclick="loadCart()">다시 시도</button>
+          </div>`;
+      }
     }
 
     loadCart();

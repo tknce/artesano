@@ -235,6 +235,7 @@
       });
 
       // 토스 결제위젯 v2 — 렌더링이 완료될 때까지 await
+      try {
       const customerKey = `user_${me.id}`;
       const tossPayments = TossPayments(TOSS_CLIENT_KEY);
       const widgets = tossPayments.widgets({ customerKey });
@@ -310,6 +311,11 @@
           payBtn.textContent = '결제하기';
         }
       });
+      } catch (widgetErr) {
+        const errEl = document.getElementById('checkoutError');
+        errEl.textContent = '결제 모듈을 불러올 수 없습니다. 페이지를 새로고침해주세요.';
+        errEl.hidden = false;
+      }
     })();
   </script>
 </body>
