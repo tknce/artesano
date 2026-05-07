@@ -448,28 +448,15 @@
         <div class="detail-info">
           <p class="detail-category" id="detailCategory"></p>
           <h1 class="detail-name" id="detailName"></h1>
-          <p class="detail-headline">소재로 정의되고, 구조로 완성됩니다.</p>
           <div class="detail-divider"></div>
           <p class="detail-option" id="detailOption"></p>
           <div class="detail-price-wrap" id="detailPriceWrap"></div>
-          <p class="detail-subcopy">
-            축적된 제작 공정을 기반으로,<br />
-            절제된 구조와 균형을 담았습니다.
-          </p>
           <div class="detail-cta" id="detailCta"></div>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- 설명 블록 -->
-  <section class="detail-essay container" id="detailEssaySection" hidden>
-    <p class="detail-essay-line">형태와 소재에 대한 깊은 고민을 바탕으로 제작되었습니다.</p>
-    <p class="detail-essay-line">
-      각 요소는 균형을 고려해 설계되었으며,<br />
-      정제된 실루엣으로 완성됩니다.
-    </p>
-  </section>
 
   <!-- 상품 상세 탭 -->
   <section class="detail-tabs-section container" id="detailTabsSection" hidden>
@@ -747,7 +734,6 @@
 
         // 상세 탭 채우기
         const tabsSection    = document.getElementById('detailTabsSection');
-        const essaySection   = document.getElementById('detailEssaySection');
         const tabDescEmpty   = document.getElementById('tabDescEmpty');
         const tabDescImages  = document.getElementById('tabDescImages');
 
@@ -763,7 +749,6 @@
             }
           }).catch(() => {});
 
-        if (essaySection) essaySection.hidden = false;
         tabsSection.hidden = false;
 
         // 후기 탭 — 클릭 시 lazy 로드
