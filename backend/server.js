@@ -165,7 +165,7 @@ app.get('/api/admin/check', (req, res) => {
 // 업로드 이미지 정적 서빙
 // -----------------------------------------------
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
-const FRONTEND_DIR = process.env.FRONTEND_DIR || path.join(__dirname, '..');
+const FRONTEND_DIR = process.env.FRONTEND_DIR || path.join(__dirname, '..', 'frontend');
 
 // -----------------------------------------------
 // 페이지 렌더 — partials/nav.html, partials/footer.html 토큰 치환
