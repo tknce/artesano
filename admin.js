@@ -29,11 +29,143 @@ function escapeHtml(s) {
 
 
 /* ============================================================
+   카테고리 (다른 섹션이 의존하므로 가장 먼저)
+   ============================================================ */
+const filterCategory     = document.getElementById('filterCategory');
+const categoryTableBody  = document.getElementById('categoryTableBody');
+const categoryAddForm    = document.getElementById('categoryAddForm');
+const categoryFormStatus = document.getElementById('categoryFormStatus');
+const catSlug            = document.getElementById('catSlug');
+const catName            = document.getElementById('catName');
+const catSortOrder       = document.getElementById('catSortOrder');
+
+let allCategories = [];
+const PROTECTED_SLUGS = new Set(['python']);
+
+async function loadCategories() {
+  try {
+    const res = await fetch('/categories');
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    allCategories = await res.json();
+  } catch (err) {
+    console.error('카테고리 로딩 실패:', err);
+    allCategories = [];
+  }
+  syncCategoryDropdowns();
+  renderCategoryTable();
+}
+
+function syncCategoryDropdowns() {
+  // 1) 필터 (전체 카테고리 옵션 유지)
+  filterCategory.innerHTML =
+    '<option value="">전체 카테고리</option>' +
+    allCategories.map(c => `<option value="${c.slug}">${escapeHtml(c.name)}</option>`).join('');
+  // 2) 상품 폼 카테고리 select
+  const fCat = document.getElementById('fCategory');
+  if (fCat) {
+    fCat.innerHTML = allCategories.map(c =>
+      `<option value="${c.slug}">${escapeHtml(c.name)}</option>`
+    ).join('');
+  }
+}
+
+function renderCategoryTable() {
+  if (allCategories.length === 0) {
+    categoryTableBody.innerHTML = '<tr><td colspan="6" class="admin-empty">카테고리가 없습니다.</td></tr>';
+    return;
+  }
+  categoryTableBody.innerHTML = allCategories.map(c => {
+    const usage = allProducts.filter(p => p.category === c.slug).length;
+    const protectedNote = PROTECTED_SLUGS.has(c.slug)
+      ? '<span style="color:#888;font-size:11px;margin-left:6px">(주문제작 의존)</span>'
+      : '';
+    return `
+      <tr data-id="${c.id}">
+        <td>${c.id}</td>
+        <td><code>${escapeHtml(c.slug)}</code>${protectedNote}</td>
+        <td>${escapeHtml(c.name)}</td>
+        <td>${c.sort_order}</td>
+        <td>${usage}</td>
+        <td>
+          <div class="row-actions">
+            <button type="button" class="btn-edit"   data-action="cat-edit"   data-id="${c.id}">수정</button>
+            <button type="button" class="btn-danger" data-action="cat-delete" data-id="${c.id}">삭제</button>
+          </div>
+        </td>
+      </tr>`;
+  }).join('');
+}
+
+categoryAddForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  categoryFormStatus.hidden = true;
+  const slug = catSlug.value.trim().toLowerCase();
+  const name = catName.value.trim();
+  const sort_order = parseInt(catSortOrder.value, 10);
+  try {
+    const res = await fetch('/categories', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ slug, name, sort_order: Number.isInteger(sort_order) ? sort_order : 999 }),
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(data.error || `서버 오류 (${res.status})`);
+    catSlug.value = '';
+    catName.value = '';
+    catSortOrder.value = '999';
+    await loadCategories();
+  } catch (err) {
+    categoryFormStatus.textContent = err.message;
+    categoryFormStatus.className = 'form-status error';
+    categoryFormStatus.hidden = false;
+  }
+});
+
+categoryTableBody.addEventListener('click', async (e) => {
+  const btn = e.target.closest('button[data-action]');
+  if (!btn) return;
+  const id  = parseInt(btn.dataset.id, 10);
+  const cat = allCategories.find(c => c.id === id);
+  if (!cat) return;
+
+  if (btn.dataset.action === 'cat-edit') {
+    const newName = prompt(`카테고리 표시 이름:`, cat.name);
+    if (newName === null) return;
+    const newOrder = prompt(`정렬 순서 (숫자):`, String(cat.sort_order));
+    if (newOrder === null) return;
+    try {
+      const res = await fetch(`/categories/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: newName.trim(), sort_order: parseInt(newOrder, 10) }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
+      await loadCategories();
+    } catch (err) {
+      alert('수정 실패: ' + err.message);
+    }
+  }
+
+  if (btn.dataset.action === 'cat-delete') {
+    if (!confirm(`카테고리 '${cat.name}' (slug: ${cat.slug})를 삭제하시겠습니까?`)) return;
+    try {
+      const res = await fetch(`/categories/${id}`, { method: 'DELETE' });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
+      await loadCategories();
+    } catch (err) {
+      alert('삭제 실패: ' + err.message);
+    }
+  }
+});
+
+
+/* ============================================================
    상품 목록
    ============================================================ */
 const productTableBody = document.getElementById('productTableBody');
 const productCount     = document.getElementById('productCount');
-const filterCategory   = document.getElementById('filterCategory');
 
 let allProducts = [];
 
@@ -44,6 +176,7 @@ async function loadProducts() {
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     allProducts = await res.json();
     renderProducts();
+    renderCategoryTable(); // 상품 수 카운트 갱신
   } catch (err) {
     console.error('상품 로딩 실패:', err);
     productTableBody.innerHTML = `<tr><td colspan="7" class="admin-loading">불러오기 실패: ${escapeHtml(err.message)}</td></tr>`;
@@ -481,6 +614,7 @@ document.getElementById('btnLogout').addEventListener('click', async () => {
     return;
   }
   document.body.style.visibility = 'visible';
+  await loadCategories(); // 상품 폼 select가 비어있으면 안되므로 먼저
   loadProducts();
   loadInquiries();
   loadCustomOrders();

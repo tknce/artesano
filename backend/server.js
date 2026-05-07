@@ -21,6 +21,7 @@ const cron       = require('node-cron');
 const productsRouter     = require('./routes/products');
 const inquiriesRouter    = require('./routes/inquiries');
 const customOrdersRouter = require('./routes/custom-orders');
+const categoriesRouter   = require('./routes/categories');
 const authRouter         = require('./routes/auth');
 const userRouter         = require('./routes/user');
 const migrate            = require('./migrate');
@@ -258,6 +259,11 @@ app.use('/custom-orders', (req, res, next) => {
   next();
 }, customOrdersRouter);
 
+app.use('/categories', (req, res, next) => {
+  if (['POST', 'PUT', 'DELETE'].includes(req.method)) return requireAdmin(req, res, next);
+  next();
+}, categoriesRouter);
+
 app.use('/api/auth', authRouter);
 app.use('/api/user', userRouter);
 
@@ -268,7 +274,8 @@ app.use((req, res, next) => {
   if (req.path.startsWith('/api/') ||
       req.path.startsWith('/products') ||
       req.path.startsWith('/inquiries') ||
-      req.path.startsWith('/custom-orders')) {
+      req.path.startsWith('/custom-orders') ||
+      req.path.startsWith('/categories')) {
     return res.status(404).json({ error: '요청하신 리소스를 찾을 수 없습니다.' });
   }
   res.status(404).sendFile(path.join(FRONTEND_DIR, '404.html'));

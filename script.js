@@ -184,7 +184,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const loadingState = document.getElementById('loadingState');
     const errorState   = document.getElementById('errorState');
     const emptyMessage = document.getElementById('emptyMessage');
-    const filterBtns   = document.querySelectorAll('.filter-btn');
+    const filterTabs   = document.getElementById('filterTabs');
 
     /* --------------------------------------------------
        가격을 "1,440,000원" 형태로 포맷하는 함수
@@ -246,6 +246,7 @@ document.addEventListener('DOMContentLoaded', () => {
        필터 로직 (카드가 렌더링된 후 호출됨)
     -------------------------------------------------- */
     function initFilters() {
+      const filterBtns = filterTabs.querySelectorAll('.filter-btn');
       filterBtns.forEach((btn) => {
         btn.addEventListener('click', () => {
           const filter = btn.dataset.filter;
@@ -265,6 +266,24 @@ document.addEventListener('DOMContentLoaded', () => {
           if (emptyMessage) emptyMessage.hidden = visibleCount > 0;
         });
       });
+    }
+
+    /* --------------------------------------------------
+       카테고리 fetch — DB에서 받아서 필터 버튼 동적 생성
+       (실패 시 ALL만 남고 조용히 넘어감 — 상품은 정상 로드)
+    -------------------------------------------------- */
+    async function loadCategories() {
+      try {
+        const res = await fetch('/categories');
+        if (!res.ok) return;
+        const cats = await res.json();
+        const html = cats.map(c =>
+          `<button class="filter-btn" data-filter="${c.slug}">${c.name}</button>`
+        ).join('');
+        filterTabs.insertAdjacentHTML('beforeend', html);
+      } catch (err) {
+        console.error('[SHOP] 카테고리 로딩 실패:', err.message);
+      }
     }
 
     /* --------------------------------------------------
@@ -299,8 +318,8 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
 
-    /* 페이지 로드 시 즉시 실행 */
-    loadProducts();
+    /* 페이지 로드 시 즉시 실행 — 카테고리 먼저, 그다음 상품 */
+    loadCategories().then(loadProducts);
   }
 
 });
