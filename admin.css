@@ -458,6 +458,30 @@ a { color: inherit; text-decoration: none; }
   background: #e5e5e7;
   border-radius: 4px;
 }
+.image-preview-wrap {
+  position: relative;
+  width: 140px;
+  height: 140px;
+}
+.image-clear-btn {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 22px;
+  height: 22px;
+  background: rgba(0,0,0,0.65);
+  color: #fff;
+  border: none;
+  border-radius: 50%;
+  font-size: 14px;
+  line-height: 22px;
+  text-align: center;
+  cursor: pointer;
+  padding: 0;
+  z-index: 2;
+  transition: background 0.15s;
+}
+.image-clear-btn:hover { background: rgba(0,0,0,0.85); }
 .image-upload-area img:not([src]),
 .image-upload-area img[src=""] {
   background: #e5e5e7 url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23bbb"><path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/></svg>') center/40px no-repeat;

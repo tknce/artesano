@@ -812,8 +812,15 @@
         const tabDescEmpty   = document.getElementById('tabDescEmpty');
         const tabDescImages  = document.getElementById('tabDescImages');
 
-        // 상세 이미지 로드 → 캐러셀 + 상세설명 탭에 동시 적용
-        fetch(`/products/${id}/detail-images`)
+        // 갤러리 이미지 → 상단 캐러셀에만
+        fetch(`/products/${id}/detail-images?type=gallery`)
+          .then(r => r.json())
+          .then(imgs => {
+            initCarousel([p.image_url, ...imgs.map(i => i.image_url)].filter(Boolean));
+          }).catch(() => initCarousel([p.image_url].filter(Boolean)));
+
+        // 상세 설명 이미지 → 상품 설명 탭에만
+        fetch(`/products/${id}/detail-images?type=detail`)
           .then(r => r.json())
           .then(imgs => {
             if (imgs.length > 0) {
@@ -822,8 +829,7 @@
                 `<img src="${img.image_url}" alt="상세 이미지" loading="lazy" />`
               ).join('');
             }
-            initCarousel([p.image_url, ...imgs.map(i => i.image_url)].filter(Boolean));
-          }).catch(() => initCarousel([p.image_url].filter(Boolean)));
+          }).catch(() => {});
 
         function initCarousel(urls) {
           if (urls.length <= 1) return;  // 1장이면 캐러셀 불필요

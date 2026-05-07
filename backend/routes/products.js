@@ -176,28 +176,36 @@ router.delete('/:id', asyncHandler(async (req, res) => {
 
 // ── 상세 이미지 ──────────────────────────────────────────────
 
-// GET /products/:id/detail-images
+// GET /products/:id/detail-images?type=gallery|detail
 router.get('/:id/detail-images', asyncHandler(async (req, res) => {
   const id = parseId(req.params.id);
   if (id === null) return res.status(400).json({ error: '올바른 상품 ID가 아닙니다.' });
-  const [rows] = await pool.query(
-    'SELECT * FROM product_detail_images WHERE product_id = ? ORDER BY sort_order ASC, id ASC', [id]
-  );
+  const type = req.query.type;
+  let sql, params;
+  if (type === 'gallery' || type === 'detail') {
+    sql = 'SELECT * FROM product_detail_images WHERE product_id = ? AND image_type = ? ORDER BY sort_order ASC, id ASC';
+    params = [id, type];
+  } else {
+    sql = 'SELECT * FROM product_detail_images WHERE product_id = ? ORDER BY image_type ASC, sort_order ASC, id ASC';
+    params = [id];
+  }
+  const [rows] = await pool.query(sql, params);
   res.json(rows.map(withOptimized));
 }));
 
-// POST /products/:id/detail-images — 이미지 1장씩 업로드
+// POST /products/:id/detail-images — 이미지 1장 업로드 (type 지정)
 router.post('/:id/detail-images', upload.single('image'), asyncHandler(async (req, res) => {
   const id = parseId(req.params.id);
   if (id === null) return res.status(400).json({ error: '올바른 상품 ID가 아닙니다.' });
   if (!req.file) return res.status(400).json({ error: '이미지 파일이 필요합니다.' });
 
+  const type = req.body.image_type === 'gallery' ? 'gallery' : 'detail';
   const imageUrl = fileToUrl(req.file);
   const [result] = await pool.query(
-    'INSERT INTO product_detail_images (product_id, image_url, sort_order) VALUES (?, ?, ?)',
-    [id, imageUrl, 0]
+    'INSERT INTO product_detail_images (product_id, image_url, sort_order, image_type) VALUES (?, ?, ?, ?)',
+    [id, imageUrl, 0, type]
   );
-  res.status(201).json({ id: result.insertId, product_id: id, image_url: optimize(imageUrl) });
+  res.status(201).json({ id: result.insertId, product_id: id, image_url: optimize(imageUrl), image_type: type });
 }));
 
 // DELETE /products/:id/detail-images/:imgId

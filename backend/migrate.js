@@ -52,10 +52,20 @@ async function migrate() {
       product_id  INT NOT NULL,
       image_url   TEXT NOT NULL,
       sort_order  INT NOT NULL DEFAULT 0,
+      image_type  ENUM('gallery','detail') NOT NULL DEFAULT 'detail',
       created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
       FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
   `);
+
+  // 기존 product_detail_images에 image_type 컬럼 추가
+  const [itCols] = await pool.query(`
+    SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'product_detail_images' AND COLUMN_NAME = 'image_type'
+  `);
+  if (itCols.length === 0) {
+    await pool.query(`ALTER TABLE product_detail_images ADD COLUMN image_type ENUM('gallery','detail') NOT NULL DEFAULT 'detail'`);
+  }
 
   // categories 테이블
   await pool.query(`

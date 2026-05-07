@@ -392,7 +392,10 @@
         <div class="form-field">
           <span>상품 이미지</span>
           <div class="image-upload-area">
-            <img id="fImagePreview" alt="" />
+            <div class="image-preview-wrap">
+              <img id="fImagePreview" alt="" />
+              <button type="button" class="image-clear-btn" id="fImageClear" hidden aria-label="이미지 제거">×</button>
+            </div>
             <div class="image-upload-controls">
               <input type="file" name="image" id="fImageFile" accept="image/jpeg,image/png,image/webp" />
               <p class="form-hint">JPG/PNG/WebP, 최대 10MB</p>
@@ -404,8 +407,17 @@
           </div>
         </div>
 
+        <div class="form-field" id="galleryImagesField" hidden>
+          <span>갤러리 이미지 <small style="color:#aaa;font-weight:400">(상품 상세 상단의 캐러셀에 표시)</small></span>
+          <div class="detail-img-list" id="galleryImgList"></div>
+          <label class="detail-img-upload-btn">
+            + 이미지 추가
+            <input type="file" id="fGalleryImage" accept="image/jpeg,image/png,image/webp" multiple style="display:none" />
+          </label>
+        </div>
+
         <div class="form-field" id="detailImagesField" hidden>
-          <span>추가 이미지 <small style="color:#aaa;font-weight:400">(상품 상세에서 좌우 넘기며 표시 + 상세 설명 탭에 노출)</small></span>
+          <span>상세 설명 이미지 <small style="color:#aaa;font-weight:400">("상품 설명" 탭에 풀와이드로 노출)</small></span>
           <div class="detail-img-list" id="detailImgList"></div>
           <label class="detail-img-upload-btn">
             + 이미지 추가
