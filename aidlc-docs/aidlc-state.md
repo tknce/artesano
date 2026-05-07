@@ -44,6 +44,13 @@
 - [x] CONSTRUCTION - Unit 9: Vite 빌드 도구 + CSS/JS 미니파이 + 이미지 lazy loading
 - [x] CONSTRUCTION - Build and Test (지침서 생성 완료: build, unit-test, integration-test, summary)
 
+## Post-Construction 추가 기능 (2026-05-08)
+- [x] 장바구니 (cart_items, /api/cart, cart.html, nav 뱃지)
+- [x] 사진 리뷰 (review_images, multer 업로드, 최대 3장)
+- [x] 이미지 줌/스와이프 (라이트박스, 터치 스와이프, 키보드)
+- [x] 쿠폰 시스템 (coupons 테이블, validate/apply, checkout 적용)
+- [x] 다중 필터 (가격대 체크박스, 복수 선택 OR 조건)
+
 ## Key Decisions (이전 세션에서 결정됨)
 - 전체 서비스 레이어 도입 (Routes → Services → Lib 3계층)
 - 기존 코드 포함 리팩토링 (서비스 시작 전이므로 가능)

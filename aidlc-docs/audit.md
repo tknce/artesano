@@ -139,3 +139,18 @@
 **Context**: 평가 결과 85/100 → 보완 후 95+ 목표. 누락된 산출물 및 프로세스 기록 추가.
 
 ---
+
+## Post-Construction — 기능 추가 (기성 쇼핑몰 수준 달성)
+**Timestamp**: 2026-05-08T02:27:00+09:00
+**User Input**: "앱 빼고 다 추가해줘"
+**AI Response**: 5개 기능 순차 구현 완료.
+**Context**: 기성 쇼핑몰(무신사, 29CM, 아디다스, 파타고니아) 대비 부족한 기능 보완.
+
+### 구현 내역:
+1. **장바구니** (b3474fe) — cart_items DB, /api/cart CRUD, cart.html, nav 뱃지, 상품 상세 담기 버튼
+2. **사진 리뷰** (e0fecdf) — review_images DB, Cloudinary 업로드 최대 3장, 리뷰 목록에 썸네일
+3. **이미지 줌/스와이프** (c2091ee) — 풀스크린 라이트박스, 좌우 화살표, 모바일 터치 스와이프, ESC 닫기
+4. **쿠폰 시스템** (2dc7795) — coupons DB (percent/fixed), validate API, checkout 적용 UI
+5. **다중 필터** (92f14a5) — 가격대 체크박스 (100만 미만/100~200/200~300/300만+), 복수 선택 OR
+
+---
