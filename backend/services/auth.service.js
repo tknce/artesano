@@ -69,7 +69,6 @@ async function deleteAccount(userId) {
     }
   }
 
-  console.log('[NAVER] delete check:', { has_naver_id: !!naver_id, has_access_token: !!naver_access_token, has_refresh_token: !!naver_refresh_token });
   if (naver_id && NAVER_CLIENT_ID && NAVER_CLIENT_SECRET) {
     try {
       let accessToken = naver_access_token;
@@ -85,7 +84,6 @@ async function deleteAccount(userId) {
           }),
         });
         const refreshData = await refreshRes.json();
-        console.log('[NAVER] refresh result:', refreshData.access_token ? 'ok' : 'fail', refreshData.error || '');
         if (refreshData.access_token) accessToken = refreshData.access_token;
       }
       if (accessToken) {
@@ -101,15 +99,13 @@ async function deleteAccount(userId) {
           }),
         });
         const unlinkData = await unlinkRes.json();
-        console.log('[NAVER] unlink response:', JSON.stringify(unlinkData));
-      } else {
-        console.log('[NAVER] unlink skipped: no access token');
+        if (unlinkData.result !== 'success') {
+          console.error('[NAVER] unlink failed:', JSON.stringify(unlinkData));
+        }
       }
     } catch (e) {
       console.error('[NAVER] unlink error:', e.message);
     }
-  } else {
-    console.log('[NAVER] unlink skipped: missing naver_id or env vars');
   }
 
   const [result] = await pool.query('DELETE FROM users WHERE id = ?', [userId]);
