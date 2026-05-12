@@ -1,4 +1,5 @@
 @import url('https://cdn.jsdelivr.net/npm/pretendard@1.3.9/dist/web/static/pretendard.css');
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap');
 
 /* ============================================================
    CROCINI — 럭셔리 가죽 브랜드 스타일시트
@@ -35,7 +36,7 @@
 
   /* 폰트 */
   --font-serif: 'Cormorant Garamond', 'Playfair Display', serif;
-  --font-sans:  'Pretendard', 'Inter', 'Helvetica Neue', Arial, sans-serif;
+  --font-sans:  'Noto Sans KR', 'Pretendard', 'Inter', 'Helvetica Neue', Arial, sans-serif;
 
   /* 여백 */
   --section-padding: 160px 0;
