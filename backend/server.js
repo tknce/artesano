@@ -32,6 +32,7 @@ const authRouter         = require('./routes/auth');
 const userRouter         = require('./routes/user');
 const cartRouter         = require('./routes/cart');
 const couponsRouter      = require('./routes/coupons');
+const adminUsersRouter   = require('./routes/admin-users');
 const migrate            = require('./migrate');
 const { sendBackup }     = require('./lib/backup');
 
@@ -233,6 +234,7 @@ app.get('/custom-order.html', redirectTo('/custom-order'));
 app.get('/product.html',      redirectTo('/product'));
 app.get('/admin.html',        redirectTo('/admin'));
 app.get('/admin-login.html',  redirectTo('/admin-login'));
+app.get('/admin-users.html',  redirectTo('/admin-users'));
 app.get('/login.html',        redirectTo('/login'));
 app.get('/register.html',     redirectTo('/register'));
 app.get('/mypage.html',       redirectTo('/mypage'));
@@ -254,6 +256,7 @@ const PAGES = {
   '/product':      'product.html',
   '/admin':        'admin.html',
   '/admin-login':  'admin-login.html',
+  '/admin-users':  'admin-users.html',
   '/login':        'login.html',
   '/register':     'register.html',
   '/mypage':           'mypage.html',
@@ -301,6 +304,7 @@ app.use('/reviews', reviewsRouter);
 app.use('/purchases', purchasesRouter);
 app.use('/api/orders', ordersRouter);
 app.use('/api/content', contentRouter);
+app.use('/api/admin/users', requireAdmin, adminUsersRouter);
 
 // -----------------------------------------------
 // 404 — 매칭되지 않은 경로 (API는 JSON, 그 외는 HTML)
@@ -313,7 +317,8 @@ app.use((req, res, next) => {
       req.path.startsWith('/categories') ||
       req.path.startsWith('/reviews') ||
       req.path.startsWith('/purchases') ||
-      req.path.startsWith('/api/orders')) {
+      req.path.startsWith('/api/orders') ||
+      req.path.startsWith('/api/admin/')) {
     return res.status(404).json({ error: '요청하신 리소스를 찾을 수 없습니다.' });
   }
   res.status(404).sendFile(path.join(FRONTEND_DIR, '404.html'));

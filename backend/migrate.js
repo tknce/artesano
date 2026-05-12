@@ -234,6 +234,15 @@ async function migrate() {
     await pool.query(`ALTER TABLE users MODIFY COLUMN login_type ENUM('email','kakao','naver') NOT NULL DEFAULT 'email'`);
   }
 
+  // 회원 차단 플래그 (관리자가 차단한 회원은 로그인 거부)
+  const [blockedCol] = await pool.query(`
+    SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'users' AND COLUMN_NAME = 'is_blocked'
+  `);
+  if (blockedCol.length === 0) {
+    await pool.query('ALTER TABLE users ADD COLUMN is_blocked TINYINT(1) NOT NULL DEFAULT 0');
+  }
+
   // naver access/refresh token (unlink용)
   const [naverTokenCol] = await pool.query(`
     SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS

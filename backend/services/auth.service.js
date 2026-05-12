@@ -36,6 +36,7 @@ async function login({ email, password }) {
   const user = rows[0];
   const ok = await bcrypt.compare(password, user.password_hash);
   if (!ok) return { error: '이메일 또는 비밀번호가 올바르지 않습니다.', status: 401 };
+  if (user.is_blocked) return { error: '차단된 계정입니다. 관리자에게 문의하세요.', status: 403 };
   return { ok: true, user };
 }
 
@@ -150,6 +151,7 @@ async function kakaoCallback(code) {
   // 3) 기존 회원 확인 (kakao_id로)
   const [existing] = await pool.query('SELECT * FROM users WHERE kakao_id = ?', [kakaoId]);
   if (existing.length > 0) {
+    if (existing[0].is_blocked) return { error: '차단된 계정입니다. 관리자에게 문의하세요.', status: 403 };
     // 카카오에서 받은 닉네임이 fallback이 아니고 DB 이름과 다르면 갱신
     if (userData.kakao_account?.profile?.nickname && existing[0].name !== kakaoName) {
       await pool.query('UPDATE users SET name = ? WHERE id = ?', [kakaoName, existing[0].id]);
@@ -216,6 +218,7 @@ async function naverCallback(code, state) {
   // 3) 기존 회원 확인 (naver_id로)
   const [existing] = await pool.query('SELECT * FROM users WHERE naver_id = ?', [naverId]);
   if (existing.length > 0) {
+    if (existing[0].is_blocked) return { error: '차단된 계정입니다. 관리자에게 문의하세요.', status: 403 };
     await pool.query('UPDATE users SET naver_access_token = ?, naver_refresh_token = ? WHERE id = ?', [accessToken, refreshToken, existing[0].id]);
     return { ok: true, user: existing[0] };
   }
