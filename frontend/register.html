@@ -38,6 +38,16 @@
         <label for="passwordConfirm">비밀번호 확인</label>
         <input type="password" id="passwordConfirm" autocomplete="new-password" required />
       </div>
+      <div class="auth-consent">
+        <label class="consent-row">
+          <input type="checkbox" id="agreeAge" required />
+          <span><strong>(필수)</strong> 만 14세 이상입니다</span>
+        </label>
+        <label class="consent-row">
+          <input type="checkbox" id="agreePrivacy" required />
+          <span><strong>(필수)</strong> <a href="/privacy" target="_blank" rel="noopener">개인정보 수집·이용</a>에 동의합니다</span>
+        </label>
+      </div>
       <p class="auth-error" id="errMsg" hidden></p>
       <button type="submit" class="auth-btn" id="submitBtn">가입하기</button>
     </form>
@@ -48,10 +58,6 @@
     <a href="/api/auth/kakao" class="kakao-btn" aria-label="카카오로 시작하기">
       <svg width="18" height="18" viewBox="0 0 18 18"><path fill="#000" d="M9 1C4.58 1 1 3.79 1 7.21c0 2.17 1.45 4.08 3.64 5.18-.16.56-.58 2.03-.66 2.35-.1.39.14.39.3.28.12-.08 1.94-1.32 2.73-1.86.64.09 1.3.14 1.99.14 4.42 0 8-2.79 8-6.21S13.42 1 9 1"/></svg>
       카카오로 시작하기
-    </a>
-    <a href="/api/auth/naver" class="naver-btn" aria-label="네이버로 시작하기">
-      <svg width="18" height="18" viewBox="0 0 18 18"><path fill="#fff" d="M12.13 9.72l-3.08-4.55H5.4v9.66h4.47V10.28l3.08 4.55H16.5V5.17h-4.37v4.55z"/></svg>
-      네이버로 시작하기
     </a>
 
     <p class="auth-link" style="margin-top:8px;"><a href="/">홈으로</a></p>
@@ -73,6 +79,13 @@
       const confirm  = document.getElementById('passwordConfirm').value;
       if (password !== confirm) {
         errEl.textContent = '비밀번호가 일치하지 않습니다.';
+        errEl.hidden = false;
+        btn.disabled = false;
+        btn.textContent = '가입하기';
+        return;
+      }
+      if (!document.getElementById('agreeAge').checked || !document.getElementById('agreePrivacy').checked) {
+        errEl.textContent = '필수 동의 항목을 모두 체크해주세요.';
         errEl.hidden = false;
         btn.disabled = false;
         btn.textContent = '가입하기';
