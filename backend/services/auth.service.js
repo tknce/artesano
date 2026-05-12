@@ -47,6 +47,7 @@ async function getMe(userId) {
 // --- 카카오 간편 로그인 ---
 
 const KAKAO_CLIENT_ID = process.env.KAKAO_CLIENT_ID;
+const KAKAO_CLIENT_SECRET = process.env.KAKAO_CLIENT_SECRET;
 const KAKAO_REDIRECT_URI = process.env.KAKAO_REDIRECT_URI;
 
 function getKakaoAuthUrl() {
@@ -58,7 +59,13 @@ async function kakaoCallback(code) {
   const tokenRes = await fetch('https://kauth.kakao.com/oauth/token', {
     method: 'POST',
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: new URLSearchParams({ grant_type: 'authorization_code', client_id: KAKAO_CLIENT_ID, redirect_uri: KAKAO_REDIRECT_URI, code }),
+    body: new URLSearchParams({
+      grant_type: 'authorization_code',
+      client_id: KAKAO_CLIENT_ID,
+      redirect_uri: KAKAO_REDIRECT_URI,
+      code,
+      ...(KAKAO_CLIENT_SECRET ? { client_secret: KAKAO_CLIENT_SECRET } : {}),
+    }),
   });
   const tokenData = await tokenRes.json();
   if (!tokenData.access_token) return { error: '카카오 인증 실패', status: 401 };
