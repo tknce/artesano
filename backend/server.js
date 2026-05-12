@@ -160,6 +160,43 @@ app.post('/api/admin/logout', (req, res) => {
   req.session.destroy(() => res.json({ ok: true }));
 });
 
+// 이미지 마이그레이션 — 외부(artesano 등) URL → Cloudinary
+// 멱등: 이미 res.cloudinary.com URL이면 건너뜀. 안전하게 여러 번 호출 가능.
+app.post('/api/admin/migrate-images', requireAdmin, async (req, res, next) => {
+  try {
+    const pool = require('./db');
+    const cloudinary = require('./lib/cloudinary');
+
+    async function migrateTable(table) {
+      const [rows] = await pool.query(
+        `SELECT id, image_url FROM ${table}
+         WHERE image_url IS NOT NULL AND image_url <> ''
+           AND image_url NOT LIKE '%res.cloudinary.com%'
+           AND (image_url LIKE 'http://%' OR image_url LIKE 'https://%')`
+      );
+      let ok = 0, fail = 0;
+      const errors = [];
+      for (const row of rows) {
+        try {
+          const result = await cloudinary.uploader.upload(row.image_url, {
+            folder: 'crocini/migrated', resource_type: 'image',
+          });
+          await pool.query(`UPDATE ${table} SET image_url = ? WHERE id = ?`, [result.secure_url, row.id]);
+          ok++;
+        } catch (err) {
+          fail++;
+          errors.push({ id: row.id, error: err.message });
+        }
+      }
+      return { total: rows.length, ok, fail, errors };
+    }
+
+    const products = await migrateTable('products');
+    const details = await migrateTable('product_detail_images');
+    res.json({ products, product_detail_images: details });
+  } catch (e) { next(e); }
+});
+
 app.get('/api/admin/check', (req, res) => {
   if (req.session && req.session.isAdmin) res.json({ ok: true });
   else res.status(401).json({ error: 'Unauthorized' });
