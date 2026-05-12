@@ -68,13 +68,17 @@ async function kakaoCallback(code) {
     }),
   });
   const tokenData = await tokenRes.json();
-  if (!tokenData.access_token) return { error: '카카오 인증 실패', status: 401 };
+  if (!tokenData.access_token) {
+    console.error('[KAKAO] token error:', JSON.stringify(tokenData), 'redirect_uri:', KAKAO_REDIRECT_URI, 'has_secret:', !!KAKAO_CLIENT_SECRET);
+    return { error: '카카오 인증 실패', status: 401 };
+  }
 
   // 2) 사용자 정보 조회
   const userRes = await fetch('https://kapi.kakao.com/v2/user/me', {
     headers: { 'Authorization': `Bearer ${tokenData.access_token}` },
   });
   const userData = await userRes.json();
+  if (userData.code) console.error('[KAKAO] user error:', JSON.stringify(userData));
   const kakaoId = String(userData.id);
   const kakaoEmail = userData.kakao_account?.email || null;
   const kakaoName = userData.kakao_account?.profile?.nickname || '카카오 사용자';
