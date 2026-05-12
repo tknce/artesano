@@ -35,8 +35,8 @@
   --color-accent: #8B5E3C;       /* 새들 브라운 (포인트) */
 
   /* 폰트 */
-  --font-serif: 'Cormorant Garamond', 'Playfair Display', serif;
-  --font-sans:  'Noto Sans KR', 'Pretendard', 'Inter', 'Helvetica Neue', Arial, sans-serif;
+  --font-serif: 'Noto Sans KR', 'Pretendard', sans-serif;
+  --font-sans:  'Noto Sans KR', 'Pretendard', sans-serif;
 
   /* 여백 */
   --section-padding: 160px 0;
@@ -162,9 +162,9 @@ ul  { list-style: none; }
 }
 
 .logo {
-  font-family: 'Bebas Neue', sans-serif;
+  font-family: var(--font-sans);
   font-size: 28px;
-  font-weight: 400;
+  font-weight: 700;
   letter-spacing: 5px;
   color: var(--color-black);
   transition: color 0.4s ease;
@@ -283,9 +283,9 @@ ul  { list-style: none; }
 
 /* 거대한 헤딩 — 화면을 꽉 채우는 느낌 */
 .hero-title {
-  font-family: 'Bebas Neue', sans-serif;
+  font-family: var(--font-sans);
   font-size: clamp(80px, 18vw, 260px);
-  font-weight: 400;
+  font-weight: 900;
   letter-spacing: 0.08em;
   line-height: 1;
   margin-bottom: 0;
@@ -3575,7 +3575,7 @@ body.shop-page {
   pointer-events: auto;
   padding: 14px 24px;
   border-radius: 8px;
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-sans);
   font-size: 14px;
   color: #fff;
   background: #1a1a1a;
@@ -3643,12 +3643,12 @@ body[style*="visibility:hidden"] {
   opacity: 0.4;
 }
 .empty-state-title {
-  font-family: 'Cormorant Garamond', serif;
+  font-family: var(--font-sans);
   font-size: 24px;
   margin-bottom: 8px;
 }
 .empty-state-desc {
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-sans);
   font-size: 14px;
   color: rgba(0,0,0,0.5);
   margin-bottom: 24px;
@@ -3658,7 +3658,7 @@ body[style*="visibility:hidden"] {
   padding: 12px 28px;
   border: 1px solid var(--color-black);
   color: var(--color-black);
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-sans);
   font-size: 12px;
   letter-spacing: 0.15em;
   text-transform: uppercase;
@@ -3746,7 +3746,7 @@ textarea:focus-visible {
   color: #fff;
   padding: 12px 20px;
   z-index: 99999;
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-sans);
   font-size: 14px;
   text-decoration: none;
   border-radius: 4px;
@@ -3769,7 +3769,7 @@ textarea:focus-visible {
   color: #000;
   border: none;
   border-radius: 6px;
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-sans);
   font-size: 14px;
   font-weight: 500;
   text-decoration: none;
@@ -3793,7 +3793,7 @@ textarea:focus-visible {
 }
 .auth-divider span {
   padding: 0 12px;
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-sans);
   font-size: 12px;
   color: rgba(0,0,0,0.4);
 }
@@ -3810,7 +3810,7 @@ textarea:focus-visible {
   color: #fff;
   border: none;
   border-radius: 6px;
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-sans);
   font-size: 14px;
   font-weight: 500;
   text-decoration: none;
@@ -3940,7 +3940,7 @@ textarea:focus-visible {
   padding-top: 20px;
 }
 .checkout-step {
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-sans);
   font-size: 13px;
   color: rgba(0,0,0,0.35);
   font-weight: 400;

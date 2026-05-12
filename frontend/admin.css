@@ -2,6 +2,7 @@
    admin.css — 관리자 페이지 (CROCINI)
    브랜드 사이트와 다르게, 실용적/기능적인 디자인
    ============================================================ */
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap');
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -18,7 +19,7 @@
 }
 
 body {
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-family: 'Noto Sans KR', system-ui, -apple-system, sans-serif;
   background: var(--bg);
   color: var(--text);
   font-size: 14px;
