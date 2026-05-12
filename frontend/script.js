@@ -213,9 +213,17 @@ document.addEventListener('DOMContentLoaded', () => {
        이미 http로 시작하면(외부 이미지) 그대로 사용 */
     function resolveImageUrl(url) {
       if (!url) return '';
-      if (url.startsWith('http://') || url.startsWith('https://')) return url;
+      if (url.startsWith('http://') || url.startsWith('https://')) return cloudinaryThumb(url, 800);
       if (url.startsWith('/')) return SERVER_URL + url;
       return url;
+    }
+
+    /* Cloudinary URL이면 정사각 썸네일 변환(w·c_fill·gravity·f_auto·q_auto) 주입.
+       비-Cloudinary URL이거나 이미 변환이 있으면 그대로 반환. */
+    function cloudinaryThumb(url, width) {
+      if (!url.includes('res.cloudinary.com')) return url;
+      if (/\/upload\/[^/]*[wfq]_[^/]+\//.test(url)) return url;
+      return url.replace('/upload/', `/upload/w_${width},h_${width},c_fill,g_auto,f_auto,q_auto/`);
     }
 
     const loadingState = document.getElementById('loadingState');
