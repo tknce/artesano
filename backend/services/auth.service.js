@@ -86,6 +86,11 @@ async function kakaoCallback(code) {
   // 3) 기존 회원 확인 (kakao_id로)
   const [existing] = await pool.query('SELECT * FROM users WHERE kakao_id = ?', [kakaoId]);
   if (existing.length > 0) {
+    // 카카오에서 받은 닉네임이 fallback이 아니고 DB 이름과 다르면 갱신
+    if (userData.kakao_account?.profile?.nickname && existing[0].name !== kakaoName) {
+      await pool.query('UPDATE users SET name = ? WHERE id = ?', [kakaoName, existing[0].id]);
+      existing[0].name = kakaoName;
+    }
     return { ok: true, user: existing[0] };
   }
 
