@@ -22,6 +22,8 @@ async function createOrder(userId, body) {
   if (isNaN(pid)) return { error: '상품 ID가 필요합니다.', status: 400 };
   if (!customerName?.trim()) return { error: '이름을 입력해주세요.', status: 400 };
   if (!customerPhone?.trim()) return { error: '연락처를 입력해주세요.', status: 400 };
+  if (!customerEmail?.trim()) return { error: '이메일을 입력해주세요.', status: 400 };
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(customerEmail.trim())) return { error: '올바른 이메일 형식이 아닙니다.', status: 400 };
   if (!shippingAddress1?.trim()) return { error: '배송 주소를 입력해주세요.', status: 400 };
 
   const [products] = await pool.query('SELECT id, name, price, image_url FROM products WHERE id = ?', [pid]);

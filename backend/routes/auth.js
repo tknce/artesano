@@ -45,6 +45,15 @@ router.get('/me', requireUser, asyncHandler(async (req, res) => {
   res.json(user);
 }));
 
+router.patch('/me', requireUser, asyncHandler(async (req, res) => {
+  const result = await authService.updateMe(req.session.userId, req.body || {});
+  if (result.error) return res.status(result.status).json({ error: result.error });
+  req.session.userName = result.user.name;
+  req.session.userEmail = result.user.email;
+  req.session.userPhone = result.user.phone;
+  res.json(result.user);
+}));
+
 // --- 카카오 간편 로그인 ---
 
 // GET /api/auth/kakao — 카카오 로그인 페이지로 리다이렉트

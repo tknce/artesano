@@ -47,8 +47,8 @@
               <input type="tel" name="customerPhone" id="cPhone" required maxlength="50" placeholder="010-0000-0000" />
             </div>
             <div class="checkout-field">
-              <label>이메일</label>
-              <input type="email" name="customerEmail" id="cEmail" maxlength="255" />
+              <label>이메일 <em>*</em></label>
+              <input type="email" name="customerEmail" id="cEmail" required maxlength="255" placeholder="real@example.com" />
             </div>
 
             <div class="checkout-field">
@@ -139,7 +139,8 @@
       // 자동 입력
       document.getElementById('cName').value  = me.name  || '';
       document.getElementById('cPhone').value = me.phone || '';
-      document.getElementById('cEmail').value = me.email || '';
+      const isSyntheticEmail = (em) => /^kakao_\d+@crocini\.co\.kr$/.test(em || '') || /^naver_\d+@crocini\.co\.kr$/.test(em || '');
+      document.getElementById('cEmail').value = isSyntheticEmail(me.email) ? '' : (me.email || '');
 
       // 상품 정보
       let product, cartItems = [], totalPrice = 0;

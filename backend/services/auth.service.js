@@ -41,8 +41,29 @@ async function login({ email, password }) {
 }
 
 async function getMe(userId) {
-  const [rows] = await pool.query('SELECT id, email, name, phone FROM users WHERE id = ?', [userId]);
+  const [rows] = await pool.query('SELECT id, email, name, phone, login_type FROM users WHERE id = ?', [userId]);
   return rows.length > 0 ? rows[0] : null;
+}
+
+async function updateMe(userId, { name, email, phone }) {
+  if (!name?.trim()) return { error: '이름을 입력해주세요.', status: 400 };
+  if (name.trim().length > 100) return { error: '이름은 100자 이내로 입력해주세요.', status: 400 };
+  if (!email?.trim()) return { error: '이메일을 입력해주세요.', status: 400 };
+  if (!EMAIL_RE.test(email.trim())) return { error: '올바른 이메일 형식이 아닙니다.', status: 400 };
+
+  const normalizedEmail = email.trim().toLowerCase();
+  const trimmedName = name.trim();
+  const trimmedPhone = phone?.trim() || null;
+
+  const [dup] = await pool.query('SELECT id FROM users WHERE email = ? AND id <> ?', [normalizedEmail, userId]);
+  if (dup.length > 0) return { error: '이미 사용 중인 이메일입니다.', status: 409 };
+
+  const [result] = await pool.query(
+    'UPDATE users SET name = ?, email = ?, phone = ? WHERE id = ?',
+    [trimmedName, normalizedEmail, trimmedPhone, userId]
+  );
+  if (result.affectedRows === 0) return { error: '사용자를 찾을 수 없습니다.', status: 404 };
+  return { ok: true, user: { id: userId, name: trimmedName, email: normalizedEmail, phone: trimmedPhone } };
 }
 
 async function deleteAccount(userId) {
@@ -242,4 +263,4 @@ async function naverCallback(code, state) {
   return { ok: true, user: newUser[0], isNew: true };
 }
 
-module.exports = { register, login, getMe, deleteAccount, getKakaoAuthUrl, kakaoCallback, getNaverAuthUrl, naverCallback };
+module.exports = { register, login, getMe, updateMe, deleteAccount, getKakaoAuthUrl, kakaoCallback, getNaverAuthUrl, naverCallback };
