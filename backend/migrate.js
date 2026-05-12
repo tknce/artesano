@@ -234,6 +234,16 @@ async function migrate() {
     await pool.query(`ALTER TABLE users MODIFY COLUMN login_type ENUM('email','kakao','naver') NOT NULL DEFAULT 'email'`);
   }
 
+  // naver access/refresh token (unlink용)
+  const [naverTokenCol] = await pool.query(`
+    SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'users' AND COLUMN_NAME = 'naver_access_token'
+  `);
+  if (naverTokenCol.length === 0) {
+    await pool.query('ALTER TABLE users ADD COLUMN naver_access_token VARCHAR(500) NULL');
+    await pool.query('ALTER TABLE users ADD COLUMN naver_refresh_token VARCHAR(500) NULL');
+  }
+
   // cart_items 테이블
   await pool.query(`
     CREATE TABLE IF NOT EXISTS cart_items (

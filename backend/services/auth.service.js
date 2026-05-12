@@ -45,10 +45,11 @@ async function getMe(userId) {
 }
 
 async function deleteAccount(userId) {
-  const [rows] = await pool.query('SELECT kakao_id FROM users WHERE id = ?', [userId]);
+  const [rows] = await pool.query('SELECT kakao_id, naver_id, naver_access_token, naver_refresh_token FROM users WHERE id = ?', [userId]);
   if (rows.length === 0) return false;
 
-  const { kakao_id } = rows[0];
+  const { kakao_id, naver_id, naver_access_token, naver_refresh_token } = rows[0];
+
   if (kakao_id && process.env.KAKAO_ADMIN_KEY) {
     try {
       const res = await fetch('https://kapi.kakao.com/v1/user/unlink', {
@@ -65,6 +66,46 @@ async function deleteAccount(userId) {
       }
     } catch (e) {
       console.error('[KAKAO] unlink error:', e.message);
+    }
+  }
+
+  if (naver_id && NAVER_CLIENT_ID && NAVER_CLIENT_SECRET) {
+    try {
+      // 만료된 access_token이면 refresh_token으로 갱신
+      let accessToken = naver_access_token;
+      if (naver_refresh_token) {
+        const refreshRes = await fetch('https://nid.naver.com/oauth2.0/token', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: new URLSearchParams({
+            grant_type: 'refresh_token',
+            client_id: NAVER_CLIENT_ID,
+            client_secret: NAVER_CLIENT_SECRET,
+            refresh_token: naver_refresh_token,
+          }),
+        });
+        const refreshData = await refreshRes.json();
+        if (refreshData.access_token) accessToken = refreshData.access_token;
+      }
+      if (accessToken) {
+        const unlinkRes = await fetch('https://nid.naver.com/oauth2.0/token', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: new URLSearchParams({
+            grant_type: 'delete',
+            client_id: NAVER_CLIENT_ID,
+            client_secret: NAVER_CLIENT_SECRET,
+            access_token: accessToken,
+            service_provider: 'NAVER',
+          }),
+        });
+        const unlinkData = await unlinkRes.json();
+        if (unlinkData.result !== 'success') {
+          console.error('[NAVER] unlink failed:', JSON.stringify(unlinkData));
+        }
+      }
+    } catch (e) {
+      console.error('[NAVER] unlink error:', e.message);
     }
   }
 
@@ -170,9 +211,13 @@ async function naverCallback(code, state) {
   const naverName = userData.response.name || userData.response.nickname || '네이버 사용자';
   const naverPhone = userData.response.mobile?.replace(/-/g, '-') || null;
 
+  const accessToken = tokenData.access_token;
+  const refreshToken = tokenData.refresh_token || null;
+
   // 3) 기존 회원 확인 (naver_id로)
   const [existing] = await pool.query('SELECT * FROM users WHERE naver_id = ?', [naverId]);
   if (existing.length > 0) {
+    await pool.query('UPDATE users SET naver_access_token = ?, naver_refresh_token = ? WHERE id = ?', [accessToken, refreshToken, existing[0].id]);
     return { ok: true, user: existing[0] };
   }
 
@@ -180,7 +225,7 @@ async function naverCallback(code, state) {
   if (naverEmail) {
     const [emailUser] = await pool.query('SELECT * FROM users WHERE email = ?', [naverEmail]);
     if (emailUser.length > 0) {
-      await pool.query('UPDATE users SET naver_id = ?, login_type = ? WHERE id = ?', [naverId, 'naver', emailUser[0].id]);
+      await pool.query('UPDATE users SET naver_id = ?, login_type = ?, naver_access_token = ?, naver_refresh_token = ? WHERE id = ?', [naverId, 'naver', accessToken, refreshToken, emailUser[0].id]);
       return { ok: true, user: { ...emailUser[0], naver_id: naverId } };
     }
   }
@@ -188,8 +233,8 @@ async function naverCallback(code, state) {
   // 5) 신규 회원 자동 가입
   const email = naverEmail || `naver_${naverId}@crocini.co.kr`;
   const [result] = await pool.query(
-    'INSERT INTO users (email, password_hash, name, phone, naver_id, login_type) VALUES (?, ?, ?, ?, ?, ?)',
-    [email, '', naverName, naverPhone, naverId, 'naver']
+    'INSERT INTO users (email, password_hash, name, phone, naver_id, login_type, naver_access_token, naver_refresh_token) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+    [email, '', naverName, naverPhone, naverId, 'naver', accessToken, refreshToken]
   );
   const [newUser] = await pool.query('SELECT * FROM users WHERE id = ?', [result.insertId]);
   return { ok: true, user: newUser[0], isNew: true };
