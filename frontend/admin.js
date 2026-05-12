@@ -1266,3 +1266,38 @@ document.getElementById('cpCreateBtn').addEventListener('click', async () => {
     statusEl.hidden = false;
   }
 });
+
+// ============================================================
+// 고객 운영 서브탭 (구매확인 / 쿠폰 / 후기 / 문의)
+// ============================================================
+(function initSubTabs() {
+  const subTabs = document.querySelectorAll('.sub-tab');
+  const subSections = document.querySelectorAll('.customer-ops .sub-section');
+  if (!subTabs.length) return;
+
+  const SUB_IDS = ['purchases', 'coupons', 'reviews', 'inquiries'];
+
+  function activate(targetId) {
+    subTabs.forEach(t => t.classList.toggle('active', t.dataset.target === targetId));
+    subSections.forEach(s => s.classList.toggle('active', s.id === targetId));
+  }
+
+  subTabs.forEach(t => {
+    t.addEventListener('click', () => {
+      const id = t.dataset.target;
+      activate(id);
+      history.replaceState(null, '', '#' + id);
+    });
+  });
+
+  // URL 해시가 서브탭이면 해당 탭 활성화 + 부모 #customer-ops로 스크롤
+  function applyHash() {
+    const hash = location.hash.replace('#', '');
+    if (SUB_IDS.includes(hash)) {
+      activate(hash);
+      document.getElementById('customer-ops')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }
+  applyHash();
+  window.addEventListener('hashchange', applyHash);
+})();

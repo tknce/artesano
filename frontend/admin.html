@@ -27,10 +27,7 @@
         <a href="#orders">주문 관리</a>
         <a href="#custom-orders">주문제작</a>
         <a href="#site-content">사이트 콘텐츠</a>
-        <a href="#purchases">구매 확인</a>
-        <a href="#coupons">쿠폰 관리</a>
-        <a href="#reviews">후기 관리</a>
-        <a href="#inquiries">문의 관리</a>
+        <a href="#customer-ops">고객 운영</a>
         <a href="/admin-users">회원 관리</a>
         <a href="index.html" target="_blank">사이트 보기 ↗</a>
         <button type="button" id="btnLogout" class="btn-logout">로그아웃</button>
@@ -186,9 +183,53 @@
     </section>
 
     <!-- ============================================================
+         사이트 콘텐츠 (소재정보 / 케어가이드 / 교환환불)
+         ============================================================ -->
+    <section class="admin-section" id="site-content">
+      <div class="admin-section-header">
+        <h2>사이트 콘텐츠</h2>
+      </div>
+      <p style="font-size:12px;color:#888;margin-bottom:20px;">상품 상세 페이지의 소재 정보 / 케어 가이드 / 교환·환불 탭에 공통으로 표시됩니다. 줄바꿈은 그대로 유지됩니다.</p>
+
+      <div class="admin-content-grid">
+        <div class="content-block">
+          <label>소재 정보</label>
+          <textarea id="contentMaterial" rows="10" maxlength="3000"></textarea>
+          <button type="button" class="btn-primary" data-content-key="material_info">저장</button>
+          <span class="form-status" data-content-status="material_info" hidden></span>
+        </div>
+
+        <div class="content-block">
+          <label>케어 가이드</label>
+          <textarea id="contentCare" rows="10" maxlength="3000"></textarea>
+          <button type="button" class="btn-primary" data-content-key="care_guide">저장</button>
+          <span class="form-status" data-content-status="care_guide" hidden></span>
+        </div>
+
+        <div class="content-block">
+          <label>교환·환불 안내</label>
+          <textarea id="contentRefund" rows="10" maxlength="3000"></textarea>
+          <button type="button" class="btn-primary" data-content-key="refund_policy">저장</button>
+          <span class="form-status" data-content-status="refund_policy" hidden></span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         고객 운영 — 구매확인 / 쿠폰 / 후기 / 문의 (서브탭)
+         ============================================================ -->
+    <div id="customer-ops" class="customer-ops">
+      <div class="sub-tabs">
+        <button type="button" class="sub-tab active" data-target="purchases">구매 확인</button>
+        <button type="button" class="sub-tab" data-target="coupons">쿠폰 관리</button>
+        <button type="button" class="sub-tab" data-target="reviews">후기 관리</button>
+        <button type="button" class="sub-tab" data-target="inquiries">문의 관리</button>
+      </div>
+
+    <!-- ============================================================
          구매 확인 관리
          ============================================================ -->
-    <section class="admin-section" id="purchases">
+    <section class="admin-section sub-section active" id="purchases">
       <div class="admin-section-header">
         <h2>구매 확인 관리</h2>
         <button type="button" class="btn-secondary" id="btnRefreshPurchases">새로고침</button>
@@ -224,42 +265,9 @@
     </section>
 
     <!-- ============================================================
-         사이트 콘텐츠 (소재정보 / 케어가이드 / 교환환불)
-         ============================================================ -->
-    <section class="admin-section" id="site-content">
-      <div class="admin-section-header">
-        <h2>사이트 콘텐츠</h2>
-      </div>
-      <p style="font-size:12px;color:#888;margin-bottom:20px;">상품 상세 페이지의 소재 정보 / 케어 가이드 / 교환·환불 탭에 공통으로 표시됩니다. 줄바꿈은 그대로 유지됩니다.</p>
-
-      <div class="admin-content-grid">
-        <div class="content-block">
-          <label>소재 정보</label>
-          <textarea id="contentMaterial" rows="10" maxlength="3000"></textarea>
-          <button type="button" class="btn-primary" data-content-key="material_info">저장</button>
-          <span class="form-status" data-content-status="material_info" hidden></span>
-        </div>
-
-        <div class="content-block">
-          <label>케어 가이드</label>
-          <textarea id="contentCare" rows="10" maxlength="3000"></textarea>
-          <button type="button" class="btn-primary" data-content-key="care_guide">저장</button>
-          <span class="form-status" data-content-status="care_guide" hidden></span>
-        </div>
-
-        <div class="content-block">
-          <label>교환·환불 안내</label>
-          <textarea id="contentRefund" rows="10" maxlength="3000"></textarea>
-          <button type="button" class="btn-primary" data-content-key="refund_policy">저장</button>
-          <span class="form-status" data-content-status="refund_policy" hidden></span>
-        </div>
-      </div>
-    </section>
-
-    <!-- ============================================================
          쿠폰 관리
          ============================================================ -->
-    <section class="admin-section" id="coupons">
+    <section class="admin-section sub-section" id="coupons">
       <div class="admin-section-header">
         <h2>쿠폰 관리</h2>
       </div>
@@ -326,7 +334,7 @@
     <!-- ============================================================
          후기 관리
          ============================================================ -->
-    <section class="admin-section" id="reviews">
+    <section class="admin-section sub-section" id="reviews">
       <div class="admin-section-header">
         <h2>후기 관리</h2>
         <button type="button" class="btn-secondary" id="btnRefreshReviews">새로고침</button>
@@ -354,7 +362,7 @@
     <!-- ============================================================
          문의 관리
          ============================================================ -->
-    <section class="admin-section" id="inquiries">
+    <section class="admin-section sub-section" id="inquiries">
       <div class="admin-section-header">
         <h2>문의 관리</h2>
         <button type="button" class="btn-secondary" id="btnRefreshInquiries">새로고침</button>
@@ -380,6 +388,8 @@
         </table>
       </div>
     </section>
+
+    </div><!-- /#customer-ops -->
 
   </main>
 

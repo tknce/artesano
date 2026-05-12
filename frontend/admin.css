@@ -91,6 +91,36 @@ a { color: inherit; text-decoration: none; }
   margin-bottom: 32px;
   overflow: hidden;
 }
+
+/* 고객 운영 서브탭 */
+.customer-ops {
+  margin-bottom: 32px;
+}
+.sub-tabs {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 16px;
+  border-bottom: 1px solid var(--border);
+}
+.sub-tab {
+  padding: 12px 20px;
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--muted);
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+}
+.sub-tab:hover { color: var(--text); }
+.sub-tab.active {
+  color: var(--primary);
+  border-bottom-color: var(--primary);
+}
+.customer-ops .sub-section { display: none; margin-bottom: 0; }
+.customer-ops .sub-section.active { display: block; }
 .admin-section-header {
   padding: 20px 24px;
   border-bottom: 1px solid var(--border);
