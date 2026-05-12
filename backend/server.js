@@ -114,7 +114,7 @@ app.use(session({
   store: sessionStore,
   cookie: {
     httpOnly: true,
-    sameSite: 'strict',
+    sameSite: 'lax',
     maxAge: 8 * 60 * 60 * 1000,
     secure: process.env.NODE_ENV === 'production',
   },
