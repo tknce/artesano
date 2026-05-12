@@ -295,7 +295,6 @@ document.addEventListener('DOMContentLoaded', () => {
             <div class="product-info">
               <span class="product-category">${categoryLabel}</span>
               <h3 class="product-name">${p.name}</h3>
-              <p class="product-tagline">정제된 형태의 레더 미니 백</p>
               <p class="product-option">${p.option_desc || ''}</p>
               <div class="product-price">${priceHTML}</div>
             </div>
