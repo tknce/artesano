@@ -21,6 +21,7 @@
       <p class="eyebrow">MEMBER</p>
       <h1 id="greetingName">안녕하세요.</h1>
       <button class="mypage-logout-btn" id="logoutBtn" style="margin-top:20px;">로그아웃</button>
+      <button class="mypage-logout-btn" id="withdrawBtn" style="margin-top:8px;background:transparent;color:#999;border:1px solid #ddd;">회원 탈퇴</button>
     </div>
 
     <!-- 주문 내역 -->
@@ -236,6 +237,17 @@
     document.getElementById('logoutBtn').addEventListener('click', async () => {
       await fetch('/api/auth/logout', { method: 'POST' });
       location.replace('/');
+    });
+
+    document.getElementById('withdrawBtn').addEventListener('click', async () => {
+      if (!confirm('정말로 탈퇴하시겠습니까?\n계정과 관련된 정보가 모두 삭제되며 복구할 수 없습니다.')) return;
+      const res = await fetch('/api/auth/me', { method: 'DELETE' });
+      if (res.ok) {
+        alert('탈퇴가 완료되었습니다.');
+        location.replace('/');
+      } else {
+        alert('탈퇴 처리 중 오류가 발생했습니다.');
+      }
     });
 
     init();

@@ -44,6 +44,11 @@ async function getMe(userId) {
   return rows.length > 0 ? rows[0] : null;
 }
 
+async function deleteAccount(userId) {
+  const [result] = await pool.query('DELETE FROM users WHERE id = ?', [userId]);
+  return result.affectedRows > 0;
+}
+
 // --- 카카오 간편 로그인 ---
 
 const KAKAO_CLIENT_ID = process.env.KAKAO_CLIENT_ID;
@@ -171,4 +176,4 @@ async function naverCallback(code, state) {
   return { ok: true, user: newUser[0], isNew: true };
 }
 
-module.exports = { register, login, getMe, getKakaoAuthUrl, kakaoCallback, getNaverAuthUrl, naverCallback };
+module.exports = { register, login, getMe, deleteAccount, getKakaoAuthUrl, kakaoCallback, getNaverAuthUrl, naverCallback };
