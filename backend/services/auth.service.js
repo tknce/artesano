@@ -45,6 +45,29 @@ async function getMe(userId) {
 }
 
 async function deleteAccount(userId) {
+  const [rows] = await pool.query('SELECT kakao_id FROM users WHERE id = ?', [userId]);
+  if (rows.length === 0) return false;
+
+  const { kakao_id } = rows[0];
+  if (kakao_id && process.env.KAKAO_ADMIN_KEY) {
+    try {
+      const res = await fetch('https://kapi.kakao.com/v1/user/unlink', {
+        method: 'POST',
+        headers: {
+          'Authorization': `KakaoAK ${process.env.KAKAO_ADMIN_KEY}`,
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: new URLSearchParams({ target_id_type: 'user_id', target_id: kakao_id }),
+      });
+      if (!res.ok) {
+        const text = await res.text();
+        console.error('[KAKAO] unlink failed:', res.status, text);
+      }
+    } catch (e) {
+      console.error('[KAKAO] unlink error:', e.message);
+    }
+  }
+
   const [result] = await pool.query('DELETE FROM users WHERE id = ?', [userId]);
   return result.affectedRows > 0;
 }
