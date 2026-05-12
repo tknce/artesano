@@ -723,91 +723,6 @@ async function deleteInquiry(id) {
 
 
 /* ============================================================
-   주문제작 목록 (Python 전용)
-   ============================================================ */
-const customOrderTableBody  = document.getElementById('customOrderTableBody');
-const btnRefreshCustomOrders = document.getElementById('btnRefreshCustomOrders');
-
-const HARDWARE_LABEL = {
-  gold:        'Gold',
-  silver:      'Silver',
-  matte_black: 'Matte Black',
-};
-
-async function loadCustomOrders() {
-  customOrderTableBody.innerHTML = '<tr><td colspan="9" class="admin-loading">불러오는 중...</td></tr>';
-  try {
-    const res = await fetch(`/custom-orders`);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const list = await res.json();
-
-    if (list.length === 0) {
-      customOrderTableBody.innerHTML = '<tr><td colspan="9" class="admin-empty">접수된 주문제작이 없습니다.</td></tr>';
-      return;
-    }
-
-    customOrderTableBody.innerHTML = list.map(o => {
-      // 옵션 요약 (가죽/하드웨어/안감/이니셜/예산)
-      const opts = [];
-      if (o.leather_color) opts.push(`가죽: ${escapeHtml(o.leather_color)}`);
-      if (o.hardware)      opts.push(`하드웨어: ${escapeHtml(HARDWARE_LABEL[o.hardware] || o.hardware)}`);
-      if (o.lining_color)  opts.push(`안감: ${escapeHtml(o.lining_color)}`);
-      if (o.initials)      opts.push(`이니셜: ${escapeHtml(o.initials)}`);
-      if (o.budget_range)  opts.push(`예산: ${escapeHtml(o.budget_range)}`);
-      if (o.desired_lead_time) opts.push(`납기: ${escapeHtml(o.desired_lead_time)}`);
-      const optsHtml = opts.length > 0
-        ? `<div style="font-size:12px;line-height:1.6;">${opts.join('<br />')}</div>`
-        : '<span style="color:#aaa">-</span>';
-
-      const modelHtml = o.product_code
-        ? `<span class="badge-pill">${escapeHtml(o.product_code)}</span>`
-        : '<span style="color:#aaa">-</span>';
-
-      return `
-        <tr>
-          <td>${o.id}</td>
-          <td><span class="status-pill ${o.status}">${o.status}</span></td>
-          <td>${modelHtml}</td>
-          <td>${escapeHtml(o.name)}</td>
-          <td>${escapeHtml(o.phone)}<br /><span style="font-size:11px;color:#888">${escapeHtml(o.email || '')}</span></td>
-          <td>${optsHtml}</td>
-          <td class="inquiry-message">${escapeHtml(o.message || '-')}</td>
-          <td style="font-size:12px;color:#666;">${formatDate(o.created_at)}</td>
-          <td>
-            <button type="button" class="btn-danger" data-action="delete-custom-order" data-id="${o.id}">삭제</button>
-          </td>
-        </tr>`;
-    }).join('');
-  } catch (err) {
-    console.error('주문제작 로딩 실패:', err);
-    customOrderTableBody.innerHTML = `<tr><td colspan="9" class="admin-loading">불러오기 실패: ${escapeHtml(err.message)}</td></tr>`;
-  }
-}
-
-btnRefreshCustomOrders.addEventListener('click', loadCustomOrders);
-
-customOrderTableBody.addEventListener('click', (e) => {
-  const btn = e.target.closest('button[data-action="delete-custom-order"]');
-  if (!btn) return;
-  deleteCustomOrder(parseInt(btn.dataset.id, 10));
-});
-
-async function deleteCustomOrder(id) {
-  if (!confirm(`주문제작 #${id}를 정말 삭제하시겠습니까?`)) return;
-  try {
-    const res = await fetch(`/custom-orders/${id}`, { method: 'DELETE' });
-    if (!res.ok) {
-      const d = await res.json().catch(() => ({}));
-      throw new Error(d.error || `HTTP ${res.status}`);
-    }
-    await loadCustomOrders();
-  } catch (err) {
-    alert('삭제 실패: ' + err.message);
-  }
-}
-
-
-/* ============================================================
    구매 확인 관리
    ============================================================ */
 const purchaseTableBody  = document.getElementById('purchaseTableBody');
@@ -1210,7 +1125,6 @@ document.getElementById('btnLogout').addEventListener('click', async () => {
   loadPurchases();
   loadReviews();
   loadInquiries();
-  loadCustomOrders();
   loadSiteContent();
   loadCoupons();
 })();
