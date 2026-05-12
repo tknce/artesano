@@ -1369,7 +1369,7 @@ body.shop-page {
 
 /* S3) 필터 탭 */
 .filter-section {
-  padding: 20px 0 60px;
+  padding: 180px 0 60px;
   background-color: var(--color-cream);
   border-bottom: 1px solid rgba(0, 0, 0, 0.06);
 }
@@ -1725,7 +1725,7 @@ body.shop-page {
   }
 
   .filter-section {
-    padding: 16px 0 40px;
+    padding: 140px 0 40px;
   }
   .filter-tabs {
     gap: 0;
