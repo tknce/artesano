@@ -143,10 +143,10 @@ ul  { list-style: none; }
 
 /* 스크롤 다운 시 navbar 배경만 투명, 스크롤 업 시 다시 표시 */
 .navbar.nav-hidden {
-  background-color: transparent;
-  backdrop-filter: none;
-  -webkit-backdrop-filter: none;
-  box-shadow: none;
+  background-color: transparent !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  box-shadow: none !important;
 }
 
 .nav-inner {
