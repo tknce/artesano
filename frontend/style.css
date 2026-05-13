@@ -3340,6 +3340,11 @@ body.shop-page {
 .checkout-field {
   margin-bottom: 18px;
 }
+.checkout-field .field-error {
+  font-size: 12px;
+  color: #c44;
+  margin-top: 6px;
+}
 .checkout-field label {
   display: block;
   font-family: var(--font-sans);

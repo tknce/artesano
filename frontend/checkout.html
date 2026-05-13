@@ -44,11 +44,13 @@
             </div>
             <div class="checkout-field">
               <label>연락처 <em>*</em></label>
-              <input type="tel" name="customerPhone" id="cPhone" required maxlength="50" placeholder="010-0000-0000" />
+              <input type="tel" name="customerPhone" id="cPhone" required maxlength="13" placeholder="010-0000-0000" inputmode="numeric" autocomplete="tel" />
+              <p class="field-error" id="cPhoneErr" hidden></p>
             </div>
             <div class="checkout-field">
               <label>이메일 <em>*</em></label>
-              <input type="email" name="customerEmail" id="cEmail" required maxlength="255" placeholder="real@example.com" />
+              <input type="email" name="customerEmail" id="cEmail" required maxlength="255" placeholder="real@example.com" autocomplete="email" />
+              <p class="field-error" id="cEmailErr" hidden></p>
             </div>
 
             <div class="checkout-field">
@@ -124,6 +126,35 @@
 
   <script>
     const TOSS_CLIENT_KEY = 'test_gck_docs_Ovk5rk1EwkEbP0W43n07xlzm';
+
+    // --- 입력 형식 검증 헬퍼 ---
+    const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const PHONE_RE = /^(010|011|016|017|018|019)\d{7,8}$/;
+    function formatPhone(v) {
+      const d = v.replace(/\D/g, '').slice(0, 11);
+      if (d.length < 4) return d;
+      if (d.length < 8) return `${d.slice(0,3)}-${d.slice(3)}`;
+      return `${d.slice(0,3)}-${d.slice(3,7)}-${d.slice(7)}`;
+    }
+    function showFieldError(id, msg) {
+      const el = document.getElementById(id);
+      if (msg) { el.textContent = msg; el.hidden = false; } else { el.hidden = true; }
+    }
+
+    // 휴대폰 자동 하이픈
+    document.addEventListener('DOMContentLoaded', () => {
+      const phone = document.getElementById('cPhone');
+      const email = document.getElementById('cEmail');
+      phone.addEventListener('input', () => { phone.value = formatPhone(phone.value); });
+      phone.addEventListener('blur', () => {
+        const ok = !phone.value || PHONE_RE.test(phone.value.replace(/\D/g, ''));
+        showFieldError('cPhoneErr', ok ? null : '올바른 휴대폰 번호 형식이 아닙니다.');
+      });
+      email.addEventListener('blur', () => {
+        const ok = !email.value || EMAIL_RE.test(email.value.trim());
+        showFieldError('cEmailErr', ok ? null : '올바른 이메일 형식이 아닙니다.');
+      });
+    });
 
     (async () => {
       const params = new URLSearchParams(location.search);
@@ -273,9 +304,19 @@
         const shippingAddress2 = document.getElementById('cAddress2').value.trim();
         const shippingRequest  = document.getElementById('cRequest').value.trim();
 
-        if (!customerName || !customerPhone || !shippingAddress1) {
-          errEl.textContent = '이름, 연락처, 주소는 필수입니다.';
+        if (!customerName || !customerPhone || !customerEmail || !shippingAddress1) {
+          errEl.textContent = '이름, 연락처, 이메일, 주소는 필수입니다.';
           errEl.hidden = false;
+          return;
+        }
+        if (!PHONE_RE.test(customerPhone.replace(/\D/g, ''))) {
+          showFieldError('cPhoneErr', '올바른 휴대폰 번호 형식이 아닙니다.');
+          document.getElementById('cPhone').focus();
+          return;
+        }
+        if (!EMAIL_RE.test(customerEmail)) {
+          showFieldError('cEmailErr', '올바른 이메일 형식이 아닙니다.');
+          document.getElementById('cEmail').focus();
           return;
         }
 

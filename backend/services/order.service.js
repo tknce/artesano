@@ -15,10 +15,14 @@ const cartService = require('./cart.service');
 const TOSS_SECRET_KEY = process.env.TOSS_SECRET_KEY || 'test_sk_docs_OaPz8L5KdmQXkzRz3y47BMw6';
 const TOSS_API_BASE = 'https://api.tosspayments.com/v1';
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+// 한국 휴대폰 (하이픈 제외 후 검사): 010/011/016/017/018/019 + 7~8자리
+const PHONE_RE = /^(010|011|016|017|018|019)\d{7,8}$/;
 
 function validateCustomer({ customerName, customerPhone, customerEmail, shippingAddress1 }) {
   if (!customerName?.trim()) return '이름을 입력해주세요.';
   if (!customerPhone?.trim()) return '연락처를 입력해주세요.';
+  const phoneDigits = customerPhone.replace(/\D/g, '');
+  if (!PHONE_RE.test(phoneDigits)) return '올바른 휴대폰 번호 형식이 아닙니다. (예: 010-1234-5678)';
   if (!customerEmail?.trim()) return '이메일을 입력해주세요.';
   if (!EMAIL_RE.test(customerEmail.trim())) return '올바른 이메일 형식이 아닙니다.';
   if (!shippingAddress1?.trim()) return '배송 주소를 입력해주세요.';
