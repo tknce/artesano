@@ -50,7 +50,7 @@ app.use(helmet({
   contentSecurityPolicy: {
     directives: {
       defaultSrc: ["'self'"],
-      scriptSrc:  ["'self'", "'unsafe-inline'", 'https://js.tosspayments.com', 'https://cdn.jsdelivr.net', 'https://t1.daumcdn.net'],
+      scriptSrc:  ["'self'", "'unsafe-inline'", 'https://js.tosspayments.com', 'https://cdn.jsdelivr.net', 'https://t1.daumcdn.net', 'https://www.googletagmanager.com'],
       styleSrc:   ["'self'", 'https://fonts.googleapis.com', 'https://cdn.jsdelivr.net', "'unsafe-inline'"],
       fontSrc:    ["'self'", 'https://fonts.gstatic.com', 'https://cdn.jsdelivr.net', 'data:'],
       imgSrc:     ["'self'", 'data:', 'blob:', 'https:', 'http:'],
@@ -61,6 +61,9 @@ app.use(helmet({
         'https://event.tosspayments.com',
         'https://log.tosspayments.com',
         'https://payment-widget.tosspayments.com',
+        'https://www.google-analytics.com',
+        'https://*.google-analytics.com',
+        'https://*.analytics.google.com',
       ],
       frameSrc:   [
         'https://*.tosspayments.com',
