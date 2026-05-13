@@ -239,6 +239,7 @@ ul  { list-style: none; }
 .nav-close span:nth-child(2) { transform: translate(-50%, -50%) rotate(-45deg); }
 @media (max-width: 768px) {
   .nav-close { left: 16px; }
+  .nav-menu-links a { padding-left: 48px; padding-right: 24px; }
 }
 
 .nav-menu-links {
