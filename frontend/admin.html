@@ -61,6 +61,7 @@
               <th>이름</th>
               <th style="width: 120px;">카테고리</th>
               <th style="width: 140px;">가격</th>
+              <th style="width: 80px;">재고</th>
               <th style="width: 120px;">뱃지</th>
               <th style="width: 140px;">관리</th>
             </tr>
@@ -433,6 +434,13 @@
               <option value="0">일반 상품</option>
               <option value="1">주문제작</option>
             </select>
+          </label>
+        </div>
+
+        <div class="form-row">
+          <label class="form-field">
+            <span>재고 (개)</span>
+            <input type="number" name="stock" id="fStock" min="0" placeholder="비우면 무제한 (주문제작 등)" />
           </label>
         </div>
 

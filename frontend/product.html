@@ -749,6 +749,7 @@
 
         // CTA 버튼
         const ctaEl = document.getElementById('detailCta');
+        const isSoldOut = p.stock === 0;
         if (p.category === 'python') {
           const codeMatch = String(p.name).match(/^[A-Z]{2,5}\d{2,4}/);
           const code = codeMatch ? codeMatch[0] : '';
@@ -758,6 +759,8 @@
             <button class="btn-detail-secondary btn-add-cart" data-id="${p.id}">장바구니 담기</button>`;
         } else if (p.price === null) {
           ctaEl.innerHTML = `<a href="/contact" class="btn-detail-primary">구매하기</a>`;
+        } else if (isSoldOut) {
+          ctaEl.innerHTML = `<button class="btn-detail-primary" disabled style="opacity:0.5;cursor:not-allowed;">품절</button>`;
         } else {
           ctaEl.innerHTML = `
             <a href="/checkout?id=${p.id}" class="btn-detail-primary">구매하기</a>
@@ -779,7 +782,8 @@
               const badge = document.getElementById('cartBadge');
               if (badge) { badge.textContent = parseInt(badge.textContent || '0') + 1; badge.hidden = false; }
             } else {
-              Toast.error('장바구니 추가에 실패했습니다');
+              const data = await res.json().catch(() => ({}));
+              Toast.error(data.error || '장바구니 추가에 실패했습니다');
             }
           });
         }

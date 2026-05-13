@@ -268,8 +268,14 @@ document.addEventListener('DOMContentLoaded', () => {
       const heartClass = wishlistIds.has(p.id) ? ' wishlisted' : '';
       const heartHTML  = `<button class="wishlist-btn${heartClass}" data-id="${p.id}" aria-label="찜하기">♥</button>`;
 
-      /* 장바구니 버튼 (가격이 있는 상품만) */
-      const cartBtnHTML = p.price !== null
+      /* 품절 여부 (stock=0). NULL은 무제한 */
+      const isSoldOut = p.stock === 0;
+      const soldOutHTML = isSoldOut
+        ? `<span class="product-badge sold-out">품절</span>`
+        : '';
+
+      /* 장바구니 버튼 (가격이 있고 품절 아닌 상품만) */
+      const cartBtnHTML = p.price !== null && !isSoldOut
         ? `<button class="cart-btn" data-id="${p.id}" aria-label="장바구니 담기">🛒</button>`
         : '';
 
@@ -292,11 +298,12 @@ document.addEventListener('DOMContentLoaded', () => {
       const href = `product.html?id=${p.id}`;
 
       return `
-        <article class="product-card" data-category="${p.category}" role="article" aria-label="${p.name}">
+        <article class="product-card${isSoldOut ? ' is-sold-out' : ''}" data-category="${p.category}" role="article" aria-label="${p.name}">
           <a href="${href}" class="product-link">
             <div class="product-image">
               <img src="${resolveImageUrl(p.image_url)}" alt="${p.name} — ${categoryLabel} 가죽 핸드백" loading="lazy" />
               ${badgeHTML}
+              ${soldOutHTML}
               ${heartHTML}
               ${cartBtnHTML}
             </div>
@@ -435,10 +442,13 @@ document.addEventListener('DOMContentLoaded', () => {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ productId: id, quantity: 1 }),
         });
-        if (!res.ok) throw new Error();
+        if (!res.ok) {
+          const data = await res.json().catch(() => ({}));
+          throw new Error(data.error || '장바구니 추가에 실패했습니다');
+        }
         Toast.success('장바구니에 담았습니다');
-      } catch (_) {
-        Toast.error('장바구니 추가에 실패했습니다');
+      } catch (e) {
+        Toast.error(e.message || '장바구니 추가에 실패했습니다');
       } finally {
         btn.disabled = false;
       }

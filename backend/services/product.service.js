@@ -50,6 +50,7 @@ function parseBody(body) {
   out.badge = body.badge ? String(body.badge).trim() : null;
   const p = parseIntField(body.price); if (p === undefined) errors.push('price는 0 이상의 정수여야 합니다.'); else out.price = p;
   const op = parseIntField(body.original_price); if (op === undefined) errors.push('original_price는 0 이상의 정수여야 합니다.'); else out.original_price = op;
+  const st = parseIntField(body.stock); if (st === undefined) errors.push('stock은 0 이상의 정수여야 합니다.'); else out.stock = st;
   out.is_custom_order = [true, 1, '1'].includes(body.is_custom_order) ? 1 : 0;
   return { errors, data: out };
 }
@@ -73,8 +74,8 @@ async function create(body, imageUrl) {
   if (errors.length > 0) return { error: errors.join(' '), status: 400 };
   if (!(await categoryExists(data.category))) return { error: '존재하지 않는 카테고리입니다.', status: 400 };
   const [result] = await pool.query(
-    'INSERT INTO products (name, category, option_desc, description, material_info, price, original_price, image_url, is_custom_order, badge) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-    [data.name, data.category, data.option_desc, data.description, data.material_info, data.price, data.original_price, imageUrl, data.is_custom_order, data.badge]
+    'INSERT INTO products (name, category, option_desc, description, material_info, price, original_price, image_url, is_custom_order, badge, stock) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+    [data.name, data.category, data.option_desc, data.description, data.material_info, data.price, data.original_price, imageUrl, data.is_custom_order, data.badge, data.stock]
   );
   const [rows] = await pool.query('SELECT * FROM products WHERE id = ?', [result.insertId]);
   return { data: withOptimized(rows[0]), status: 201 };
@@ -92,8 +93,8 @@ async function update(id, body, newFile) {
   if (newFile) { imageUrl = newFile; oldUrlToDelete = old.image_url; }
   else if (body.image_url !== undefined) { const v = String(body.image_url).trim(); if (v && v !== old.image_url) { imageUrl = v; oldUrlToDelete = old.image_url; } }
 
-  await pool.query('UPDATE products SET name=?, category=?, option_desc=?, description=?, material_info=?, price=?, original_price=?, image_url=?, is_custom_order=?, badge=? WHERE id=?',
-    [data.name, data.category, data.option_desc, data.description, data.material_info, data.price, data.original_price, imageUrl, data.is_custom_order, data.badge, id]);
+  await pool.query('UPDATE products SET name=?, category=?, option_desc=?, description=?, material_info=?, price=?, original_price=?, image_url=?, is_custom_order=?, badge=?, stock=? WHERE id=?',
+    [data.name, data.category, data.option_desc, data.description, data.material_info, data.price, data.original_price, imageUrl, data.is_custom_order, data.badge, data.stock, id]);
   if (oldUrlToDelete) await deleteImage(oldUrlToDelete);
   const [rows] = await pool.query('SELECT * FROM products WHERE id = ?', [id]);
   return { data: withOptimized(rows[0]) };

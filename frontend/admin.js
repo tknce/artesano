@@ -274,7 +274,7 @@ function renderProducts() {
   productCount.textContent = `${list.length} 개`;
 
   if (list.length === 0) {
-    productTableBody.innerHTML = '<tr><td colspan="7" class="admin-empty">상품이 없습니다.</td></tr>';
+    productTableBody.innerHTML = '<tr><td colspan="8" class="admin-empty">상품이 없습니다.</td></tr>';
     return;
   }
 
@@ -291,6 +291,12 @@ function renderProducts() {
       priceHtml = `<span class="price-main">${formatPrice(p.price)}</span>`;
     }
 
+    let stockHtml;
+    if (p.stock === null || p.stock === undefined) stockHtml = '<span style="color:#888">무제한</span>';
+    else if (p.stock <= 0) stockHtml = '<span style="color:#c44;font-weight:600">품절</span>';
+    else if (p.stock <= 3) stockHtml = `<span style="color:#c80">${p.stock}</span>`;
+    else stockHtml = `<span>${p.stock}</span>`;
+
     return `
       <tr data-id="${p.id}">
         <td>${p.id}</td>
@@ -301,6 +307,7 @@ function renderProducts() {
         </td>
         <td><span class="cat-pill ${p.category}">${p.category}</span></td>
         <td>${priceHtml}</td>
+        <td>${stockHtml}</td>
         <td>${p.badge ? `<span class="badge-pill ${isGold?'gold':''}">${escapeHtml(p.badge)}</span>` : '-'}</td>
         <td>
           <div class="row-actions">
@@ -341,6 +348,7 @@ const fDescription    = document.getElementById('fDescription');
 const fMaterialInfo   = document.getElementById('fMaterialInfo');
 const fPrice          = document.getElementById('fPrice');
 const fOriginalPrice  = document.getElementById('fOriginalPrice');
+const fStock          = document.getElementById('fStock');
 const fBadge          = document.getElementById('fBadge');
 const fCustomOrder    = document.getElementById('fCustomOrder');
 const fImageFile      = document.getElementById('fImageFile');
@@ -523,6 +531,7 @@ function openProductModal(id) {
     fMaterialInfo.value   = p.material_info || '';
     fPrice.value          = p.price ?? '';
     fOriginalPrice.value  = p.original_price ?? '';
+    fStock.value          = p.stock ?? '';
     fBadge.value          = p.badge || '';
     fCustomOrder.value    = p.is_custom_order ? '1' : '0';
     if (p.image_url) {
@@ -557,7 +566,9 @@ function closeProductModal() {
 btnNew.addEventListener('click', () => openProductModal(null));
 modalClose.addEventListener('click', closeProductModal);
 btnCancel.addEventListener('click', closeProductModal);
-modal.addEventListener('click', (e) => { if (e.target === modal) closeProductModal(); });
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && !modal.hidden) closeProductModal();
+});
 
 // 파일 선택 시 미리보기
 fImageFile.addEventListener('change', () => {
@@ -605,6 +616,7 @@ productForm.addEventListener('submit', async (e) => {
     fd.append('material_info',   fMaterialInfo.value.trim());
     fd.append('price',           fPrice.value);
     fd.append('original_price',  fOriginalPrice.value);
+    fd.append('stock',           fStock.value);
     fd.append('badge',           fBadge.value.trim());
     fd.append('is_custom_order', fCustomOrder.value);
 

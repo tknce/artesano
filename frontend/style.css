@@ -1659,6 +1659,22 @@ body.shop-page {
   color: var(--color-black);
 }
 
+.product-badge.sold-out {
+  background-color: rgba(0,0,0,0.75);
+  color: #fff;
+  top: auto;
+  bottom: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 12px;
+  letter-spacing: 2px;
+}
+
+.product-card.is-sold-out .product-image img {
+  opacity: 0.55;
+  filter: grayscale(0.4);
+}
+
 /* 필터 결과 없음 메시지 */
 .empty-message {
   text-align: center;

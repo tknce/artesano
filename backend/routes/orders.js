@@ -17,6 +17,14 @@ router.post('/confirm', requireUser, asyncHandler(async (req, res) => {
   res.json(result);
 }));
 
+router.post('/abandon', requireUser, asyncHandler(async (req, res) => {
+  const { orderId } = req.body || {};
+  if (!orderId) return res.status(400).json({ error: 'orderId가 필요합니다.' });
+  const result = await orderService.abandonOrder(req.session.userId, orderId);
+  if (result.error) return res.status(result.status).json({ error: result.error });
+  res.json(result);
+}));
+
 router.get('/mine', requireUser, asyncHandler(async (req, res) => {
   res.json(await orderService.listMine(req.session.userId));
 }));

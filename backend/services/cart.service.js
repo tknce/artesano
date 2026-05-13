@@ -11,7 +11,22 @@ async function list(userId) {
   return rows;
 }
 
+// 요청 수량이 현재 재고를 넘는지 확인 (NULL = 무제한이므로 통과)
+async function checkStock(productId, requestedQty) {
+  const [rows] = await pool.query('SELECT stock FROM products WHERE id = ?', [productId]);
+  if (rows.length === 0) return { error: '상품을 찾을 수 없습니다.', status: 404 };
+  const stock = rows[0].stock;
+  if (stock === null) return { ok: true };
+  if (stock <= 0) return { error: '품절된 상품입니다.', status: 409 };
+  if (requestedQty > stock) return { error: `재고가 ${stock}개 남았습니다.`, status: 409 };
+  return { ok: true };
+}
+
 async function add(userId, productId, quantity = 1) {
+  const [existing] = await pool.query('SELECT quantity FROM cart_items WHERE user_id = ? AND product_id = ?', [userId, productId]);
+  const totalQty = (existing[0]?.quantity || 0) + quantity;
+  const check = await checkStock(productId, totalQty);
+  if (check.error) return check;
   await pool.query(`
     INSERT INTO cart_items (user_id, product_id, quantity)
     VALUES (?, ?, ?)
@@ -22,6 +37,8 @@ async function add(userId, productId, quantity = 1) {
 
 async function updateQuantity(userId, productId, quantity) {
   if (quantity < 1) return remove(userId, productId);
+  const check = await checkStock(productId, quantity);
+  if (check.error) return check;
   await pool.query('UPDATE cart_items SET quantity = ? WHERE user_id = ? AND product_id = ?', [quantity, userId, productId]);
   return { ok: true };
 }

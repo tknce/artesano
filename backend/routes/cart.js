@@ -16,14 +16,18 @@ router.get('/count', requireUser, asyncHandler(async (req, res) => {
 router.post('/', requireUser, asyncHandler(async (req, res) => {
   const { productId, quantity } = req.body;
   if (!productId) return res.status(400).json({ error: '상품 ID가 필요합니다' });
-  res.json(await cartService.add(req.session.userId, productId, quantity || 1));
+  const result = await cartService.add(req.session.userId, productId, quantity || 1);
+  if (result.error) return res.status(result.status).json({ error: result.error });
+  res.json(result);
 }));
 
 router.put('/:productId', requireUser, asyncHandler(async (req, res) => {
   const productId = parseInt(req.params.productId, 10);
   const { quantity } = req.body;
   if (isNaN(productId) || !quantity) return res.status(400).json({ error: '잘못된 요청' });
-  res.json(await cartService.updateQuantity(req.session.userId, productId, quantity));
+  const result = await cartService.updateQuantity(req.session.userId, productId, quantity);
+  if (result.error) return res.status(result.status).json({ error: result.error });
+  res.json(result);
 }));
 
 router.delete('/:productId', requireUser, asyncHandler(async (req, res) => {

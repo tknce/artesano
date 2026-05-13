@@ -16,7 +16,7 @@ describe('order.service', () => {
 
   it('createOrder — 주문제작 상품이면 거부', async () => {
     pool.query.mockResolvedValueOnce([[{ id: 1, name: 'PT001', price: null, image_url: null }]]);
-    const result = await orderService.createOrder(1, { productId: 1, customerName: '홍', customerPhone: '010', shippingAddress1: '서울' });
+    const result = await orderService.createOrder(1, { productId: 1, customerName: '홍', customerPhone: '010', customerEmail: 't@t.com', shippingAddress1: '서울' });
     expect(result.error).toContain('주문제작');
   });
 

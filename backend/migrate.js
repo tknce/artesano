@@ -46,6 +46,15 @@ async function migrate() {
     await pool.query('ALTER TABLE products ADD COLUMN material_info TEXT NULL');
   }
 
+  // stock: NULL = 무제한 (주문제작 등), 정수 = 남은 수량
+  const [stockCols] = await pool.query(`
+    SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'products' AND COLUMN_NAME = 'stock'
+  `);
+  if (stockCols.length === 0) {
+    await pool.query('ALTER TABLE products ADD COLUMN stock INT NULL DEFAULT NULL');
+  }
+
   await pool.query(`
     CREATE TABLE IF NOT EXISTS product_detail_images (
       id          INT AUTO_INCREMENT PRIMARY KEY,

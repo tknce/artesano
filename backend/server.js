@@ -385,6 +385,14 @@ if (require.main === module) {
         sendBackup().catch(err => logger.error({ err }, 'DB 백업 실패'));
       }, { timezone: 'Asia/Seoul' });
       logger.info('DB 백업: 매일 03:00 KST 자동 발송');
+
+      const { cleanupAbandonedOrders } = require('./services/order.service');
+      cron.schedule('*/10 * * * *', () => {
+        cleanupAbandonedOrders()
+          .then(n => { if (n > 0) logger.info({ cleaned: n }, '버려진 pending 주문 정리'); })
+          .catch(err => logger.error({ err }, 'pending 주문 정리 실패'));
+      });
+      logger.info('Pending 주문 정리: 매 10분마다 (30분 초과분 삭제 + 재고 복구)');
     })
     .catch(err => {
       logger.fatal({ err }, 'DB 마이그레이션 실패');

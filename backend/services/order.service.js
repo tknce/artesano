@@ -26,15 +26,27 @@ async function createOrder(userId, body) {
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(customerEmail.trim())) return { error: '올바른 이메일 형식이 아닙니다.', status: 400 };
   if (!shippingAddress1?.trim()) return { error: '배송 주소를 입력해주세요.', status: 400 };
 
-  const [products] = await pool.query('SELECT id, name, price, image_url FROM products WHERE id = ?', [pid]);
+  const [products] = await pool.query('SELECT id, name, price, image_url, stock FROM products WHERE id = ?', [pid]);
   if (products.length === 0) return { error: '상품을 찾을 수 없습니다.', status: 404 };
   const product = products[0];
   if (product.price === null) return { error: '주문제작 상품은 직접 구매할 수 없습니다.', status: 400 };
+
+  // 재고 차감 (stock NULL = 무제한이므로 건너뜀, 정수면 atomic decrement)
+  if (product.stock !== null) {
+    const [r] = await pool.query('UPDATE products SET stock = stock - 1 WHERE id = ? AND stock > 0', [pid]);
+    if (r.affectedRows === 0) return { error: '품절된 상품입니다.', status: 409 };
+  }
 
   const orderId = `ORD-${Date.now()}-${crypto.randomBytes(6).toString('hex')}`;
   await pool.query(`INSERT INTO orders (order_id, user_id, product_id, product_name, product_image_url, amount, customer_name, customer_phone, customer_email, shipping_postal, shipping_address1, shipping_address2, shipping_request) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     [orderId, userId, product.id, product.name, product.image_url, product.price, customerName.trim(), customerPhone.trim(), customerEmail?.trim() || null, shippingPostal?.trim() || null, shippingAddress1.trim(), shippingAddress2?.trim() || null, shippingRequest?.trim() || null]);
   return { orderId, amount: product.price, productName: product.name };
+}
+
+// 주문에 묶인 재고를 복구 (Toss 결제 실패 / 취소 시)
+async function restoreStock(productId) {
+  if (!productId) return;
+  await pool.query('UPDATE products SET stock = stock + 1 WHERE id = ? AND stock IS NOT NULL', [productId]);
 }
 
 async function confirmPayment(userId, { orderId, paymentKey, amount }) {
@@ -50,9 +62,17 @@ async function confirmPayment(userId, { orderId, paymentKey, amount }) {
   try {
     tossRes = await fetch(`${TOSS_API_BASE}/payments/confirm`, { method: 'POST', headers: { 'Authorization': `Basic ${auth}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ paymentKey, orderId, amount: Number(amount) }) });
     tossData = await tossRes.json();
-  } catch { await pool.query('UPDATE orders SET status = ? WHERE order_id = ?', ['failed', orderId]); return { error: '결제 서버 통신 실패', status: 502 }; }
+  } catch {
+    await pool.query('UPDATE orders SET status = ? WHERE order_id = ?', ['failed', orderId]);
+    await restoreStock(order.product_id);
+    return { error: '결제 서버 통신 실패', status: 502 };
+  }
 
-  if (!tossRes.ok) { await pool.query('UPDATE orders SET status = ? WHERE order_id = ?', ['failed', orderId]); return { error: tossData.message || '결제 승인 실패', status: 400 }; }
+  if (!tossRes.ok) {
+    await pool.query('UPDATE orders SET status = ? WHERE order_id = ?', ['failed', orderId]);
+    await restoreStock(order.product_id);
+    return { error: tossData.message || '결제 승인 실패', status: 400 };
+  }
 
   await pool.query('UPDATE orders SET status = ?, payment_key = ?, paid_at = CURRENT_TIMESTAMP WHERE order_id = ?', ['paid', paymentKey, orderId]);
   if (order.product_id) await pool.query('INSERT IGNORE INTO purchases (user_id, product_id, note) VALUES (?, ?, ?)', [order.user_id, order.product_id, `주문 #${orderId}`]);
@@ -100,6 +120,7 @@ async function cancelOrder(id, reason) {
 
   await pool.query('UPDATE orders SET status = ? WHERE id = ?', ['cancelled', id]);
   if (order.user_id && order.product_id) await pool.query('DELETE FROM purchases WHERE user_id = ? AND product_id = ?', [order.user_id, order.product_id]);
+  await restoreStock(order.product_id);
   return { ok: true };
 }
 
@@ -108,4 +129,27 @@ async function removeOrder(id) {
   return { ok: true };
 }
 
-module.exports = { createOrder, confirmPayment, listMine, listAll, updateStatus, cancelOrder, removeOrder };
+// 사용자가 결제 위젯을 취소/닫았을 때 호출 — pending 주문 삭제 + 재고 복구
+async function abandonOrder(userId, orderId) {
+  const [orders] = await pool.query('SELECT * FROM orders WHERE order_id = ? AND user_id = ?', [orderId, userId]);
+  if (orders.length === 0) return { error: '주문을 찾을 수 없습니다.', status: 404 };
+  const order = orders[0];
+  if (order.status !== 'pending') return { ok: true, alreadyProcessed: true };
+  await pool.query('DELETE FROM orders WHERE order_id = ?', [orderId]);
+  await restoreStock(order.product_id);
+  return { ok: true };
+}
+
+// 30분 넘게 pending인 주문을 자동 정리 (브라우저 종료/네트워크 끊김 대응)
+async function cleanupAbandonedOrders() {
+  const [orders] = await pool.query(
+    "SELECT order_id, product_id FROM orders WHERE status = 'pending' AND created_at < (NOW() - INTERVAL 30 MINUTE)"
+  );
+  for (const o of orders) {
+    await pool.query('DELETE FROM orders WHERE order_id = ?', [o.order_id]);
+    await restoreStock(o.product_id);
+  }
+  return orders.length;
+}
+
+module.exports = { createOrder, confirmPayment, listMine, listAll, updateStatus, cancelOrder, removeOrder, abandonOrder, cleanupAbandonedOrders };
