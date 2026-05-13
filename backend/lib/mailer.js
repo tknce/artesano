@@ -105,7 +105,7 @@ function sendOrderStatusNotification(order) {
         ${row('상태', label)}
       </table>
       ${trackingInfo}
-      <p style="margin-top:24px;color:#888;font-size:13px;">CROCINI 아르테사노 | www.crocini.co.kr</p>
+      <p style="margin-top:24px;color:#888;font-size:13px;">CROCINI | www.crocini.co.kr</p>
     </div>`;
   sendToCustomer(order.customer_email, `[CROCINI] ${escape(order.product_name)} — ${label}`, html);
 }
