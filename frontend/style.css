@@ -1267,6 +1267,9 @@ ul  { list-style: none; }
   .logo { font-size: 22px; letter-spacing: 4px; }
 
   /* 히어로 */
+  .hero {
+    min-height: 0;
+  }
   .hero-title {
     letter-spacing: 0;
     line-height: 1;
@@ -1387,7 +1390,7 @@ ul  { list-style: none; }
     font-size: 11px;
   }
   .nav-inner {
-    padding: 0 24px;
+    padding: 0 12px;
   }
   .logo {
     font-size: 20px;
