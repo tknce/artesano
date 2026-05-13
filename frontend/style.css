@@ -156,9 +156,9 @@ ul  { list-style: none; }
   max-width: 1440px;
   margin: 0 auto;
   padding: 0 40px;
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
   align-items: center;
-  justify-content: space-between;
 }
 
 .logo {
@@ -168,51 +168,144 @@ ul  { list-style: none; }
   letter-spacing: 5px;
   color: var(--color-black);
   transition: color 0.4s ease;
+  justify-self: center;
 }
 .navbar.scrolled .logo {
   color: var(--color-black);
 }
 
-.nav-menu {
+/* 우측 클러스터 — 장바구니, 로그인/마이페이지 */
+.nav-right {
+  justify-self: end;
   display: flex;
-  gap: 44px;
+  align-items: center;
+  gap: 24px;
 }
-
-.nav-menu a {
+.nav-right .nav-cart-link,
+.nav-right .nav-auth-link {
   font-size: 12px;
   letter-spacing: 2.5px;
   font-weight: 500;
   color: var(--color-black);
+  display: inline-flex;
+  align-items: center;
   position: relative;
   transition: color 0.3s ease;
 }
-.navbar.scrolled .nav-menu a {
-  color: var(--color-black);
-}
+.nav-right a:hover { color: var(--color-gold); }
 
-/* 호버 시 아래에 골드 라인 등장 */
-.nav-menu a::after {
-  content: '';
-  position: absolute;
-  bottom: -6px;
+/* 메인 메뉴 — 햄버거로 토글되는 좌측 슬라이딩 드로어 */
+.nav-menu {
+  position: fixed;
+  top: 0;
   left: 0;
-  width: 0;
-  height: 1px;
-  background-color: var(--color-gold);
-  transition: width 0.3s ease;
+  width: 320px;
+  max-width: 82vw;
+  height: 100vh;
+  height: 100svh;
+  background-color: var(--color-cream, #f7f3ed);
+  padding: 0;
+  box-shadow: 4px 0 24px rgba(0, 0, 0, 0.12);
+  transform: translateX(-100%);
+  transition: transform 0.32s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 1001;             /* navbar 위에 위치해서 닫기 X가 햄버거 자리에 정확히 보임 */
 }
-.nav-menu a:hover::after { width: 100%; }
-.nav-menu a:hover { color: var(--color-gold); }
+.nav-menu.open {
+  transform: translateX(0);
+}
 
-/* 햄버거 (모바일 전용) */
-.hamburger {
-  display: none;
+/* 닫기 버튼 — 햄버거와 정확히 같은 위치/크기 */
+.nav-close {
+  position: absolute;
+  top: 28px;
+  left: 40px;
+  width: 40px;
+  height: 40px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+}
+.nav-close span {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 24px;
+  height: 2px;
+  background-color: var(--color-black);
+  transform-origin: center;
+}
+.nav-close span:nth-child(1) { transform: translate(-50%, -50%) rotate(45deg); }
+.nav-close span:nth-child(2) { transform: translate(-50%, -50%) rotate(-45deg); }
+@media (max-width: 768px) {
+  .nav-close { left: 16px; }
+}
+
+.nav-menu-links {
+  display: flex;
   flex-direction: column;
+  padding-top: 110px;
+}
+
+.nav-menu-links a {
+  font-size: 15px;
+  letter-spacing: 3px;
+  font-weight: 500;
+  color: var(--color-black);
+  padding: 18px 32px;
+  /* 스태거 등장 애니메이션 — 닫혔을 땐 왼쪽으로 이동 + 투명 */
+  opacity: 0;
+  transform: translateX(-24px);
+  transition:
+    opacity 0.35s ease,
+    transform 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+    background-color 0.2s ease,
+    color 0.2s ease;
+}
+.nav-menu.open .nav-menu-links a {
+  opacity: 1;
+  transform: translateX(0);
+}
+.nav-menu.open .nav-menu-links a:nth-child(1) { transition-delay: 0.18s, 0.18s, 0s, 0s; }
+.nav-menu.open .nav-menu-links a:nth-child(2) { transition-delay: 0.28s, 0.28s, 0s, 0s; }
+.nav-menu.open .nav-menu-links a:nth-child(3) { transition-delay: 0.38s, 0.38s, 0s, 0s; }
+
+.nav-menu-links a:hover {
+  background-color: rgba(0, 0, 0, 0.04);
+  color: var(--color-gold);
+}
+.nav-menu-links a.active {
+  color: var(--color-gold);
+}
+
+/* 드로어 열렸을 때 배경 어둡게 (overlay) */
+.nav-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.4);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+  z-index: 998;
+}
+.nav-overlay.open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* 햄버거 — 항상 표시 (좌측) */
+.hamburger {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
   gap: 5px;
   background: transparent;
   border: none;
   cursor: pointer;
   padding: 8px;
+  justify-self: start;
+  width: 40px;
+  height: 40px;
 }
 .hamburger span {
   display: block;
@@ -220,6 +313,16 @@ ul  { list-style: none; }
   height: 2px;
   background-color: var(--color-black);
   transition: all 0.3s ease;
+}
+/* 햄버거 → X 변환 (열린 상태) */
+.hamburger.is-open span:nth-child(1) {
+  transform: translateY(7px) rotate(45deg);
+}
+.hamburger.is-open span:nth-child(2) {
+  opacity: 0;
+}
+.hamburger.is-open span:nth-child(3) {
+  transform: translateY(-7px) rotate(-45deg);
 }
 
 
@@ -1145,25 +1248,10 @@ ul  { list-style: none; }
     padding: 0 24px;
   }
 
-  /* 네비 — 데스크톱 메뉴 숨기고 햄버거 보이기 */
-  .nav-menu {
-    display: none;
-    position: absolute;
-    top: 100%;
-    left: 0;
-    width: 100%;
-    flex-direction: column;
-    gap: 0;
-    background-color: var(--color-cream);
-    padding: 20px 0;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-  }
-  .nav-menu.open { display: flex; }
-  .nav-menu a {
-    color: var(--color-black) !important;
-    padding: 16px 24px;
-  }
-  .hamburger { display: flex; }
+  /* 네비 — 모바일에서 좌우 padding 살짝 줄임 */
+  .nav-inner { padding: 0 16px; }
+  .nav-right { gap: 16px; }
+  .logo { font-size: 22px; letter-spacing: 4px; }
 
   /* 히어로 */
   .hero-title {

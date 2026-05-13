@@ -1,42 +1,72 @@
 <a href="#main-content" class="skip-nav">본문으로 건너뛰기</a>
 <header class="navbar" id="navbar" role="banner">
   <div class="nav-inner">
+    <button class="hamburger" id="hamburger" aria-label="메뉴 열기" aria-expanded="false" aria-controls="navMenu">
+      <span></span><span></span><span></span>
+    </button>
+
     <a href="/" class="logo" aria-label="CROCINI 홈으로">CROCINI</a>
-    <nav class="nav-menu" id="navMenu" role="navigation" aria-label="메인 메뉴">
-      <a href="/shop" data-nav="shop">SHOP</a>
-      <a href="/story" data-nav="story">ABOUT</a>
-      <a href="/contact" data-nav="contact">CONTACT</a>
+
+    <div class="nav-right" id="navRight">
       <a href="/cart" data-nav="cart" class="nav-cart-link" aria-label="장바구니">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
         <span class="cart-badge" id="cartBadge" hidden>0</span>
       </a>
+    </div>
+
+    <nav class="nav-menu" id="navMenu" role="navigation" aria-label="메인 메뉴">
+      <button class="nav-close" id="navClose" aria-label="메뉴 닫기">
+        <span></span><span></span>
+      </button>
+      <div class="nav-menu-links">
+        <a href="/shop" data-nav="shop">SHOP</a>
+        <a href="/story" data-nav="story">ABOUT</a>
+        <a href="/contact" data-nav="contact">CONTACT</a>
+      </div>
     </nav>
-    <button class="hamburger" id="hamburger" aria-label="메뉴 열기" aria-expanded="false" aria-controls="navMenu">
-      <span></span><span></span><span></span>
-    </button>
   </div>
 </header>
+<div class="nav-overlay" id="navOverlay" aria-hidden="true"></div>
 <script>
 (() => {
   const navbar    = document.getElementById('navbar');
   const hamburger = document.getElementById('hamburger');
   const navMenu   = document.getElementById('navMenu');
+  const navRight  = document.getElementById('navRight');
+  const navOverlay = document.getElementById('navOverlay');
   if (!navbar || !hamburger || !navMenu) return;
+  function closeMenu() {
+    navMenu.classList.remove('open');
+    navOverlay && navOverlay.classList.remove('open');
+    hamburger.classList.remove('is-open');
+    hamburger.setAttribute('aria-expanded', 'false');
+  }
 
-  // active 링크 표시 (현재 경로 기반)
+  // active 링크 표시 (현재 경로 기반) — nav-menu + nav-right 모두 적용
   const seg = location.pathname.replace(/^\//, '').split('?')[0].split('/')[0];
-  const link = navMenu.querySelector(`a[data-nav="${seg}"]`);
-  if (link) link.classList.add('active');
+  document.querySelectorAll(`[data-nav="${seg}"]`).forEach(el => el.classList.add('active'));
 
   // 햄버거 토글
   hamburger.addEventListener('click', () => {
-    const open = navMenu.classList.toggle('open');
-    hamburger.setAttribute('aria-expanded', open);
-    hamburger.setAttribute('aria-label', open ? '메뉴 닫기' : '메뉴 열기');
+    const open = !navMenu.classList.contains('open');
+    if (open) {
+      navMenu.classList.add('open');
+      navOverlay && navOverlay.classList.add('open');
+      hamburger.classList.add('is-open');
+      hamburger.setAttribute('aria-expanded', 'true');
+      hamburger.setAttribute('aria-label', '메뉴 닫기');
+    } else {
+      closeMenu();
+      hamburger.setAttribute('aria-label', '메뉴 열기');
+    }
   });
-  navMenu.querySelectorAll('a').forEach(a =>
-    a.addEventListener('click', () => navMenu.classList.remove('open'))
-  );
+  navMenu.querySelectorAll('a').forEach(a => a.addEventListener('click', closeMenu));
+  navOverlay && navOverlay.addEventListener('click', closeMenu);
+  const navClose = document.getElementById('navClose');
+  navClose && navClose.addEventListener('click', closeMenu);
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && navMenu.classList.contains('open')) closeMenu();
+  });
 
   // 스크롤 — .scrolled / 모바일 다운 스크롤 시 숨김
   let lastY = window.scrollY;
@@ -50,7 +80,7 @@
     lastY = y;
   }, { passive: true });
 
-  // 로그인 상태 nav 링크 (마이페이지 또는 로그인)
+  // 로그인 상태 표시 (마이페이지 또는 로그인) — nav-right에 삽입
   fetch('/api/auth/me').then(async r => {
     const a = document.createElement('a');
     a.className = 'nav-auth-link';
@@ -58,7 +88,6 @@
       const { name } = await r.json();
       a.href = '/mypage';
       a.textContent = name;
-      // 장바구니 수량 로드
       fetch('/api/cart/count').then(r => r.json()).then(({ count }) => {
         const badge = document.getElementById('cartBadge');
         if (badge && count > 0) { badge.textContent = count; badge.hidden = false; }
@@ -67,7 +96,7 @@
       a.href = '/login';
       a.textContent = '로그인';
     }
-    navMenu.appendChild(a);
+    navRight.appendChild(a);
   }).catch(() => {});
 })();
 </script>
