@@ -366,6 +366,18 @@ ul  { list-style: none; }
   );
 }
 
+.hero-handbag-hotspot {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 50%;
+  height: 50%;
+  z-index: 3;
+  display: block;
+  cursor: pointer;
+  background: transparent;
+}
+
 .hero-content {
   position: relative;
   z-index: 2;
