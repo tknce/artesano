@@ -3978,7 +3978,7 @@ textarea:focus-visible {
   /* 네비게이션 링크 */
   .nav-menu a {
     font-size: 16px;
-    padding: 12px 0;
+    padding: 14px 24px 14px 72px;
   }
 
   /* 필터 버튼 — 터치 영역 44px 보장 */
