@@ -68,16 +68,9 @@
     if (e.key === 'Escape' && navMenu.classList.contains('open')) closeMenu();
   });
 
-  // 스크롤 — .scrolled / 모바일 다운 스크롤 시 숨김
-  let lastY = window.scrollY;
+  // 스크롤 — 맨 위에서는 투명, 내려가면 .scrolled 톤 적용
   window.addEventListener('scroll', () => {
-    const y = window.scrollY;
-    navbar.classList.toggle('scrolled', y > 50);
-    const menuOpen = navMenu.classList.contains('open');
-    if (y < 80 || menuOpen) navbar.classList.remove('nav-hidden');
-    else if (y > lastY + 5) navbar.classList.add('nav-hidden');
-    else if (y < lastY - 5) navbar.classList.remove('nav-hidden');
-    lastY = y;
+    navbar.classList.toggle('scrolled', window.scrollY > 50);
   }, { passive: true });
 
   // 로그인 상태 표시 (마이페이지 또는 로그인) — nav-right에 삽입
