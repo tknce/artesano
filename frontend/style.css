@@ -239,7 +239,7 @@ ul  { list-style: none; }
 .nav-close span:nth-child(2) { transform: translate(-50%, -50%) rotate(-45deg); }
 @media (max-width: 768px) {
   .nav-close { left: 16px; }
-  .nav-menu-links a { padding-left: 72px; padding-right: 24px; }
+  .nav-menu-links a { padding-left: 24px; padding-right: 24px; }
 }
 
 .nav-menu-links {
@@ -3978,7 +3978,7 @@ textarea:focus-visible {
   /* 네비게이션 링크 */
   .nav-menu a {
     font-size: 16px;
-    padding: 14px 24px 14px 72px;
+    padding: 14px 24px 14px 24px;
   }
 
   /* 필터 버튼 — 터치 영역 44px 보장 */
