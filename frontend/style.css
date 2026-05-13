@@ -1269,14 +1269,6 @@ ul  { list-style: none; }
   /* 히어로 */
   .hero {
     min-height: 0;
-    background-color: #1a1a1a;
-  }
-  .hero-bg {
-    animation: heroZoomMobile 14s ease-out forwards;
-  }
-  @keyframes heroZoomMobile {
-    from { transform: scale(1.0); }
-    to   { transform: scale(0.88); }
   }
   .hero-title {
     letter-spacing: 0;
