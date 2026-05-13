@@ -219,13 +219,15 @@
         const data = await res.json();
         if (!res.ok) { resultEl.textContent = data.error; resultEl.className = 'coupon-result error'; resultEl.hidden = false; return; }
         appliedDiscount = data.discount;
-        appliedCouponCode = code;
+        appliedCouponCode = code.toUpperCase();
         resultEl.textContent = `${fmt(data.discount)} 할인 적용됨`;
         resultEl.className = 'coupon-result success';
         resultEl.hidden = false;
         document.getElementById('discountRow').hidden = false;
         document.getElementById('amountDiscount').textContent = `-${fmt(data.discount)}`;
         document.getElementById('amountTotal').textContent = fmt(totalPrice - appliedDiscount);
+        // 토스 위젯에 변경된 결제 금액 반영 (안 하면 풀가 청구됨)
+        if (window.__widgets) await window.__widgets.setAmount({ currency: 'KRW', value: totalPrice - appliedDiscount });
       });
 
       document.body.style.visibility = '';
@@ -246,8 +248,9 @@
       const customerKey = `user_${me.id}`;
       const tossPayments = TossPayments(TOSS_CLIENT_KEY);
       const widgets = tossPayments.widgets({ customerKey });
+      window.__widgets = widgets; // 쿠폰 적용 시 setAmount 재호출용
 
-      await widgets.setAmount({ currency: 'KRW', value: product.price });
+      await widgets.setAmount({ currency: 'KRW', value: totalPrice });
 
       await Promise.all([
         widgets.renderPaymentMethods({ selector: '#payment-method', variantKey: 'DEFAULT' }),
@@ -286,13 +289,17 @@
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-              productId,
+              productId: fromCart ? null : productId,
+              fromCart,
+              couponCode: appliedCouponCode,
               customerName, customerPhone, customerEmail,
               shippingPostal, shippingAddress1, shippingAddress2, shippingRequest,
             }),
           });
           order = await r.json();
           if (!r.ok) throw new Error(order.error || '주문 생성 실패');
+          // 서버가 최종 검증한 금액으로 위젯 재동기화
+          await widgets.setAmount({ currency: 'KRW', value: order.amount });
         } catch (err) {
           errEl.textContent = err.message;
           errEl.hidden = false;

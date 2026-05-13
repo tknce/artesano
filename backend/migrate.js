@@ -160,6 +160,33 @@ async function migrate() {
     await pool.query('ALTER TABLE orders ADD COLUMN shipping_carrier VARCHAR(20) NULL');
   }
 
+  // 주문 항목 테이블 (카트 결제 시 한 주문에 여러 상품)
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS order_items (
+      id                INT AUTO_INCREMENT PRIMARY KEY,
+      order_id          VARCHAR(64) NOT NULL,
+      product_id        INT NULL,
+      product_name      VARCHAR(255) NOT NULL,
+      product_image_url TEXT NULL,
+      unit_price        INT NOT NULL,
+      quantity          INT NOT NULL,
+      subtotal          INT NOT NULL,
+      created_at        TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      INDEX idx_order_id (order_id),
+      FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE SET NULL
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+  `);
+
+  // orders에 쿠폰/할인 컬럼 추가
+  const [couponCols] = await pool.query(`
+    SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'orders' AND COLUMN_NAME = 'coupon_code'
+  `);
+  if (couponCols.length === 0) {
+    await pool.query('ALTER TABLE orders ADD COLUMN coupon_code VARCHAR(50) NULL');
+    await pool.query('ALTER TABLE orders ADD COLUMN discount_amount INT NOT NULL DEFAULT 0');
+  }
+
   // 구매 확인 테이블 (관리자가 수동 등록 + 결제 완료 시 자동 등록)
   await pool.query(`
     CREATE TABLE IF NOT EXISTS purchases (

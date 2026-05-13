@@ -9,6 +9,7 @@ const storage = new CloudinaryStorage({
     folder:          'crocini',
     allowed_formats: ['jpg', 'jpeg', 'png', 'webp'],
     resource_type:   'image',
+    backup:          true, // 콘솔에서 실수로 삭제돼도 Backup 탭에서 복구 가능
   },
 });
 

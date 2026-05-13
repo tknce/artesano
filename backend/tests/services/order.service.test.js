@@ -5,7 +5,7 @@ describe('order.service', () => {
   beforeEach(() => jest.clearAllMocks());
 
   it('createOrder — 상품 ID 없으면 에러', async () => {
-    const result = await orderService.createOrder(1, { productId: 'abc', customerName: '홍', customerPhone: '010', shippingAddress1: '서울' });
+    const result = await orderService.createOrder(1, { productId: 'abc', customerName: '홍', customerPhone: '010', customerEmail: 't@t.com', shippingAddress1: '서울' });
     expect(result.error).toContain('상품 ID');
   });
 

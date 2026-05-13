@@ -393,6 +393,12 @@ if (require.main === module) {
           .catch(err => logger.error({ err }, 'pending 주문 정리 실패'));
       });
       logger.info('Pending 주문 정리: 매 10분마다 (30분 초과분 삭제 + 재고 복구)');
+
+      const { scanBrokenImages } = require('./lib/imageHealth');
+      cron.schedule('0 9 * * *', () => {
+        scanBrokenImages().catch(err => logger.error({ err }, '이미지 점검 실패'));
+      }, { timezone: 'Asia/Seoul' });
+      logger.info('이미지 점검: 매일 09:00 KST (404 발견 시 메일 알림)');
     })
     .catch(err => {
       logger.fatal({ err }, 'DB 마이그레이션 실패');
