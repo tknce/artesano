@@ -15,6 +15,7 @@ const session    = require('express-session');
 const MySQLStore = require('express-mysql-session')(session);
 const helmet     = require('helmet');
 const rateLimit  = require('express-rate-limit');
+const bcrypt     = require('bcryptjs');
 
 const cron       = require('node-cron');
 const logger     = require('./lib/logger');
@@ -94,6 +95,23 @@ app.use(cors({
 app.use(express.json());
 
 // -----------------------------------------------
+// CSRF 보호 — mutating 요청은 같은 출처에서만 허용
+// SameSite=lax 쿠키 + Origin/Referer 검증으로 cross-site form/fetch 차단
+// -----------------------------------------------
+function csrfGuard(req, res, next) {
+  if (process.env.NODE_ENV === 'test') return next();
+  if (['GET', 'HEAD', 'OPTIONS'].includes(req.method)) return next();
+  // 토스 등 외부에서 호출하는 callback은 webhook이 따로 없으므로 모두 자체 출처로 간주
+  const raw = req.get('Origin') || req.get('Referer');
+  if (!raw) return res.status(403).json({ error: 'Origin/Referer 누락 — 외부 출처에서 호출되었습니다.' });
+  let originHost;
+  try { originHost = new URL(raw).origin; } catch { return res.status(403).json({ error: 'Origin 형식 오류' }); }
+  if (!ALLOWED_ORIGINS.has(originHost)) return res.status(403).json({ error: '허용되지 않은 출처입니다.' });
+  next();
+}
+app.use(csrfGuard);
+
+// -----------------------------------------------
 // 세션
 // -----------------------------------------------
 const sessionStore = new MySQLStore({
@@ -143,12 +161,23 @@ const loginLimiter = rateLimit({
 // -----------------------------------------------
 // 관리자 인증 API
 // -----------------------------------------------
-app.post('/api/admin/login', loginLimiter, (req, res) => {
+// 관리자 비밀번호 검증 — ADMIN_PASSWORD_HASH 우선, 없으면 평문 ADMIN_PASSWORD (legacy, 경고)
+async function verifyAdminPassword(password) {
+  const hash = process.env.ADMIN_PASSWORD_HASH;
+  if (hash) return bcrypt.compare(password, hash);
+  const plain = process.env.ADMIN_PASSWORD;
+  if (plain) return password === plain;
+  return false;
+}
+if (!process.env.ADMIN_PASSWORD_HASH && process.env.ADMIN_PASSWORD) {
+  console.warn('[admin] ADMIN_PASSWORD가 평문으로 저장되어 있습니다. ADMIN_PASSWORD_HASH(bcrypt)로 마이그레이션하세요.');
+}
+
+app.post('/api/admin/login', loginLimiter, async (req, res) => {
   const { username, password } = req.body || {};
-  if (
-    username === (process.env.ADMIN_USER || 'admin') &&
-    password === process.env.ADMIN_PASSWORD
-  ) {
+  const userOk = username === (process.env.ADMIN_USER || 'admin');
+  const passOk = password && await verifyAdminPassword(password);
+  if (userOk && passOk) {
     req.session.isAdmin = true;
     res.json({ ok: true });
   } else {
