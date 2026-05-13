@@ -4112,6 +4112,15 @@ textarea:focus-visible {
   box-shadow: 0 1px 0 rgba(62, 39, 35, 0.08);
 }
 
+/* 스크롤 다운 숨김(nav-hidden) 시 — scrolled 톤을 무력화하고 완전 투명 */
+.navbar.scrolled.nav-hidden,
+.navbar.nav-hidden {
+  background-color: transparent !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  box-shadow: none !important;
+}
+
 /* CTA 버튼 — 다크 브라운 */
 .auth-btn,
 .empty-state-btn {
