@@ -1269,6 +1269,8 @@ ul  { list-style: none; }
   /* 히어로 */
   .hero {
     min-height: 0;
+    height: 75vh;
+    height: 75svh;
   }
   .hero-title {
     letter-spacing: 0;
