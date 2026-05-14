@@ -12,7 +12,14 @@ const { sendOrderStatusNotification } = require('../lib/mailer');
 const couponService = require('./coupon.service');
 const cartService = require('./cart.service');
 
-const TOSS_SECRET_KEY = process.env.TOSS_SECRET_KEY || 'test_sk_docs_OaPz8L5KdmQXkzRz3y47BMw6';
+const TOSS_SECRET_KEY = process.env.TOSS_SECRET_KEY;
+if (!TOSS_SECRET_KEY) {
+  if (process.env.NODE_ENV === 'production') {
+    throw new Error('TOSS_SECRET_KEY 환경변수가 설정되지 않았습니다. (production)');
+  }
+  console.warn('[order.service] TOSS_SECRET_KEY가 설정되지 않아 토스 테스트 키로 동작합니다. (개발 모드)');
+}
+const TOSS_SECRET_KEY_EFFECTIVE = TOSS_SECRET_KEY || 'test_sk_docs_OaPz8L5KdmQXkzRz3y47BMw6';
 const TOSS_API_BASE = 'https://api.tosspayments.com/v1';
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 // 한국 휴대폰 (하이픈 제외 후 검사): 010/011/016/017/018/019 + 7~8자리
@@ -142,45 +149,136 @@ async function restoreStockForOrder(orderId) {
   }
 }
 
+// 결제 감사 로그 (실패해도 본 흐름은 막지 않음)
+async function logPayment({ orderId, eventType, paymentKey, amount, httpStatus, message, raw }) {
+  try {
+    await pool.query(
+      'INSERT INTO payment_logs (order_id, event_type, payment_key, amount, http_status, message, raw) VALUES (?, ?, ?, ?, ?, ?, ?)',
+      [orderId, eventType, paymentKey || null, amount ?? null, httpStatus ?? null, message?.slice(0, 1000) || null, raw ? JSON.stringify(raw).slice(0, 8000) : null]
+    );
+  } catch (e) {
+    console.error('[payment_logs] insert 실패:', e.message);
+  }
+}
+
+// 결제 완료 후처리 (purchases 기록, 카트 비우기, 쿠폰 카운트) — confirm/webhook 공용
+async function finalizePaidOrder(order) {
+  const [items] = await pool.query('SELECT product_id FROM order_items WHERE order_id = ?', [order.order_id]);
+  for (const it of items) {
+    if (it.product_id && order.user_id) {
+      await pool.query('INSERT IGNORE INTO purchases (user_id, product_id, note) VALUES (?, ?, ?)', [order.user_id, it.product_id, `주문 #${order.order_id}`]);
+    }
+  }
+  if (order.product_id === null && order.user_id) await cartService.clear(order.user_id);
+  if (order.coupon_code) await couponService.apply(order.coupon_code);
+}
+
 async function confirmPayment(userId, { orderId, paymentKey, amount }) {
-  if (!orderId || !paymentKey || !amount) return { error: '필수 결제 정보가 누락되었습니다.', status: 400 };
+  if (!orderId || !paymentKey || amount === undefined || amount === null) {
+    return { error: '필수 결제 정보가 누락되었습니다.', status: 400 };
+  }
+  const numAmount = Number(amount);
+  if (!Number.isInteger(numAmount) || numAmount <= 0) {
+    return { error: '잘못된 결제 금액입니다.', status: 400 };
+  }
+
   const [orders] = await pool.query('SELECT * FROM orders WHERE order_id = ? AND user_id = ?', [orderId, userId]);
   if (orders.length === 0) return { error: '주문을 찾을 수 없습니다.', status: 404 };
   const order = orders[0];
   if (order.status === 'paid') return { ok: true, alreadyPaid: true };
-  if (Number(order.amount) !== Number(amount)) return { error: '결제 금액이 일치하지 않습니다.', status: 400 };
+  if (order.status !== 'pending') return { error: '처리할 수 없는 주문 상태입니다.', status: 400 };
+  if (Number(order.amount) !== numAmount) {
+    await logPayment({ orderId, eventType: 'amount_mismatch', paymentKey, amount: numAmount, message: `expected=${order.amount}, got=${numAmount}` });
+    return { error: '결제 금액이 일치하지 않습니다.', status: 400 };
+  }
 
-  const auth = Buffer.from(TOSS_SECRET_KEY + ':').toString('base64');
+  // 동시성 락: payment_key 선점으로 단일 confirm만 통과 (status='pending' AND payment_key IS NULL)
+  const [lockRes] = await pool.query(
+    "UPDATE orders SET payment_key = ? WHERE order_id = ? AND user_id = ? AND status = 'pending' AND payment_key IS NULL",
+    [paymentKey, orderId, userId]
+  );
+  if (lockRes.affectedRows === 0) {
+    const [recheck] = await pool.query('SELECT status FROM orders WHERE order_id = ?', [orderId]);
+    if (recheck[0]?.status === 'paid') return { ok: true, alreadyPaid: true };
+    return { error: '이미 처리 중인 주문입니다.', status: 409 };
+  }
+
+  const auth = Buffer.from(TOSS_SECRET_KEY_EFFECTIVE + ':').toString('base64');
   let tossRes, tossData;
   try {
-    tossRes = await fetch(`${TOSS_API_BASE}/payments/confirm`, { method: 'POST', headers: { 'Authorization': `Basic ${auth}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ paymentKey, orderId, amount: Number(amount) }) });
+    tossRes = await fetch(`${TOSS_API_BASE}/payments/confirm`, { method: 'POST', headers: { 'Authorization': `Basic ${auth}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ paymentKey, orderId, amount: numAmount }) });
     tossData = await tossRes.json();
-  } catch {
+  } catch (e) {
     await pool.query('UPDATE orders SET status = ? WHERE order_id = ?', ['failed', orderId]);
     await restoreStockForOrder(orderId);
+    await logPayment({ orderId, eventType: 'confirm_network_fail', paymentKey, amount: numAmount, message: e.message });
     return { error: '결제 서버 통신 실패', status: 502 };
   }
 
   if (!tossRes.ok) {
     await pool.query('UPDATE orders SET status = ? WHERE order_id = ?', ['failed', orderId]);
     await restoreStockForOrder(orderId);
+    await logPayment({ orderId, eventType: 'confirm_fail', paymentKey, amount: numAmount, httpStatus: tossRes.status, message: tossData.message, raw: tossData });
     return { error: tossData.message || '결제 승인 실패', status: 400 };
   }
 
-  await pool.query('UPDATE orders SET status = ?, payment_key = ?, paid_at = CURRENT_TIMESTAMP WHERE order_id = ?', ['paid', paymentKey, orderId]);
+  await pool.query('UPDATE orders SET status = ?, paid_at = CURRENT_TIMESTAMP WHERE order_id = ?', ['paid', orderId]);
+  await finalizePaidOrder(order);
+  await logPayment({ orderId, eventType: 'confirm_success', paymentKey, amount: numAmount, httpStatus: tossRes.status, raw: tossData });
+  return { ok: true };
+}
 
-  // 결제 완료 후 처리
-  const [items] = await pool.query('SELECT product_id FROM order_items WHERE order_id = ?', [orderId]);
-  for (const it of items) {
-    if (it.product_id) {
-      await pool.query('INSERT IGNORE INTO purchases (user_id, product_id, note) VALUES (?, ?, ?)', [order.user_id, it.product_id, `주문 #${orderId}`]);
-    }
+// 토스 웹훅 처리 — 브라우저 redirect가 유실돼도 결제 상태 동기화 보장
+// 토스 PAYMENT_STATUS_CHANGED 이벤트 형식: { eventType, createdAt, data: { orderId, paymentKey, status, totalAmount, ... } }
+async function handleTossWebhook(payload) {
+  const data = payload?.data;
+  if (!data?.orderId || !data?.status) {
+    return { error: 'invalid payload', status: 400 };
   }
-  // 카트 주문이면 사용자의 카트 비우기
-  if (order.product_id === null) await cartService.clear(order.user_id);
-  // 쿠폰 사용 카운트 증가
-  if (order.coupon_code) await couponService.apply(order.coupon_code);
+  const { orderId, paymentKey, status: tossStatus, totalAmount } = data;
 
+  const [orders] = await pool.query('SELECT * FROM orders WHERE order_id = ?', [orderId]);
+  if (orders.length === 0) {
+    await logPayment({ orderId, eventType: 'webhook_unknown_order', paymentKey, raw: payload });
+    return { ok: true, ignored: true }; // 200 응답해서 토스가 재시도 안 하도록
+  }
+  const order = orders[0];
+
+  // DONE: 결제 승인 완료. confirm이 누락된 경우 여기서 paid 전환.
+  if (tossStatus === 'DONE') {
+    if (order.status === 'paid') {
+      await logPayment({ orderId, eventType: 'webhook_done_already_paid', paymentKey, raw: payload });
+      return { ok: true, alreadyPaid: true };
+    }
+    if (Number(order.amount) !== Number(totalAmount)) {
+      await logPayment({ orderId, eventType: 'webhook_amount_mismatch', paymentKey, amount: totalAmount, message: `expected=${order.amount}`, raw: payload });
+      return { error: 'amount mismatch', status: 400 };
+    }
+    // 원자적 전환
+    const [r] = await pool.query(
+      "UPDATE orders SET status = 'paid', payment_key = ?, paid_at = CURRENT_TIMESTAMP WHERE order_id = ? AND status IN ('pending','failed')",
+      [paymentKey, orderId]
+    );
+    if (r.affectedRows > 0) {
+      await finalizePaidOrder(order);
+      await logPayment({ orderId, eventType: 'webhook_done_recovered', paymentKey, amount: totalAmount, raw: payload });
+    } else {
+      await logPayment({ orderId, eventType: 'webhook_done_noop', paymentKey, raw: payload });
+    }
+    return { ok: true };
+  }
+
+  // ABORTED / EXPIRED / CANCELED: 결제 실패/취소
+  if (['ABORTED', 'EXPIRED', 'CANCELED', 'PARTIAL_CANCELED'].includes(tossStatus)) {
+    if (order.status === 'pending') {
+      await pool.query('UPDATE orders SET status = ? WHERE order_id = ?', ['failed', orderId]);
+      await restoreStockForOrder(orderId);
+    }
+    await logPayment({ orderId, eventType: `webhook_${tossStatus.toLowerCase()}`, paymentKey, raw: payload });
+    return { ok: true };
+  }
+
+  await logPayment({ orderId, eventType: 'webhook_other', paymentKey, message: tossStatus, raw: payload });
   return { ok: true };
 }
 
@@ -214,7 +312,7 @@ async function cancelOrder(id, reason) {
   if (order.status === 'cancelled') return { ok: true, alreadyCancelled: true };
   if (!order.payment_key) return { error: '결제 정보가 없는 주문입니다.', status: 400 };
 
-  const auth = Buffer.from(TOSS_SECRET_KEY + ':').toString('base64');
+  const auth = Buffer.from(TOSS_SECRET_KEY_EFFECTIVE + ':').toString('base64');
   let tossRes, tossData;
   try {
     tossRes = await fetch(`${TOSS_API_BASE}/payments/${order.payment_key}/cancel`, { method: 'POST', headers: { 'Authorization': `Basic ${auth}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ cancelReason: reason?.trim() || '관리자 취소' }) });
@@ -262,4 +360,4 @@ async function cleanupAbandonedOrders() {
   return orders.length;
 }
 
-module.exports = { createOrder, confirmPayment, listMine, listAll, updateStatus, cancelOrder, removeOrder, abandonOrder, cleanupAbandonedOrders };
+module.exports = { createOrder, confirmPayment, handleTossWebhook, listMine, listAll, updateStatus, cancelOrder, removeOrder, abandonOrder, cleanupAbandonedOrders };

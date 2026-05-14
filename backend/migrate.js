@@ -332,6 +332,23 @@ async function migrate() {
     )
   `);
 
+  // payment_logs — 결제 시도/성공/실패/웹훅 감사 로그
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS payment_logs (
+      id          INT AUTO_INCREMENT PRIMARY KEY,
+      order_id    VARCHAR(64)  NOT NULL,
+      event_type  VARCHAR(40)  NOT NULL,
+      payment_key VARCHAR(255) NULL,
+      amount      INT          NULL,
+      http_status INT          NULL,
+      message     TEXT         NULL,
+      raw         JSON         NULL,
+      created_at  TIMESTAMP    DEFAULT CURRENT_TIMESTAMP,
+      INDEX idx_payment_logs_order (order_id),
+      INDEX idx_payment_logs_event (event_type, created_at)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+  `);
+
   console.log('✓ DB 마이그레이션 완료');
 }
 

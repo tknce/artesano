@@ -28,6 +28,7 @@ const wishlistRouter     = require('./routes/wishlist');
 const reviewsRouter      = require('./routes/reviews');
 const purchasesRouter    = require('./routes/purchases');
 const ordersRouter       = require('./routes/orders');
+const webhooksRouter     = require('./routes/webhooks');
 const contentRouter      = require('./routes/content');
 const authRouter         = require('./routes/auth');
 const userRouter         = require('./routes/user');
@@ -374,6 +375,7 @@ app.use('/api/coupons', couponsRouter);
 app.use('/reviews', reviewsRouter);
 app.use('/purchases', purchasesRouter);
 app.use('/api/orders', ordersRouter);
+app.use('/api/webhooks', webhooksRouter);
 app.use('/api/content', contentRouter);
 app.use('/api/admin/users', requireAdmin, adminUsersRouter);
 

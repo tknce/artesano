@@ -1,9 +1,19 @@
 const express = require('express');
+const rateLimit = require('express-rate-limit');
 const router = express.Router();
 const { requireUser, requireAdmin } = require('../middleware/auth');
 const orderService = require('../services/order.service');
 
 const asyncHandler = fn => (req, res, next) => Promise.resolve(fn(req, res, next)).catch(next);
+
+// 결제 confirm 무차별 호출 방지 (사용자/IP별 1분 10회)
+const confirmLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 10,
+  message: { error: '결제 요청이 너무 많습니다. 잠시 후 다시 시도해주세요.' },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
 
 router.post('/', requireUser, asyncHandler(async (req, res) => {
   const result = await orderService.createOrder(req.session.userId, req.body || {});
@@ -11,7 +21,7 @@ router.post('/', requireUser, asyncHandler(async (req, res) => {
   res.json(result);
 }));
 
-router.post('/confirm', requireUser, asyncHandler(async (req, res) => {
+router.post('/confirm', confirmLimiter, requireUser, asyncHandler(async (req, res) => {
   const result = await orderService.confirmPayment(req.session.userId, req.body || {});
   if (result.error) return res.status(result.status).json({ error: result.error });
   res.json(result);
