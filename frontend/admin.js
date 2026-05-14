@@ -1058,11 +1058,10 @@ reviewTableBody.addEventListener('click', async (e) => {
 
 
 /* ============================================================
-   사이트 콘텐츠 (소재정보 / 케어가이드 / 교환환불)
+   사이트 콘텐츠 (소재정보 / 교환환불)
    ============================================================ */
 const CONTENT_FIELD_MAP = {
   material_info: 'contentMaterial',
-  care_guide:    'contentCare',
   refund_policy: 'contentRefund',
 };
 

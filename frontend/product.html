@@ -540,7 +540,6 @@
     <div class="detail-tabs">
       <button class="detail-tab active" data-tab="desc">상품 설명</button>
       <button class="detail-tab" data-tab="material">소재 정보</button>
-      <button class="detail-tab" data-tab="care">케어 가이드</button>
       <button class="detail-tab" data-tab="refund">교환·환불</button>
       <button class="detail-tab" data-tab="reviews" id="tabBtnReviews">후기</button>
     </div>
@@ -551,9 +550,6 @@
       </div>
       <div class="detail-tab-panel" id="tabMaterial" hidden>
         <div class="tab-desc-content" id="tabMaterialBody"></div>
-      </div>
-      <div class="detail-tab-panel" id="tabCare" hidden>
-        <div class="tab-desc-content" id="tabCareBody"></div>
       </div>
       <div class="detail-tab-panel" id="tabRefund" hidden>
         <div class="tab-desc-content" id="tabRefundBody"></div>
@@ -954,7 +950,7 @@
 
         tabsSection.hidden = false;
 
-        // 사이트 공통 콘텐츠 (케어가이드 / 교환환불) + 소재정보(상품별 우선)
+        // 사이트 공통 콘텐츠 (교환환불) + 소재정보(상품별 우선)
         fetch('/api/content').then(r => r.json()).then(c => {
           const setText = (id, txt) => {
             const el = document.getElementById(id);
@@ -962,7 +958,6 @@
           };
           // 소재 정보: 상품별 입력값이 있으면 우선, 없으면 공통
           setText('tabMaterialBody', p.material_info?.trim() || c.material_info);
-          setText('tabCareBody',     c.care_guide);
           setText('tabRefundBody',   c.refund_policy);
         }).catch(() => {});
 
