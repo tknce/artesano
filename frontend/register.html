@@ -45,6 +45,10 @@
           <span><strong>(필수)</strong> 만 14세 이상입니다</span>
         </label>
         <label class="consent-row">
+          <input type="checkbox" id="agreeTerms" required />
+          <span><strong>(필수)</strong> <a href="/terms" target="_blank" rel="noopener">이용약관</a>에 동의합니다</span>
+        </label>
+        <label class="consent-row">
           <input type="checkbox" id="agreePrivacy" required />
           <span><strong>(필수)</strong> <a href="/privacy" target="_blank" rel="noopener">개인정보 수집·이용</a>에 동의합니다</span>
         </label>
@@ -85,7 +89,7 @@
         btn.textContent = '가입하기';
         return;
       }
-      if (!document.getElementById('agreeAge').checked || !document.getElementById('agreePrivacy').checked) {
+      if (!document.getElementById('agreeAge').checked || !document.getElementById('agreeTerms').checked || !document.getElementById('agreePrivacy').checked) {
         errEl.textContent = '필수 동의 항목을 모두 체크해주세요.';
         errEl.hidden = false;
         btn.disabled = false;

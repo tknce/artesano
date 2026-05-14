@@ -156,7 +156,7 @@ ul  { list-style: none; }
   font-family: var(--font-sans);
   font-size: 28px;
   font-weight: 700;
-  letter-spacing: 5px;
+  letter-spacing: 1px;
   color: var(--color-black);
   transition: color 0.4s ease;
   justify-self: center;
@@ -1146,7 +1146,7 @@ ul  { list-style: none; }
 .footer-logo {
   font-family: var(--font-serif);
   font-size: 28px;
-  letter-spacing: 4px;
+  letter-spacing: 1px;
   margin-bottom: 16px;
   color: var(--color-gold);
   font-weight: 600;
@@ -1255,7 +1255,7 @@ ul  { list-style: none; }
   /* 네비 — 모바일에서 좌우 padding 살짝 줄임 */
   .nav-inner { padding: 0 16px; }
   .nav-right { gap: 16px; }
-  .logo { font-size: 22px; letter-spacing: 4px; }
+  .logo { font-size: 22px; letter-spacing: 1px; }
 
   /* 히어로 */
   .hero {
@@ -1385,7 +1385,7 @@ ul  { list-style: none; }
   }
   .logo {
     font-size: 20px;
-    letter-spacing: 3px;
+    letter-spacing: 1px;
   }
 }
 

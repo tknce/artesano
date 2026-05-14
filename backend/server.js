@@ -265,7 +265,7 @@ function renderPage(file) {
 // SEO — sitemap.xml (정적 페이지 + DB 상품)
 // -----------------------------------------------
 const SITE_URL = process.env.SITE_URL || 'https://www.crocini.co.kr';
-const STATIC_PATHS = ['/', '/shop', '/story', '/contact', '/custom-order', '/privacy'];
+const STATIC_PATHS = ['/', '/shop', '/story', '/contact', '/custom-order', '/privacy', '/terms'];
 
 app.get('/sitemap.xml', async (req, res) => {
   const today = new Date().toISOString().split('T')[0];
@@ -312,6 +312,7 @@ app.get('/checkout.html',         redirectTo('/checkout'));
 app.get('/payment-success.html',  redirectTo('/payment-success'));
 app.get('/payment-fail.html',     redirectTo('/payment-fail'));
 app.get('/privacy.html',          redirectTo('/privacy'));
+app.get('/terms.html',            redirectTo('/terms'));
 
 // 사라진 카테고리 페이지 — /shop으로 301 (외부 색인 보존)
 ['/crocodile', '/ostrich', '/python', '/crocodile.html', '/ostrich.html', '/python.html']
@@ -336,6 +337,7 @@ const PAGES = {
   '/payment-success':  'payment-success.html',
   '/payment-fail':     'payment-fail.html',
   '/privacy':          'privacy.html',
+  '/terms':            'terms.html',
 };
 Object.entries(PAGES).forEach(([url, file]) => {
   app.get(url, renderPage(file));

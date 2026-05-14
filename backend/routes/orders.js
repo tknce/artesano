@@ -39,6 +39,13 @@ router.get('/mine', requireUser, asyncHandler(async (req, res) => {
   res.json(await orderService.listMine(req.session.userId));
 }));
 
+// 사용자 본인 주문의 배송정보 수정 (출고 전까지)
+router.put('/mine/:orderId/shipping', requireUser, asyncHandler(async (req, res) => {
+  const result = await orderService.updateShippingInfo(req.session.userId, req.params.orderId, req.body || {});
+  if (result.error) return res.status(result.status).json({ error: result.error });
+  res.json(result);
+}));
+
 router.get('/', requireAdmin, asyncHandler(async (req, res) => {
   res.json(await orderService.listAll());
 }));

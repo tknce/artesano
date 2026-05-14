@@ -283,7 +283,7 @@ async function handleTossWebhook(payload) {
 }
 
 async function listMine(userId) {
-  const [rows] = await pool.query('SELECT id, order_id, product_id, product_name, product_image_url, amount, coupon_code, discount_amount, status, tracking_number, shipping_carrier, created_at, paid_at FROM orders WHERE user_id = ? ORDER BY created_at DESC', [userId]);
+  const [rows] = await pool.query('SELECT id, order_id, product_id, product_name, product_image_url, amount, coupon_code, discount_amount, status, tracking_number, shipping_carrier, customer_name, customer_phone, shipping_postal, shipping_address1, shipping_address2, shipping_request, created_at, paid_at FROM orders WHERE user_id = ? ORDER BY created_at DESC', [userId]);
   return rows;
 }
 
@@ -348,6 +348,29 @@ async function abandonOrder(userId, orderId) {
   return { ok: true };
 }
 
+// 사용자가 본인 주문의 배송지/연락처를 출고 전(paid/preparing)까지 수정 가능
+async function updateShippingInfo(userId, orderId, body) {
+  const { customerName, customerPhone, shippingPostal, shippingAddress1, shippingAddress2, shippingRequest } = body || {};
+  const err = validateCustomer({
+    customerName, customerPhone,
+    customerEmail: 'noop@noop.noop', // 이메일은 변경 대상 아님 — 검증 통과용
+    shippingAddress1,
+  });
+  if (err) return { error: err, status: 400 };
+
+  const [orders] = await pool.query('SELECT status FROM orders WHERE order_id = ? AND user_id = ?', [orderId, userId]);
+  if (orders.length === 0) return { error: '주문을 찾을 수 없습니다.', status: 404 };
+  if (!['paid', 'preparing'].includes(orders[0].status)) {
+    return { error: '출고 준비 단계까지만 배송 정보를 수정할 수 있습니다.', status: 400 };
+  }
+
+  await pool.query(
+    `UPDATE orders SET customer_name = ?, customer_phone = ?, shipping_postal = ?, shipping_address1 = ?, shipping_address2 = ?, shipping_request = ? WHERE order_id = ? AND user_id = ?`,
+    [customerName.trim(), customerPhone.trim(), shippingPostal?.trim() || null, shippingAddress1.trim(), shippingAddress2?.trim() || null, shippingRequest?.trim() || null, orderId, userId]
+  );
+  return { ok: true };
+}
+
 async function cleanupAbandonedOrders() {
   const [orders] = await pool.query(
     "SELECT order_id FROM orders WHERE status = 'pending' AND created_at < (NOW() - INTERVAL 30 MINUTE)"
@@ -360,4 +383,4 @@ async function cleanupAbandonedOrders() {
   return orders.length;
 }
 
-module.exports = { createOrder, confirmPayment, handleTossWebhook, listMine, listAll, updateStatus, cancelOrder, removeOrder, abandonOrder, cleanupAbandonedOrders };
+module.exports = { createOrder, confirmPayment, handleTossWebhook, listMine, listAll, updateStatus, updateShippingInfo, cancelOrder, removeOrder, abandonOrder, cleanupAbandonedOrders };
