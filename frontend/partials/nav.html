@@ -27,6 +27,26 @@
   </div>
 </header>
 <div class="nav-overlay" id="navOverlay" aria-hidden="true"></div>
+
+<!-- 주문 안내 모달 (결제 시스템 준비 중) -->
+<div id="orderInquiryModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:99999;align-items:center;justify-content:center;padding:20px;">
+  <div style="background:#fff;width:100%;max-width:440px;padding:36px 30px;border-radius:4px;text-align:center;">
+    <h3 style="margin:0 0 12px;font-size:22px;font-weight:600;letter-spacing:1px;">주문 안내</h3>
+    <p style="margin:0 0 24px;font-size:14px;color:#666;line-height:1.7;">현재 결제 시스템 준비 중입니다.<br/>아래 채널로 주문 문의 부탁드립니다.</p>
+    <div style="display:flex;flex-direction:column;gap:10px;text-align:left;border-top:1px solid #eee;padding-top:20px;">
+      <a href="https://instagram.com/crocini_official_kr" target="_blank" rel="noopener" style="display:flex;align-items:center;gap:12px;padding:12px 14px;border:1px solid #eee;color:#222;text-decoration:none;font-size:14px;">
+        <span style="font-size:18px;">📷</span><span>인스타그램 DM <strong>@crocini_official_kr</strong></span>
+      </a>
+      <a href="tel:070-8875-0028" style="display:flex;align-items:center;gap:12px;padding:12px 14px;border:1px solid #eee;color:#222;text-decoration:none;font-size:14px;">
+        <span style="font-size:18px;">📞</span><span>전화 <strong>070-8875-0028</strong></span>
+      </a>
+      <a href="mailto:qkrrbxor123@gmail.com" style="display:flex;align-items:center;gap:12px;padding:12px 14px;border:1px solid #eee;color:#222;text-decoration:none;font-size:14px;">
+        <span style="font-size:18px;">✉️</span><span>이메일 <strong>qkrrbxor123@gmail.com</strong></span>
+      </a>
+    </div>
+    <button type="button" id="orderInquiryCloseBtn" style="margin-top:24px;padding:10px 30px;background:#222;color:#fff;border:none;cursor:pointer;font-size:13px;letter-spacing:1px;">닫기</button>
+  </div>
+</div>
 <script>
 (() => {
   const navbar    = document.getElementById('navbar');
@@ -72,6 +92,16 @@
   window.addEventListener('scroll', () => {
     navbar.classList.toggle('scrolled', window.scrollY > 50);
   }, { passive: true });
+
+  // 주문 안내 모달 헬퍼 (결제 비활성 상태에서 사용)
+  window.showOrderInquiryModal = () => {
+    const m = document.getElementById('orderInquiryModal');
+    if (m) m.style.display = 'flex';
+  };
+  const inquiryClose = document.getElementById('orderInquiryCloseBtn');
+  if (inquiryClose) inquiryClose.addEventListener('click', () => {
+    document.getElementById('orderInquiryModal').style.display = 'none';
+  });
 
   // 로그인 상태 표시 (마이페이지 또는 로그인) — nav-right에 삽입
   fetch('/api/auth/me').then(async r => {

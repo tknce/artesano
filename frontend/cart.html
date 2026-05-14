@@ -83,8 +83,12 @@
             <span>총 금액</span>
             <strong>${fmt(total)}</strong>
           </div>
-          <a href="/checkout?from=cart" class="cart-checkout-btn">결제하기</a>
+          <button type="button" class="cart-checkout-btn" id="cartInquiryBtn">주문 문의하기</button>
         </div>`;
+
+      // 주문 문의 (결제 시스템 준비 중)
+      const inquiryBtn = document.getElementById('cartInquiryBtn');
+      if (inquiryBtn) inquiryBtn.addEventListener('click', () => window.showOrderInquiryModal && window.showOrderInquiryModal());
 
       // 수량 변경
       wrap.addEventListener('click', async (e) => {

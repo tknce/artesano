@@ -759,9 +759,13 @@
           ctaEl.innerHTML = `<button class="btn-detail-primary" disabled style="opacity:0.5;cursor:not-allowed;">품절</button>`;
         } else {
           ctaEl.innerHTML = `
-            <a href="/checkout?id=${p.id}" class="btn-detail-primary">구매하기</a>
+            <button type="button" class="btn-detail-primary btn-order-inquiry">주문 문의하기</button>
             <button class="btn-detail-secondary btn-add-cart" data-id="${p.id}">장바구니 담기</button>`;
         }
+
+        // 주문 문의 버튼 (결제 시스템 준비 중)
+        const inquiryBtn = ctaEl.querySelector('.btn-order-inquiry');
+        if (inquiryBtn) inquiryBtn.addEventListener('click', () => window.showOrderInquiryModal && window.showOrderInquiryModal());
 
         // 장바구니 담기 버튼 이벤트
         const cartBtn = ctaEl.querySelector('.btn-add-cart');

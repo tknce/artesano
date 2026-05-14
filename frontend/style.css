@@ -2704,13 +2704,16 @@ body.shop-page {
   font-size: 0.8rem;
   color: var(--color-muted);
 }
-.wishlist-empty {
+.wishlist-empty,
+.wishlist-grid > .empty-state {
   text-align: center;
+  grid-column: 1 / -1;
+}
+.wishlist-empty {
   padding: 40px 0;
   color: var(--color-muted);
   font-size: 0.85rem;
   letter-spacing: 0.06em;
-  grid-column: 1 / -1;
 }
 
 @media (max-width: 768px) {

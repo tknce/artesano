@@ -15,13 +15,19 @@ const confirmLimiter = rateLimit({
   legacyHeaders: false,
 });
 
-router.post('/', requireUser, asyncHandler(async (req, res) => {
+// 결제 활성화 게이트 — 토스 가맹점 계약 후 PAYMENT_ENABLED=true 환경변수로 활성화
+function paymentGate(req, res, next) {
+  if (process.env.PAYMENT_ENABLED === 'true') return next();
+  return res.status(503).json({ error: '현재 온라인 결제가 준비 중입니다. 인스타그램 DM, 전화, 이메일로 주문 문의 부탁드립니다.' });
+}
+
+router.post('/', paymentGate, requireUser, asyncHandler(async (req, res) => {
   const result = await orderService.createOrder(req.session.userId, req.body || {});
   if (result.error) return res.status(result.status).json({ error: result.error });
   res.json(result);
 }));
 
-router.post('/confirm', confirmLimiter, requireUser, asyncHandler(async (req, res) => {
+router.post('/confirm', paymentGate, confirmLimiter, requireUser, asyncHandler(async (req, res) => {
   const result = await orderService.confirmPayment(req.session.userId, req.body || {});
   if (result.error) return res.status(result.status).json({ error: result.error });
   res.json(result);
