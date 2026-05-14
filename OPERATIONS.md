@@ -53,7 +53,7 @@
 ## 3. 문의 / 주문제작 신청 확인
 
 ### 자동 알림 (이메일)
-- 사이트에서 문의·주문제작이 들어오면 **즉시 `qkrrbxor123@gmail.com` 으로 자동 발송**
+- 사이트에서 문의·주문제작이 들어오면 **즉시 `crocini88@gmail.com` 으로 자동 발송**
 - 메일 제목: `[CROCINI] 새 문의 — {이름}` 또는 `[CROCINI] 새 주문제작 — {이름}`
 
 ### 관리자 페이지에서 확인
@@ -67,7 +67,7 @@
 
 ### 자동 백업
 - **매일 새벽 3시 (KST)** 에 DB 전체가 SQL 파일로 압축돼 메일로 발송됨
-- 받는 메일: `qkrrbxor123@gmail.com`
+- 받는 메일: `crocini88@gmail.com`
 - 메일 제목: `[CROCINI] DB 백업 — YYYY-MM-DD`
 - 첨부 파일: `crocini-YYYY-MM-DD.sql.gz`
 
@@ -90,7 +90,7 @@ Railway 대시보드 → 프로젝트 → `Variables` 탭에서 변경:
 
 | 환경변수 | 용도 |
 |---|---|
-| `GMAIL_USER` | 이메일 발송 계정 (현재 qkrrbxor123@gmail.com) |
+| `GMAIL_USER` | 이메일 발송 계정 (현재 crocini88@gmail.com) |
 | `GMAIL_APP_PASSWORD` | Gmail 앱 비밀번호 (16자리) |
 | `NOTIFY_TO` | 알림 받을 메일 (생략 시 GMAIL_USER로 발송) |
 | `ADMIN_USER` / `ADMIN_PASSWORD` | 관리자 로그인 계정 |
