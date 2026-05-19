@@ -241,6 +241,10 @@ app.get('/api/admin/check', (req, res) => {
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 const FRONTEND_DIR = process.env.FRONTEND_DIR || path.join(__dirname, '..', 'frontend');
 
+// 브라우저가 link 태그를 무시하고 자동 요청하는 /favicon.ico는 빈 204로 응답
+// (catch-all로 404.html(HTML)이 내려가는 것 방지)
+app.get('/favicon.ico', (req, res) => res.status(204).end());
+
 // -----------------------------------------------
 // 페이지 렌더 — partials/nav.html, partials/footer.html 토큰 치환
 // 시작 시 partials와 페이지를 메모리에 캐시. 페이지 변경 시 서버 재시작 필요.
